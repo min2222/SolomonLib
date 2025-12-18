@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"layer0": "solomonlib:item/gravity_changer_north_aoe"
+	}
+}

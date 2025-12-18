@@ -5,11 +5,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import com.min01.gravityapi.init.GravityMobEffects;
-import com.min01.gravityapi.item.GravityAnchorItem;
 import com.min01.gravityapi.mixin.EntityAccessor;
-import com.min01.gravityapi.mob_effect.GravityDirectionMobEffect;
 import com.min01.solomonlib.config.SolomonConfig;
+import com.min01.solomonlib.effect.GravityDirectionMobEffect;
+import com.min01.solomonlib.effect.SolomonMobEffects;
+import com.min01.solomonlib.item.GravityAnchorItem;
 import com.min01.solomonlib.network.SolomonNetwork;
 import com.min01.solomonlib.network.UpdateGravityCapabilityPacket;
 import com.min01.solomonlib.network.UpdateGravitySyncStatePacket;
@@ -241,16 +241,16 @@ public class GravityCapabilityImpl implements IGravityCapability
                 }
                 if(this.entity instanceof LivingEntity living) 
                 {
-                    if(living.hasEffect(GravityMobEffects.INVERT.get())) 
+                    if(living.hasEffect(SolomonMobEffects.INVERT.get())) 
                     {
                         this.applyGravityDirectionEffect(this.getCurrGravityDirection().getOpposite(), null, 5);
                     }
                 }
                 if(this.entity instanceof LivingEntity living)
                 {
-                	GravityMobEffects.INCREASE.get().apply(living, this);
-                    GravityMobEffects.DECREASE.get().apply(living, this);
-                    GravityMobEffects.REVERSE.get().apply(living, this);
+                	SolomonMobEffects.INCREASE.get().apply(living, this);
+                    SolomonMobEffects.DECREASE.get().apply(living, this);
+                    SolomonMobEffects.REVERSE.get().apply(living, this);
                 }
                 if(this.delayApplyDirEffect != null) 
                 {
