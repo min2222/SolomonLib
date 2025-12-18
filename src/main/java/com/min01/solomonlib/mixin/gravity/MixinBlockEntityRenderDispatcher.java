@@ -6,8 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.min01.beyondtheabyss.util.MirroredCityUtil;
-import com.min01.gravityapi.util.RotationUtil;
+import com.min01.solomonlib.gravity.RotationUtil;
 import com.min01.solomonlib.util.SolomonUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.min01.gravityapi.api.GravityBlockPos;
+import com.min01.solomonlib.gravity.GravityBlockPos;
 import com.min01.solomonlib.util.SolomonUtil;
 
 import net.minecraft.core.BlockPos;

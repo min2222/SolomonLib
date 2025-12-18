@@ -2,9 +2,11 @@
 	"required": true,
 	"minVersion": "0.8",
 	"package": "com.min01.solomonlib.mixin",
+	"plugin": "com.min01.solomonlib.SolomonMixinPlugin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
 		"MixinEntity",
+		"compat.ACEntityMixin",
 		"gravity.MixinBlockStateBase",
 		"gravity.MixinBlockPlaceContext"
 	],

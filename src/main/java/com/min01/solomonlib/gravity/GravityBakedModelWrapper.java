@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
-import com.min01.gravityapi.util.RotationUtil;
 import com.min01.solomonlib.util.SolomonClientUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 
