@@ -5,11 +5,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import com.min01.gravityapi.mixin.EntityAccessor;
 import com.min01.solomonlib.config.SolomonConfig;
 import com.min01.solomonlib.effect.GravityDirectionMobEffect;
 import com.min01.solomonlib.effect.SolomonMobEffects;
 import com.min01.solomonlib.item.GravityAnchorItem;
+import com.min01.solomonlib.mixin.gravity.EntityAccessor;
 import com.min01.solomonlib.network.SolomonNetwork;
 import com.min01.solomonlib.network.UpdateGravityCapabilityPacket;
 import com.min01.solomonlib.network.UpdateGravitySyncStatePacket;
