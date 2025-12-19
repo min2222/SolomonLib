@@ -22,6 +22,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -112,9 +113,10 @@ public abstract class MixinEntity implements IDynamicLight
 		{
 			for(InteractionHand hand : InteractionHand.values())
 			{
-				if(living.getItemInHand(hand).getItem() instanceof IDynamicLightItem lightItem)
+				ItemStack stack = living.getItemInHand(hand);
+				if(stack.getItem() instanceof IDynamicLightItem lightItem)
 				{
-					return lightItem.getDynamicLightPos();
+					return lightItem.getDynamicLightPos(entity, stack);
 				}
 			}
 		}
@@ -146,9 +148,10 @@ public abstract class MixinEntity implements IDynamicLight
 		{
 			for(InteractionHand hand : InteractionHand.values())
 			{
-				if(living.getItemInHand(hand).getItem() instanceof IDynamicLightItem lightItem)
+				ItemStack stack = living.getItemInHand(hand);
+				if(stack.getItem() instanceof IDynamicLightItem lightItem)
 				{
-					return lightItem.shouldUpdateDynamicLight();
+					return lightItem.shouldUpdateDynamicLight(entity, stack);
 				}
 			}
 		}
