@@ -22,6 +22,24 @@ public class RotationUtil
     
     static 
     {
+        WORLD_ROTATION_QUATERNIONS[0] = new Quaternionf();
+        
+        WORLD_ROTATION_QUATERNIONS[1] = Axis.ZP.rotationDegrees(-180);
+        
+        WORLD_ROTATION_QUATERNIONS[2] = Axis.XP.rotationDegrees(-90);
+        
+        WORLD_ROTATION_QUATERNIONS[3] = Axis.XP.rotationDegrees(-90);
+        WORLD_ROTATION_QUATERNIONS[3].mul(Axis.YP.rotationDegrees(-180));
+        
+        WORLD_ROTATION_QUATERNIONS[4] = Axis.XP.rotationDegrees(-90);
+        WORLD_ROTATION_QUATERNIONS[4].mul(Axis.YP.rotationDegrees(-90));
+        
+        WORLD_ROTATION_QUATERNIONS[5] = Axis.XP.rotationDegrees(-90);
+        WORLD_ROTATION_QUATERNIONS[5].mul(Axis.YP.rotationDegrees(-270));
+    }
+    
+    static 
+    {
         for(Direction gravityDirection : Direction.values())
         {
             DIR_WORLD_TO_PLAYER[gravityDirection.get3DDataValue()] = new Direction[6];
@@ -54,24 +72,6 @@ public class RotationUtil
         {
             ENTITY_ROTATION_QUATERNIONS[i] = new Quaternionf().set(WORLD_ROTATION_QUATERNIONS[i]).conjugate();
         }
-    }
-    
-    static 
-    {
-        WORLD_ROTATION_QUATERNIONS[0] = new Quaternionf();
-        
-        WORLD_ROTATION_QUATERNIONS[1] = Axis.ZP.rotationDegrees(-180);
-        
-        WORLD_ROTATION_QUATERNIONS[2] = Axis.XP.rotationDegrees(-90);
-        
-        WORLD_ROTATION_QUATERNIONS[3] = Axis.XP.rotationDegrees(-90);
-        WORLD_ROTATION_QUATERNIONS[3].mul(Axis.YP.rotationDegrees(-180));
-        
-        WORLD_ROTATION_QUATERNIONS[4] = Axis.XP.rotationDegrees(-90);
-        WORLD_ROTATION_QUATERNIONS[4].mul(Axis.YP.rotationDegrees(-90));
-        
-        WORLD_ROTATION_QUATERNIONS[5] = Axis.XP.rotationDegrees(-90);
-        WORLD_ROTATION_QUATERNIONS[5].mul(Axis.YP.rotationDegrees(-270));
     }
     
     public static Direction dirWorldToPlayer(Direction direction, Direction gravityDirection) 

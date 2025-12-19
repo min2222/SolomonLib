@@ -8,6 +8,15 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+/*
+ * Copyright © 2020 LambdAurora <email@lambdaurora.dev>
+ *
+ * This file is part of SodiumDynamicLights.
+ *
+ * Licensed under the MIT License. For more information,
+ * see the LICENSE file.
+ */
+
 //https://github.com/txnimc/SodiumDynamicLights/blob/main/src/main/java/toni/sodiumdynamiclights/DynamicLightSource.java
 public interface IDynamicLight 
 {
