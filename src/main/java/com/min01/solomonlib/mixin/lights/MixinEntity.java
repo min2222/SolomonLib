@@ -36,18 +36,6 @@ public abstract class MixinEntity implements IDynamicLight
 	protected int luminance = 0;
 	
 	@Unique
-	private int lastLuminance = 0;
-	
-	@Unique
-	private double prevX;
-	
-	@Unique
-	private double prevY;
-	
-	@Unique
-	private double prevZ;
-	
-	@Unique
 	private LongOpenHashSet trackedLitChunkPos = new LongOpenHashSet();
 
 	@Inject(method = "tick", at = @At("TAIL"))
@@ -132,7 +120,6 @@ public abstract class MixinEntity implements IDynamicLight
 	@Override
 	public void resetDynamicLight() 
 	{
-		this.lastLuminance = 0;
 		this.luminance = 0;
 	}
 
@@ -183,62 +170,47 @@ public abstract class MixinEntity implements IDynamicLight
 		{
 			return false;
 		}
-		double deltaX = Entity.class.cast(this).getX() - this.prevX;
-		double deltaY = Entity.class.cast(this).getY() - this.prevY;
-		double deltaZ = Entity.class.cast(this).getZ() - this.prevZ;
-
-		int luminance = this.getLuminance();
-
-		if(Math.abs(deltaX) > 0.1D || Math.abs(deltaY) > 0.1D || Math.abs(deltaZ) > 0.1D || luminance != this.lastLuminance) 
+		
+		LongOpenHashSet newPos = new LongOpenHashSet();
+		if(this.getLuminance() > 0) 
 		{
-			this.prevX = Entity.class.cast(this).getX();
-			this.prevY = Entity.class.cast(this).getY();
-			this.prevZ = Entity.class.cast(this).getZ();
-			this.lastLuminance = luminance;
+			ChunkPos entityChunkPos = Entity.class.cast(this).chunkPosition();
+			BlockPos.MutableBlockPos chunkPos = new BlockPos.MutableBlockPos(entityChunkPos.x, SectionPos.blockToSectionCoord(Entity.class.cast(this).getEyeY()), entityChunkPos.z);
 
-			LongOpenHashSet newPos = new LongOpenHashSet();
+			DynamicLights.scheduleChunkRebuild(renderer, chunkPos);
+			DynamicLights.updateTrackedChunks(chunkPos, this.trackedLitChunkPos, newPos);
 
-			if(luminance > 0) 
+			Direction directionX = (Entity.class.cast(this).getOnPos().getX() & 15) >= 8 ? Direction.EAST : Direction.WEST;
+			Direction directionY = ((int) Mth.floor(Entity.class.cast(this).getEyeY()) & 15) >= 8 ? Direction.UP : Direction.DOWN;
+			Direction directionZ = (Entity.class.cast(this).getOnPos().getZ() & 15) >= 8 ? Direction.SOUTH : Direction.NORTH;
+
+			for(int i = 0; i < 7; i++) 
 			{
-				ChunkPos entityChunkPos = Entity.class.cast(this).chunkPosition();
-				BlockPos.MutableBlockPos chunkPos = new BlockPos.MutableBlockPos(entityChunkPos.x, SectionPos.blockToSectionCoord(Entity.class.cast(this).getEyeY()), entityChunkPos.z);
-
+				if(i % 4 == 0) 
+				{
+					chunkPos.move(directionX);
+				} 
+				else if(i % 4 == 1) 
+				{
+					chunkPos.move(directionZ);
+				}
+				else if(i % 4 == 2) 
+				{
+					chunkPos.move(directionX.getOpposite());
+				} 
+				else 
+				{
+					chunkPos.move(directionZ.getOpposite());
+					chunkPos.move(directionY);
+				}
 				DynamicLights.scheduleChunkRebuild(renderer, chunkPos);
 				DynamicLights.updateTrackedChunks(chunkPos, this.trackedLitChunkPos, newPos);
-
-				Direction directionX = (Entity.class.cast(this).getOnPos().getX() & 15) >= 8 ? Direction.EAST : Direction.WEST;
-				Direction directionY = ((int) Mth.floor(Entity.class.cast(this).getEyeY()) & 15) >= 8 ? Direction.UP : Direction.DOWN;
-				Direction directionZ = (Entity.class.cast(this).getOnPos().getZ() & 15) >= 8 ? Direction.SOUTH : Direction.NORTH;
-
-				for(int i = 0; i < 7; i++) 
-				{
-					if(i % 4 == 0) 
-					{
-						chunkPos.move(directionX);
-					} 
-					else if(i % 4 == 1) 
-					{
-						chunkPos.move(directionZ);
-					}
-					else if(i % 4 == 2) 
-					{
-						chunkPos.move(directionX.getOpposite());
-					} 
-					else 
-					{
-						chunkPos.move(directionZ.getOpposite());
-						chunkPos.move(directionY);
-					}
-					DynamicLights.scheduleChunkRebuild(renderer, chunkPos);
-					DynamicLights.updateTrackedChunks(chunkPos, this.trackedLitChunkPos, newPos);
-				}
 			}
-
-			this.scheduleTrackedChunksRebuild(renderer);
-			this.trackedLitChunkPos = newPos;
-			return true;
 		}
-		return false;
+
+		this.scheduleTrackedChunksRebuild(renderer);
+		this.trackedLitChunkPos = newPos;
+		return true;
 	}
 
 	@Override
