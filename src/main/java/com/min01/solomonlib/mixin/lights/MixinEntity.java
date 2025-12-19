@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.min01.solomonlib.lights.DynamicLights;
 import com.min01.solomonlib.lights.IDynamicLight;
 import com.min01.solomonlib.misc.IDynamicLightEntity;
+import com.min01.solomonlib.misc.IDynamicLightItem;
 import com.min01.solomonlib.util.SolomonClientUtil;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -18,7 +19,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -100,9 +103,20 @@ public abstract class MixinEntity implements IDynamicLight
 	@Unique
 	public Vec3 getDynamicLightPos()
 	{
-		if(Entity.class.cast(this) instanceof IDynamicLightEntity entity)
+		Entity entity = Entity.class.cast(this);
+		if(entity instanceof IDynamicLightEntity lightEntity)
 		{
-			return entity.getDynamicLightPos();
+			return lightEntity.getDynamicLightPos();
+		}
+		if(entity instanceof LivingEntity living)
+		{
+			for(InteractionHand hand : InteractionHand.values())
+			{
+				if(living.getItemInHand(hand).getItem() instanceof IDynamicLightItem lightItem)
+				{
+					return lightItem.getDynamicLightPos();
+				}
+			}
 		}
 		return Vec3.ZERO;
 	}
@@ -123,9 +137,20 @@ public abstract class MixinEntity implements IDynamicLight
 	@Override
 	public boolean shouldUpdateDynamicLight()
 	{
-		if(Entity.class.cast(this) instanceof IDynamicLightEntity entity)
+		Entity entity = Entity.class.cast(this);
+		if(entity instanceof IDynamicLightEntity lightEntity)
 		{
-			return entity.shouldUpdateDynamicLight();
+			return lightEntity.shouldUpdateDynamicLight();
+		}
+		if(entity instanceof LivingEntity living)
+		{
+			for(InteractionHand hand : InteractionHand.values())
+			{
+				if(living.getItemInHand(hand).getItem() instanceof IDynamicLightItem lightItem)
+				{
+					return lightItem.shouldUpdateDynamicLight();
+				}
+			}
 		}
 		return false;
 	}

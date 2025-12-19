@@ -7,6 +7,9 @@
 	"mixins": [
 		"lights.MixinEntity",
 		"compat.ACEntityMixin",
+		"packet.MixinFriendlyByteBuf",
+		"packet.MixinCompressionDecoder",
+		"packet.MixinClientboundCustomPayloadPacket",
 		"gravity.AbstractArrowMixin",
 		"gravity.AbstractHorseMixin",
 		"gravity.AbstractMinecartMixin",

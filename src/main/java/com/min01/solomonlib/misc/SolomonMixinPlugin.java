@@ -34,6 +34,10 @@ public class SolomonMixinPlugin implements IMixinConfigPlugin
 		{
 			return false;
 		}
+		if(mixinClassName.contains("com.min01.beyondtheabyss.mixin.packet") && LoadingModList.get().getModFileById("xlpackets") != null)
+		{
+			return false;
+		}
 		return true;
 	}
 
