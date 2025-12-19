@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 import net.minecraft.network.CompressionDecoder;
 
-@Mixin(value = CompressionDecoder.class, priority = -10000)
+@Mixin(value = CompressionDecoder.class, priority = -30000)
 public class MixinCompressionDecoder
 {
 	@ModifyConstant(method = "decode", constant = @Constant(intValue = CompressionDecoder.MAXIMUM_UNCOMPRESSED_LENGTH))
