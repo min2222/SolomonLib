@@ -9,16 +9,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.LlamaSpit;
 
 @Mixin(LlamaSpit.class)
-public class LlamaSpitMixin {
-    @ModifyArg(
-        method = "tick",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/phys/Vec3;add(DDD)Lnet/minecraft/world/phys/Vec3;"
-        ),
-        index = 1
-    )
-    private double multiplyGravity(double x) {
+public class LlamaSpitMixin
+{
+    @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;add(DDD)Lnet/minecraft/world/phys/Vec3;"), index = 1)
+    private double multiplyGravity(double x) 
+    {
         return x * GravityAPI.getGravityStrength(((Entity) (Object) this));
     }
 }

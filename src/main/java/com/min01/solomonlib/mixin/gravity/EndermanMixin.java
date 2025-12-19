@@ -18,7 +18,8 @@ public abstract class EndermanMixin
 	private double redirect_isPlayerStaring_getEyeY_0(Player playerEntity)
 	{
 		Direction gravityDirection = GravityAPI.getGravityDirection(playerEntity);
-		if (gravityDirection == Direction.DOWN) {
+		if(gravityDirection == Direction.DOWN) 
+		{
 			return playerEntity.getEyeY();
 		}
 
@@ -26,9 +27,11 @@ public abstract class EndermanMixin
 	}
 
 	@Redirect(method = "Lnet/minecraft/world/entity/monster/EnderMan;isLookingAtMe(Lnet/minecraft/world/entity/player/Player;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getX()D", ordinal = 0))
-	private double redirect_isPlayerStaring_getX_0(Player playerEntity) {
+	private double redirect_isPlayerStaring_getX_0(Player playerEntity) 
+	{
 		Direction gravityDirection = GravityAPI.getGravityDirection(playerEntity);
-		if (gravityDirection == Direction.DOWN) {
+		if(gravityDirection == Direction.DOWN)
+		{
 			return playerEntity.getX();
 		}
 
@@ -36,9 +39,11 @@ public abstract class EndermanMixin
 	}
 
 	@Redirect(method = "Lnet/minecraft/world/entity/monster/EnderMan;isLookingAtMe(Lnet/minecraft/world/entity/player/Player;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getZ()D", ordinal = 0))
-	private double redirect_isPlayerStaring_getZ_0(Player playerEntity) {
+	private double redirect_isPlayerStaring_getZ_0(Player playerEntity) 
+	{
 		Direction gravityDirection = GravityAPI.getGravityDirection(playerEntity);
-		if (gravityDirection == Direction.DOWN) {
+		if(gravityDirection == Direction.DOWN) 
+		{
 			return playerEntity.getZ();
 		}
 
@@ -46,9 +51,11 @@ public abstract class EndermanMixin
 	}
 
 	@Redirect(method = "Lnet/minecraft/world/entity/monster/EnderMan;teleportTowards(Lnet/minecraft/world/entity/Entity;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getEyeY()D", ordinal = 0))
-	private double redirect_teleportTo_getEyeY_0(Entity entity) {
+	private double redirect_teleportTo_getEyeY_0(Entity entity)
+	{
 		Direction gravityDirection = GravityAPI.getGravityDirection(entity);
-		if (gravityDirection == Direction.DOWN) {
+		if(gravityDirection == Direction.DOWN) 
+		{
 			return entity.getEyeY();
 		}
 
@@ -56,9 +63,10 @@ public abstract class EndermanMixin
 	}
 
 	@Redirect(method = "Lnet/minecraft/world/entity/monster/EnderMan;teleportTowards(Lnet/minecraft/world/entity/Entity;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getX()D", ordinal = 0))
-	private double redirect_teleportTo_getX_0(Entity entity) {
+	private double redirect_teleportTo_getX_0(Entity entity) 
+	{
 		Direction gravityDirection = GravityAPI.getGravityDirection(entity);
-		if (gravityDirection == Direction.DOWN) 
+		if(gravityDirection == Direction.DOWN) 
 		{
 			return entity.getX();
 		}

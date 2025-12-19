@@ -10,9 +10,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.ThrownPotion;
 
 @Mixin(ThrownPotion.class)
-public class ThrownPotionMixin {
-    @ModifyReturnValue(method = "getGravity", at = @At("RETURN"))
-    private float multiplyGravity(float original) {
-        return original * (float) GravityAPI.getGravityStrength(((Entity) (Object) this));
-    }
+public class ThrownPotionMixin
+{
+	@ModifyReturnValue(method = "getGravity", at = @At("RETURN"))
+	private float multiplyGravity(float original) 
+	{
+		return original * (float) GravityAPI.getGravityStrength(((Entity) (Object) this));
+	}
 }

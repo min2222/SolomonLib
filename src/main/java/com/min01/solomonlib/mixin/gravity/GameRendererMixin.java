@@ -27,7 +27,8 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 
 @Mixin(GameRenderer.class)
-public abstract class GameRendererMixin {
+public abstract class GameRendererMixin
+{
 	@Shadow
 	@Final
 	private Camera mainCamera;
@@ -50,27 +51,32 @@ public abstract class GameRendererMixin {
 	private boolean renderHand;
 
     @Inject(method = "renderLevel", at = @At(value = "HEAD"), cancellable = true)
-    private void renderLevel(float p_109090_, long p_109091_, PoseStack p_109092_, CallbackInfo ci) {
-        if (this.mainCamera.getEntity() != null) {
+    private void renderLevel(float p_109090_, long p_109091_, PoseStack p_109092_, CallbackInfo ci)
+    {
+        if(this.mainCamera.getEntity() != null) 
+        {
             Entity focusedEntity = this.mainCamera.getEntity();
             Direction gravityDirection = GravityAPI.getGravityDirection(focusedEntity);
             RotationAnimation animation = GravityAPI.getRotationAnimation(focusedEntity);
             // Only override vanilla when a gravity transform/animation is active
-            if (animation == null || (gravityDirection == Direction.DOWN && !animation.isInAnimation())) {
+            if(animation == null || (gravityDirection == Direction.DOWN && !animation.isInAnimation())) 
+            {
                 return;
             }
             ci.cancel();
             long timeMs = focusedEntity.level().getGameTime() * 50 + (long) (p_109090_ * 50);
             Quaternionf currentGravityRotation = animation.getCurrentGravityRotation(gravityDirection, timeMs);
 
-			if (animation.isInAnimation()) {
+			if(animation.isInAnimation()) 
+			{
 				// make sure that frustum culling updates when running rotation animation
 				Minecraft.getInstance().levelRenderer.needsUpdate();
 			}
 
 			GameRenderer renderer = GameRenderer.class.cast(this);
 			this.lightTexture.updateLightTexture(p_109090_);
-			if (this.minecraft.getCameraEntity() == null) {
+			if(this.minecraft.getCameraEntity() == null)
+			{
 				this.minecraft.setCameraEntity(this.minecraft.player);
 			}
 
@@ -85,9 +91,9 @@ public abstract class GameRendererMixin {
             posestack.mulPoseMatrix(renderer.getProjectionMatrix(d0));
 
 			float f = this.minecraft.options.screenEffectScale().get().floatValue();
-			float f1 = Mth.lerp(p_109090_, this.minecraft.player.oSpinningEffectIntensity,
-					this.minecraft.player.spinningEffectIntensity) * f * f;
-			if (f1 > 0.0F) {
+			float f1 = Mth.lerp(p_109090_, this.minecraft.player.oSpinningEffectIntensity, this.minecraft.player.spinningEffectIntensity) * f * f;
+			if(f1 > 0.0F)
+			{
 				int i = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
 				float f2 = 5.0F / (f1 * f1 + 5.0F) - f1 * 0.04F;
 				f2 *= f2;
@@ -100,14 +106,9 @@ public abstract class GameRendererMixin {
 
             Matrix4f matrix4f = posestack.last().pose();
             renderer.resetProjectionMatrix(matrix4f);
-			camera.setup(this.minecraft.level,
-					(Entity) (this.minecraft.getCameraEntity() == null ? this.minecraft.player
-							: this.minecraft.getCameraEntity()),
-					!this.minecraft.options.getCameraType().isFirstPerson(),
-					this.minecraft.options.getCameraType().isMirrored(), p_109090_);
+			camera.setup(this.minecraft.level, (Entity) (this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity()), !this.minecraft.options.getCameraType().isFirstPerson(), this.minecraft.options.getCameraType().isMirrored(), p_109090_);
 
-			net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles cameraSetup = net.minecraftforge.client.ForgeHooksClient
-					.onCameraSetup(renderer, camera, p_109090_);
+			net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles cameraSetup = net.minecraftforge.client.ForgeHooksClient.onCameraSetup(renderer, camera, p_109090_);
 			camera.setAnglesInternal(cameraSetup.getYaw(), cameraSetup.getPitch());
             p_109092_.mulPose(Axis.ZP.rotationDegrees(cameraSetup.getRoll()));
 
@@ -115,7 +116,8 @@ public abstract class GameRendererMixin {
             p_109092_.mulPose(Axis.YP.rotationDegrees(camera.getYRot() + 180.0F));
 
             this.bobHurt(p_109092_, p_109090_);
-            if (this.minecraft.options.bobView().get()) {
+            if(this.minecraft.options.bobView().get())
+            {
                 this.bobView(p_109092_, p_109090_);
             }
 
@@ -127,7 +129,8 @@ public abstract class GameRendererMixin {
 			this.minecraft.getProfiler().popPush("forge_render_last");
 			net.minecraftforge.client.ForgeHooksClient.dispatchRenderStage(net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_LEVEL, this.minecraft.levelRenderer, posestack, matrix4f, this.minecraft.levelRenderer.getTicks(), camera, this.minecraft.levelRenderer.getFrustum());
 			this.minecraft.getProfiler().popPush("hand");
-			if (this.renderHand) {
+			if(this.renderHand) 
+			{
 				RenderSystem.clear(256, Minecraft.ON_OSX);
 				this.renderItemInHand(p_109092_, camera, p_109090_);
 			}
@@ -137,27 +140,32 @@ public abstract class GameRendererMixin {
 	}
 	
 	@Shadow
-	private void renderItemInHand(PoseStack p_109121_, Camera p_109122_, float p_109123_) {
+	private void renderItemInHand(PoseStack p_109121_, Camera p_109122_, float p_109123_) 
+	{
 		   
 	}
 
 	@Shadow
-	private boolean shouldRenderBlockOutline() {
+	private boolean shouldRenderBlockOutline() 
+	{
 		throw new IllegalStateException();
 	}
 	
 	@Shadow
-	private double getFov(Camera p_109142_, float p_109143_, boolean p_109144_) {
+	private double getFov(Camera p_109142_, float p_109143_, boolean p_109144_) 
+	{
 		throw new IllegalStateException();
 	}
 	
 	@Shadow
-	private void bobHurt(PoseStack p_109118_, float p_109119_) {
+	private void bobHurt(PoseStack p_109118_, float p_109119_) 
+	{
 		   
 	}
 	
 	@Shadow
-	private void bobView(PoseStack p_109139_, float p_109140_) {
+	private void bobView(PoseStack p_109139_, float p_109140_) 
+	{
 		
 	}
 }

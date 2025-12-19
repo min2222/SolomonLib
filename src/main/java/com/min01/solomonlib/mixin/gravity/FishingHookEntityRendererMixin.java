@@ -32,36 +32,46 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(FishingHookRenderer.class)
-public abstract class FishingHookEntityRendererMixin extends EntityRenderer<FishingHook> {
+public abstract class FishingHookEntityRendererMixin extends EntityRenderer<FishingHook> 
+{
     @Shadow
     @Final
     private static RenderType RENDER_TYPE;
     
     @Shadow
-    private static void vertex(VertexConsumer buffer, Matrix4f matrix, Matrix3f normalMatrix, int light, float x, int y, int u, int v) {}
+    private static void vertex(VertexConsumer buffer, Matrix4f matrix, Matrix3f normalMatrix, int light, float x, int y, int u, int v) 
+    {
+    	
+    }
     
     @Shadow
-    private static void stringVertex(float x, float y, float z, VertexConsumer buffer, PoseStack.Pose normal, float f, float g) {}
+    private static void stringVertex(float x, float y, float z, VertexConsumer buffer, PoseStack.Pose normal, float f, float g) 
+    {
+    	
+    }
     
     @Shadow
-    private static float fraction(int value, int max) {return 0.0F;}
+    private static float fraction(int value, int max) 
+    {
+    	return 0.0F;
+    }
     
-    protected FishingHookEntityRendererMixin(EntityRendererProvider.Context ctx) {
+    protected FishingHookEntityRendererMixin(EntityRendererProvider.Context ctx) 
+    {
         super(ctx);
     }
     
     // TODO mixin fishing hook rendering in a better way
-    @Inject(
-        method = "Lnet/minecraft/client/renderer/entity/FishingHookRenderer;render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    public void inject_render(FishingHook fishingBobberEntity, float yaw, float tickDelta, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int light, CallbackInfo ci) {
+    @Inject(method = "Lnet/minecraft/client/renderer/entity/FishingHookRenderer;render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"), cancellable = true)
+    public void inject_render(FishingHook fishingBobberEntity, float yaw, float tickDelta, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int light, CallbackInfo ci) 
+    {
         Player playerEntity = fishingBobberEntity.getPlayerOwner();
-        if (playerEntity == null) return;
+        if(playerEntity == null) 
+        	return;
         
         Direction gravityDirection = GravityAPI.getGravityDirection(playerEntity);
-        if (gravityDirection == Direction.DOWN) return;
+        if(gravityDirection == Direction.DOWN) 
+        	return;
         
         ci.cancel();
         
@@ -81,7 +91,8 @@ public abstract class FishingHookEntityRendererMixin extends EntityRenderer<Fish
         matrixStack.popPose();
         int armOffset = playerEntity.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
         ItemStack itemStack = playerEntity.getMainHandItem();
-        if (!itemStack.is(Items.FISHING_ROD)) {
+        if(!itemStack.is(Items.FISHING_ROD)) 
+        {
             armOffset = -armOffset;
         }
         
@@ -92,28 +103,17 @@ public abstract class FishingHookEntityRendererMixin extends EntityRenderer<Fish
         double cosBodyYaw = Mth.cos(radBodyYaw);
         double scaledArmOffset = (double) armOffset * 0.35D;
         Vec3 lineStart;
-        if ((this.entityRenderDispatcher.options == null || this.entityRenderDispatcher.options.getCameraType().isFirstPerson()) && playerEntity == Minecraft.getInstance().player) {
+        if((this.entityRenderDispatcher.options == null || this.entityRenderDispatcher.options.getCameraType().isFirstPerson()) && playerEntity == Minecraft.getInstance().player)
+        {
             Vec3 lineOffset = RotationUtil.vecWorldToPlayer(this.entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) armOffset * 0.525F, -0.1F), gravityDirection);
             lineOffset = lineOffset.scale(960.0D / this.entityRenderDispatcher.options.fov().get());
             lineOffset = lineOffset.yRot(sinHandSwingProgress * 0.5F);
             lineOffset = lineOffset.xRot(-sinHandSwingProgress * 0.7F);
-            lineStart = new Vec3(
-                Mth.lerp(tickDelta, playerEntity.xo, playerEntity.getX()),
-                Mth.lerp(tickDelta, playerEntity.yo, playerEntity.getY()),
-                Mth.lerp(tickDelta, playerEntity.zo, playerEntity.getZ())
-            ).add(RotationUtil.vecPlayerToWorld(lineOffset.add(0.0D, playerEntity.getEyeHeight(), 0.0D), gravityDirection));
+            lineStart = new Vec3(Mth.lerp(tickDelta, playerEntity.xo, playerEntity.getX()), Mth.lerp(tickDelta, playerEntity.yo, playerEntity.getY()), Mth.lerp(tickDelta, playerEntity.zo, playerEntity.getZ())).add(RotationUtil.vecPlayerToWorld(lineOffset.add(0.0D, playerEntity.getEyeHeight(), 0.0D), gravityDirection));
         }
-        else {
-            lineStart = new Vec3(
-                Mth.lerp(tickDelta, playerEntity.xo, playerEntity.getX()),
-                playerEntity.yo + (playerEntity.getY() - playerEntity.yo) * tickDelta,
-                Mth.lerp(tickDelta, playerEntity.zo, playerEntity.getZ())
-            ).add(RotationUtil.vecPlayerToWorld(
-                -cosBodyYaw * scaledArmOffset - sinBodyYaw * 0.8D,
-                playerEntity.getEyeHeight() + (playerEntity.isCrouching() ? -0.1875D : 0.0D) - 0.45D,
-                -sinBodyYaw * scaledArmOffset + cosBodyYaw * 0.8D,
-                gravityDirection
-            ));
+        else 
+        {
+            lineStart = new Vec3(Mth.lerp(tickDelta, playerEntity.xo, playerEntity.getX()), playerEntity.yo + (playerEntity.getY() - playerEntity.yo) * tickDelta, Mth.lerp(tickDelta, playerEntity.zo, playerEntity.getZ())).add(RotationUtil.vecPlayerToWorld(-cosBodyYaw * scaledArmOffset - sinBodyYaw * 0.8D, playerEntity.getEyeHeight() + (playerEntity.isCrouching() ? -0.1875D : 0.0D) - 0.45D, -sinBodyYaw * scaledArmOffset + cosBodyYaw * 0.8D, gravityDirection));
         }
         
         double bobberX = Mth.lerp(tickDelta, fishingBobberEntity.xo, fishingBobberEntity.getX());
@@ -125,7 +125,8 @@ public abstract class FishingHookEntityRendererMixin extends EntityRenderer<Fish
         VertexConsumer vertexConsumer2 = vertexConsumerProvider.getBuffer(RenderType.lineStrip());
         PoseStack.Pose entry2 = matrixStack.last();
         
-        for (int i = 0; i <= 16; ++i) {
+        for(int i = 0; i <= 16; ++i) 
+        {
             stringVertex(relX, relY, relZ, vertexConsumer2, entry2, fraction(i, 16), fraction(i + 1, 16));
         }
         
