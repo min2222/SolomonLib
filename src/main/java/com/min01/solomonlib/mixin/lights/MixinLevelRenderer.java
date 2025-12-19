@@ -1,4 +1,4 @@
-package com.min01.solomonlib.mixin;
+package com.min01.solomonlib.mixin.lights;
 
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;

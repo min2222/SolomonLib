@@ -1,4 +1,4 @@
-package com.min01.solomonlib.mixin;
+package com.min01.solomonlib.mixin.lights;
 
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;

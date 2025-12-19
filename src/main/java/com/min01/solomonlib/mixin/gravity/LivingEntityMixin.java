@@ -30,7 +30,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-@Mixin(LivingEntity.class)
+@Mixin(value = LivingEntity.class, priority = -13000)
 public abstract class LivingEntityMixin extends Entity 
 {
 	@Shadow

@@ -5,8 +5,7 @@
 	"plugin": "com.min01.solomonlib.misc.SolomonMixinPlugin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"MixinEntity",
-		"MixinServerLevel",
+		"lights.MixinEntity",
 		"compat.ACEntityMixin",
 		"gravity.AbstractArrowMixin",
 		"gravity.AbstractHorseMixin",
@@ -55,12 +54,11 @@
 		"gravity.ServerPlayerMixin",
 		"gravity.ServerGamePacketListenerImplMixin",
 		"gravity.BehaviorUtilsMixin",
-		"gravity.MixinForgeHooks",
 		"gravity.MixinBlockStateBase",
-		"gravity.MixinBlockPlaceContext"
+		"gravity.MixinBlockPlaceContext",
+		"gravity.MixinServerLevel"
 	],
 	"client": [
-		"MixinLevelRenderer",
 		"gravity.CameraMixin",
 		"gravity.ClientPacketListenerMixin",
 		"gravity.EntityRenderDispatcherMixin",
@@ -75,6 +73,7 @@
 		"gravity.MixinBlockRenderDispatcher",
 		"gravity.MixinBlockEntityRenderDispatcher",
 		"lights.MixinEntityRenderer",
+		"lights.MixinLevelRenderer",
 		"lights.MixinClientLevel",
 		"lights.MixinMinecraft"
 	],

@@ -39,7 +39,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-@Mixin(Entity.class)
+@Mixin(value = Entity.class, priority = -13000)
 public abstract class EntityMixin 
 {
 	@Shadow

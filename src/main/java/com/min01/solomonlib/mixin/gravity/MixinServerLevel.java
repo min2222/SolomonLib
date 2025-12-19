@@ -1,4 +1,4 @@
-package com.min01.solomonlib.mixin;
+package com.min01.solomonlib.mixin.gravity;
 
 import java.util.function.Supplier;
 
