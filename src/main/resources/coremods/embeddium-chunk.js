@@ -33,11 +33,11 @@ function initializeCoreMod() {
                                 // Stack: [original boolean]
                                 var inject = new InsnList();
 
-                                // -- inject MirroredCityUtil.isUpsideDown(BTAClientUtil.MC.player)
-                                // Get: BTAClientUtil.MC
+                                // -- inject SolomonUtil.isUpsideDown(SolomonClientUtil.MC.player)
+                                // Get: SolomonClientUtil.MC
 								inject.add(new FieldInsnNode(
 								    Opcodes.GETSTATIC,
-								    "com/min01/beyondtheabyss/util/BTAClientUtil",
+								    "com/min01/solomonlib/util/SolomonClientUtil",
 								    "MC",
 								    "Lnet/minecraft/client/Minecraft;"
 								));
@@ -50,7 +50,7 @@ function initializeCoreMod() {
                                 // Call: MirroredCityUtil.isUpsideDown(player)
                                 inject.add(new MethodInsnNode(
                                     Opcodes.INVOKESTATIC,
-                                    "com/min01/beyondtheabyss/util/MirroredCityUtil",
+                                    "com/min01/solomonlib/util/SolomonUtil",
                                     "isUpsideDown",
                                     "(Lnet/minecraft/world/entity/Entity;)Z", // Update descriptor if needed
                                     false

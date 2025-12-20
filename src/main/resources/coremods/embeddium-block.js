@@ -59,7 +59,7 @@ function initializeCoreMod() {
 					    ));
 					    inject.add(new FieldInsnNode(
 					        Opcodes.GETSTATIC,
-					        "com/min01/beyondtheabyss/util/BTAClientUtil",
+					        "com/min01/solomonlib/util/SolomonClientUtil",
 					        "MC",
 					        "Lnet/minecraft/client/Minecraft;"
 					    ));
@@ -71,7 +71,7 @@ function initializeCoreMod() {
 					    ));
 					    inject.add(new MethodInsnNode(
 					        Opcodes.INVOKESTATIC,
-					        "com/min01/beyondtheabyss/util/MirroredCityUtil",
+					        "com/min01/solomonlib/util/SolomonUtil",
 					        "isBlockUpsideDown",
 					        "(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Level;)Z",
 					        false
@@ -249,7 +249,7 @@ function initializeCoreMod() {
 
 						// ctx is arg1 (1), face is arg2 (2)
 
-						// isBlockUpsideDown(ctx.pos(), BTAClientUtil.MC.level)
+						// isBlockUpsideDown(ctx.pos(), SolomonClientUtil.MC.level)
 						inject.add(new VarInsnNode(Opcodes.ALOAD, 1));
 						inject.add(new MethodInsnNode(
 						    Opcodes.INVOKEVIRTUAL,
@@ -260,7 +260,7 @@ function initializeCoreMod() {
 						));
 						inject.add(new FieldInsnNode(
 						    Opcodes.GETSTATIC,
-						    "com/min01/beyondtheabyss/util/BTAClientUtil",
+						    "com/min01/solomonlib/util/SolomonClientUtil",
 						    "MC",
 						    "Lnet/minecraft/client/Minecraft;"
 						));
@@ -272,7 +272,7 @@ function initializeCoreMod() {
 						));
 						inject.add(new MethodInsnNode(
 						    Opcodes.INVOKESTATIC,
-						    "com/min01/beyondtheabyss/util/MirroredCityUtil",
+						    "com/min01/solomonlib/util/SolomonUtil",
 						    "isBlockUpsideDown",
 						    "(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Level;)Z",
 						    false
