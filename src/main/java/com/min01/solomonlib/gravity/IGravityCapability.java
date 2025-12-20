@@ -12,7 +12,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 @AutoRegisterCapability
 public interface IGravityCapability extends INBTSerializable<CompoundTag>
 {
-	ResourceLocation ID = new ResourceLocation(SolomonLib.MODID, "gravity");
+	ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SolomonLib.MODID, "gravity");
 
 	void setEntity(Entity entity);
 	

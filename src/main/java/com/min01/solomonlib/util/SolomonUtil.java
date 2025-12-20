@@ -11,7 +11,7 @@ public class SolomonUtil
 {
 	public static final String BTA_MODID = "beyondtheabyss";
 	
- 	public static final ResourceKey<Level> MIRRORED_CITY = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(BTA_MODID, "mirrored_city"));
+ 	public static final ResourceKey<Level> MIRRORED_CITY = ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath(BTA_MODID, "mirrored_city"));
  	
 	public static boolean isBlockUpsideDown(BlockPos pos, Level level)
 	{

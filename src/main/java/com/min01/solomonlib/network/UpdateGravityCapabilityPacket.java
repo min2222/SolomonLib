@@ -30,17 +30,12 @@ public class UpdateGravityCapabilityPacket
 		this.currentGravityStrength = currentGravityStrength;
 	}
 
-	public UpdateGravityCapabilityPacket(FriendlyByteBuf buf)
+	public static UpdateGravityCapabilityPacket read(FriendlyByteBuf buf)
 	{
-		this.noAnimation = buf.readBoolean();
-		this.entityUUID = buf.readUUID();
-		this.baseGravityDirection = buf.readEnum(Direction.class);
-		this.currentGravityDirection = buf.readEnum(Direction.class);
-		this.baseGravityStrength = buf.readDouble();
-		this.currentGravityStrength = buf.readDouble();
+		return new UpdateGravityCapabilityPacket(buf.readBoolean(), buf.readUUID(), buf.readEnum(Direction.class), buf.readEnum(Direction.class), buf.readDouble(), buf.readDouble());
 	}
 
-	public void encode(FriendlyByteBuf buf)
+	public void write(FriendlyByteBuf buf)
 	{
 		buf.writeBoolean(this.noAnimation);
 		buf.writeUUID(this.entityUUID);
@@ -50,27 +45,24 @@ public class UpdateGravityCapabilityPacket
 		buf.writeDouble(this.currentGravityStrength);
 	}
 	
-	public static class Handler 
+	public static boolean handle(UpdateGravityCapabilityPacket message, Supplier<NetworkEvent.Context> ctx) 
 	{
-		public static boolean onMessage(UpdateGravityCapabilityPacket message, Supplier<NetworkEvent.Context> ctx) 
+		ctx.get().enqueueWork(() ->
 		{
-			ctx.get().enqueueWork(() ->
+			if(ctx.get().getDirection().getReceptionSide().isClient())
 			{
-				if(ctx.get().getDirection().getReceptionSide().isClient())
+				GravityAPI.getClientLevel(level -> 
 				{
-					GravityAPI.getClientLevel(level -> 
+					Entity entity = GravityAPI.getEntityByUUID(level, message.entityUUID);
+					entity.getCapability(SolomonCapabilities.GRAVITY).ifPresent(cap -> 
 					{
-						Entity entity = GravityAPI.getEntityByUUID(level, message.entityUUID);
-						entity.getCapability(SolomonCapabilities.GRAVITY).ifPresent(cap -> 
-						{
-							cap.sync(message.noAnimation, message.baseGravityDirection, message.currentGravityDirection, message.baseGravityStrength, message.currentGravityStrength);
-						});
+						cap.sync(message.noAnimation, message.baseGravityDirection, message.currentGravityDirection, message.baseGravityStrength, message.currentGravityStrength);
 					});
-				}
-			});
+				});
+			}
+		});
 
-			ctx.get().setPacketHandled(true);
-			return true;
-		}
+		ctx.get().setPacketHandled(true);
+		return true;
 	}
 }

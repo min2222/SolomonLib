@@ -19,33 +19,30 @@ public class UpdateGravitySyncStatePacket
 		this.entityUUID = entityUUID;
 	}
 
-	public UpdateGravitySyncStatePacket(FriendlyByteBuf buf)
+	public static UpdateGravitySyncStatePacket read(FriendlyByteBuf buf)
 	{
-		this.entityUUID = buf.readUUID();
+		return new UpdateGravitySyncStatePacket(buf.readUUID());
 	}
 
-	public void encode(FriendlyByteBuf buf)
+	public void write(FriendlyByteBuf buf)
 	{
 		buf.writeUUID(this.entityUUID);
 	}
 	
-	public static class Handler 
+	public static boolean handle(UpdateGravitySyncStatePacket message, Supplier<NetworkEvent.Context> ctx) 
 	{
-		public static boolean onMessage(UpdateGravitySyncStatePacket message, Supplier<NetworkEvent.Context> ctx) 
+		ctx.get().enqueueWork(() ->
 		{
-			ctx.get().enqueueWork(() ->
+			if(ctx.get().getDirection().getReceptionSide().isServer())
 			{
-				if(ctx.get().getDirection().getReceptionSide().isServer())
-				{
-					Entity entity = GravityAPI.getEntityByUUID(ctx.get().getSender().level, message.entityUUID);
-					GravityCapabilityImpl cap = GravityAPI.getGravityComponent(entity);
-					cap.needsSync = false;
-					cap.noAnimation = false;
-				}
-			});
+				Entity entity = GravityAPI.getEntityByUUID(ctx.get().getSender().level, message.entityUUID);
+				GravityCapabilityImpl cap = GravityAPI.getGravityComponent(entity);
+				cap.needsSync = false;
+				cap.noAnimation = false;
+			}
+		});
 
-			ctx.get().setPacketHandled(true);
-			return true;
-		}
+		ctx.get().setPacketHandled(true);
+		return true;
 	}
 }

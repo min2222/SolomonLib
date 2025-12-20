@@ -12,7 +12,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 public class SolomonNetwork
 {
 	private static final String PROTOCOL_VERSION = "1";
-	public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(SolomonLib.MODID, "solomonlib"),
+	public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(ResourceLocation.fromNamespaceAndPath(SolomonLib.MODID, SolomonLib.MODID),
 			() -> PROTOCOL_VERSION,
 			PROTOCOL_VERSION::equals,
 			PROTOCOL_VERSION::equals
@@ -21,8 +21,8 @@ public class SolomonNetwork
 	public static int ID = 0;
 	public static void registerMessages()
 	{
-		CHANNEL.registerMessage(ID++, UpdateGravityCapabilityPacket.class, UpdateGravityCapabilityPacket::encode, UpdateGravityCapabilityPacket::new, UpdateGravityCapabilityPacket.Handler::onMessage);
-		CHANNEL.registerMessage(ID++, UpdateGravitySyncStatePacket.class, UpdateGravitySyncStatePacket::encode, UpdateGravitySyncStatePacket::new, UpdateGravitySyncStatePacket.Handler::onMessage);
+		CHANNEL.registerMessage(ID++, UpdateGravityCapabilityPacket.class, UpdateGravityCapabilityPacket::write, UpdateGravityCapabilityPacket::read, UpdateGravityCapabilityPacket::handle);
+		CHANNEL.registerMessage(ID++, UpdateGravitySyncStatePacket.class, UpdateGravitySyncStatePacket::write, UpdateGravitySyncStatePacket::read, UpdateGravitySyncStatePacket::handle);
 	}
 	
     public static <MSG> void sendToServer(MSG message) 
