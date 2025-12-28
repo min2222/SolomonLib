@@ -10,6 +10,7 @@
 		"packet.MixinFriendlyByteBuf",
 		"packet.MixinCompressionDecoder",
 		"packet.MixinClientboundCustomPayloadPacket",
+		"packet.MixinServerboundCustomPayloadPacket",
 		"gravity.AbstractArrowMixin",
 		"gravity.AbstractHorseMixin",
 		"gravity.AbstractMinecartMixin",

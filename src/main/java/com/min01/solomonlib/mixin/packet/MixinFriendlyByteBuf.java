@@ -16,19 +16,19 @@ public class MixinFriendlyByteBuf
     }
     
     @ModifyConstant(method = "readUtf()Ljava/lang/String;", constant = @Constant(intValue = 32767))
-    private int packetfixer$readUtf$newSize(int value)
+    private int readUtf(int value)
     {
         return 327670000;
     }
 
     @ModifyConstant(method = "writeUtf(Ljava/lang/String;)Lnet/minecraft/network/FriendlyByteBuf;", constant = @Constant(intValue = 32767))
-    private int packetfixer$writeUtf$newSize(int value)
+    private int writeUtf(int value)
     {
         return 327670000;
     }
 
     @ModifyConstant(method = "readResourceLocation", constant = @Constant(intValue = 32767))
-    private int packetfixer$readResourceLocation$newSize(int value) 
+    private int readResourceLocation(int value) 
     {
         return 327670000;
     }
