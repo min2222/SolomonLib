@@ -14,4 +14,22 @@ public class MixinFriendlyByteBuf
     {
         return 2_147_483_647L;
     }
+    
+    @ModifyConstant(method = "readUtf()Ljava/lang/String;", constant = @Constant(intValue = 32767))
+    private int packetfixer$readUtf$newSize(int value)
+    {
+        return 327670000;
+    }
+
+    @ModifyConstant(method = "writeUtf(Ljava/lang/String;)Lnet/minecraft/network/FriendlyByteBuf;", constant = @Constant(intValue = 32767))
+    private int packetfixer$writeUtf$newSize(int value)
+    {
+        return 327670000;
+    }
+
+    @ModifyConstant(method = "readResourceLocation", constant = @Constant(intValue = 32767))
+    private int packetfixer$readResourceLocation$newSize(int value) 
+    {
+        return 327670000;
+    }
 }

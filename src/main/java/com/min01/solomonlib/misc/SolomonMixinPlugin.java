@@ -34,7 +34,7 @@ public class SolomonMixinPlugin implements IMixinConfigPlugin
 		{
 			return false;
 		}
-		if(mixinClassName.contains("com.min01.solomonlib.mixin.packet") && (LoadingModList.get().getModFileById("xlpackets") != null || LoadingModList.get().getModFileById("bigcontraptions") != null))
+		if(mixinClassName.contains("com.min01.solomonlib.mixin.packet") && (LoadingModList.get().getModFileById("xlpackets") != null || LoadingModList.get().getModFileById("bigcontraptions") != null || LoadingModList.get().getModFileById("packetfixer") != null))
 		{
 			return false;
 		}
