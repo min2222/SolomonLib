@@ -44,6 +44,7 @@ description='''An wise library mod.'''
 
 [mods."lithium:options"]
 "mixin.math.fast_blockpos"=false
+"mixin.entity.collisions.movement"=false
 
 [[dependencies.solomonlib]] #optional
     # the modid of the dependency

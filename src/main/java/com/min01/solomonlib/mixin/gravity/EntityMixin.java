@@ -2,20 +2,17 @@ package com.min01.solomonlib.mixin.gravity;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.google.common.collect.ImmutableList;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.min01.solomonlib.capabilities.SolomonCapabilities;
@@ -37,7 +34,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -359,32 +355,15 @@ public abstract class EntityMixin
 		cir.setReturnValue(RotationUtil.vecWorldToPlayer(cir.getReturnValue(), gravityDirection));
 	}
 
-	@Inject(method = "collideBoundingBox", at = @At("HEAD"), cancellable = true)
-	private static void redirect_adjustMovementForCollisions_adjustMovementForCollisions_0(Entity pEntity, Vec3 pVec, AABB pCollisionBox, Level pLevel, List<VoxelShape> pPotentialHits, CallbackInfoReturnable<Vec3> cir)
+	@Redirect(method = "Lnet/minecraft/world/entity/Entity;collideBoundingBox(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/level/Level;Ljava/util/List;)Lnet/minecraft/world/phys/Vec3;", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;collideWithShapes(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Ljava/util/List;)Lnet/minecraft/world/phys/Vec3;", ordinal = 0))
+	private static Vec3 redirect_adjustMovementForCollisions_adjustMovementForCollisions_0(Vec3 movement, AABB entityBoundingBox, List<VoxelShape> collisions, Entity entity)
 	{
 		Direction gravityDirection;
-		if(pEntity == null || (gravityDirection = GravityAPI.getGravityDirection(pEntity)) == Direction.DOWN)
+		if(entity == null || (gravityDirection = GravityAPI.getGravityDirection(entity)) == Direction.DOWN) 
 		{
-			return;
+			return collideWithShapes(movement, entityBoundingBox, collisions);
 		}
-		ImmutableList.Builder<VoxelShape> builder = ImmutableList.builderWithExpectedSize(pPotentialHits.size() + 1);
-		if(!pPotentialHits.isEmpty())
-		{
-			builder.addAll(pPotentialHits);
-		}
-		WorldBorder worldborder = pLevel.getWorldBorder();
-		boolean flag = pEntity != null && worldborder.isInsideCloseToBorder(pEntity, pCollisionBox.expandTowards(pVec));
-		if(flag)
-		{
-			builder.add(worldborder.getCollisionShape());
-		}
-		builder.addAll(pLevel.getBlockCollisions(pEntity, pCollisionBox.expandTowards(pVec)));
-		cir.setReturnValue(gc_collideShapes(gravityDirection, pEntity, pVec, pCollisionBox, builder.build()));
-	}
-	
-	@Unique
-	private static Vec3 gc_collideShapes(Direction gravityDirection, @Nullable Entity entity, Vec3 movement, AABB entityBoundingBox, List<VoxelShape> collisions)
-	{
+
 		Vec3 playerMovement = RotationUtil.vecWorldToPlayer(movement, gravityDirection);
 		double playerMovementX = playerMovement.x;
 		double playerMovementY = playerMovement.y;
@@ -424,6 +403,7 @@ public abstract class EntityMixin
 		{
 			playerMovementZ = Shapes.collide(directionZ.getAxis(), entityBoundingBox, collisions, playerMovementZ * directionZ.getAxisDirection().getStep()) * directionZ.getAxisDirection().getStep();
 		}
+
 		return RotationUtil.vecPlayerToWorld(playerMovementX, playerMovementY, playerMovementZ, gravityDirection);
 	}
 
