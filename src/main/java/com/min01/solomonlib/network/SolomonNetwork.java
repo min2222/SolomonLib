@@ -21,7 +21,8 @@ public class SolomonNetwork
 	public static int ID = 0;
 	public static void registerMessages()
 	{
-		
+		CHANNEL.registerMessage(ID++, UpdateGravityCapabilityPacket.class, UpdateGravityCapabilityPacket::write, UpdateGravityCapabilityPacket::read, UpdateGravityCapabilityPacket::handle);
+		CHANNEL.registerMessage(ID++, UpdateGravitySyncStatePacket.class, UpdateGravitySyncStatePacket::write, UpdateGravitySyncStatePacket::read, UpdateGravitySyncStatePacket::handle);
 	}
 	
     public static <MSG> void sendToServer(MSG message) 

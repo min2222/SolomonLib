@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.LogicalSidedProvider;
 import net.minecraftforge.fml.LogicalSide;
@@ -28,5 +29,10 @@ public class SolomonUtil
 	public static boolean isBlockUpsideDown(Level level, BlockPos pos)
 	{
 		return level.dimension() == MIRRORED_CITY && pos.getY() >= 150;
+	}
+	
+	public static boolean isUpsideDown(Entity entity)
+	{
+		return entity.level.dimension() == MIRRORED_CITY && entity.getY() >= 150;
 	}
 }
