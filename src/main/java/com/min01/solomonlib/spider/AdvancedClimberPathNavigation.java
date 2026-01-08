@@ -169,7 +169,7 @@ public class AdvancedClimberPathNavigation<T extends Mob & IClimberEntity> exten
         int sizeZ = sizeX;
 
         Orientation orientation = this.climber.getOrientation();
-        Vec3 upVector = orientation.getGlobal(this.mob.yRot, -90);
+        Vec3 upVector = orientation.getGlobal(this.mob.getYRot(), -90);
 
         this.verticalFacing = Direction.getNearest((float) upVector.x, (float) upVector.y, (float) upVector.z);
 

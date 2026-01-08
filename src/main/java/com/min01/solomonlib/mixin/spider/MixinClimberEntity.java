@@ -885,8 +885,8 @@ public abstract class MixinClimberEntity extends PathfinderMob implements IClimb
 		float yawDelta = newRotations.getLeft() - this.getYRot();
 		float pitchDelta = newRotations.getRight() - this.getXRot();
 
-		this.yRot = Mth.wrapDegrees(this.yRot + yawDelta);
-		this.yRotO = this.wrapAngleInRange(this.yRotO/* + yawDelta*/, this.yRot);
+		this.setYRot(Mth.wrapDegrees(this.getYRot() + yawDelta));
+		this.yRotO = this.wrapAngleInRange(this.yRotO/* + yawDelta*/, this.getYRot());
 		this.lerpYRot = Mth.wrapDegrees(this.lerpYRot + yawDelta);
 
 		this.yBodyRot = Mth.wrapDegrees(this.yBodyRot + yawDelta);
@@ -896,8 +896,8 @@ public abstract class MixinClimberEntity extends PathfinderMob implements IClimb
 		this.yHeadRotO = this.wrapAngleInRange(this.yHeadRotO/* + yawDelta*/, this.yHeadRot);
 		this.lyHeadRot = Mth.wrapDegrees(this.lyHeadRot + yawDelta);
 
-		this.xRot = Mth.wrapDegrees(this.xRot + pitchDelta);
-		this.xRotO = this.wrapAngleInRange(this.xRotO/* + pitchDelta*/, this.xRot);
+		this.setXRot(Mth.wrapDegrees(this.getXRot() + pitchDelta));
+		this.xRotO = this.wrapAngleInRange(this.xRotO/* + pitchDelta*/, this.getXRot());
 		this.lerpXRot = Mth.wrapDegrees(this.lerpXRot + pitchDelta);
 	}
 
@@ -1050,7 +1050,7 @@ public abstract class MixinClimberEntity extends PathfinderMob implements IClimb
 
 			if(this.isSprinting())
 			{
-				Vec3 boost = this.getOrientation().getGlobal(this.yRot, 0).scale(0.2F);
+				Vec3 boost = this.getOrientation().getGlobal(this.getYRot(), 0).scale(0.2F);
 				this.setDeltaMovement(this.getDeltaMovement().add(boost));
 			}
 
@@ -1121,9 +1121,9 @@ public abstract class MixinClimberEntity extends PathfinderMob implements IClimb
 	{
 		Orientation orientation = this.getOrientation();
 
-		Vec3 forwardVector = orientation.getGlobal(this.yRot, 0);
-		Vec3 strafeVector = orientation.getGlobal(this.yRot + 90.0F, 0);
-		Vec3 upVector = orientation.getGlobal(this.yRot, -90.0F);
+		Vec3 forwardVector = orientation.getGlobal(this.getYRot(), 0);
+		Vec3 strafeVector = orientation.getGlobal(this.getYRot() + 90.0F, 0);
+		Vec3 upVector = orientation.getGlobal(this.getYRot(), -90.0F);
 
 		Pair<Direction, Vec3> groundDirection = this.getGroundDirection();
 

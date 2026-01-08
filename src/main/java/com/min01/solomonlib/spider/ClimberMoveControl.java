@@ -68,8 +68,8 @@ public class ClimberMoveControl<T extends Mob & IClimberEntity> extends MoveCont
 
 			Orientation orientation = this.climber.getOrientation();
 
-			Vec3 forwardVector = orientation.getGlobal(this.mob.yRot, 0);
-			Vec3 strafeVector = orientation.getGlobal(this.mob.yRot + 90.0f, 0);
+			Vec3 forwardVector = orientation.getGlobal(this.mob.getYRot(), 0);
+			Vec3 strafeVector = orientation.getGlobal(this.mob.getYRot() + 90.0F, 0);
 
 			if(!this.isWalkableAtOffset(forwardVector.x * forward + strafeVector.x * strafe, forwardVector.y * forward + strafeVector.y * strafe, forwardVector.z * forward + strafeVector.z * strafe))
 			{
@@ -250,7 +250,7 @@ public class ClimberMoveControl<T extends Mob & IClimberEntity> extends MoveCont
 
 			Orientation orientation = this.climber.getOrientation();
 
-			Vec3 up = orientation.getGlobal(this.mob.yRot, -90);
+			Vec3 up = orientation.getGlobal(this.mob.getYRot(), -90);
 
 			Vec3 offset = new Vec3(dx, dy, dz);
 
@@ -267,7 +267,7 @@ public class ClimberMoveControl<T extends Mob & IClimberEntity> extends MoveCont
 				float rx = (float) orientation.localZ.dot(targetDir);
 				float ry = (float) orientation.localX.dot(targetDir);
 
-				this.mob.yRot = this.rotlerp(this.mob.yRot, 270.0F - (float) Math.toDegrees(Mth.atan2(rx, ry)), 90.0F);
+				this.mob.setYRot(this.rotlerp(this.mob.getYRot(), 270.0F - (float) Math.toDegrees(Mth.atan2(rx, ry)), 90.0F));
 
 				if(jumpDir == null && this.side != null && targetDist < 0.1D && groundDir == this.side.getOpposite())
 				{
