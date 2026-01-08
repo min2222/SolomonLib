@@ -12,7 +12,11 @@
 		"packet.MixinClientboundCustomPayloadPacket",
 		"packet.MixinServerboundCustomPayloadPacket",
 		"gravity.MixinBlockStateBase",
-		"gravity.MixinBlockPlaceContext"
+		"gravity.MixinBlockPlaceContext",
+		"spider.MixinClimberEntity",
+		"spider.MixinEntity",
+		"spider.MixinLivingEntity",
+		"spider.MixinMob"
 	],
 	"client": [
 		"lights.MixinEntityRenderer",
@@ -20,7 +24,9 @@
 		"lights.MixinClientLevel",
 		"lights.MixinMinecraft",
 		"gravity.MixinBlockRenderDispatcher",
-		"gravity.MixinBlockEntityRenderDispatcher"
+		"gravity.MixinBlockEntityRenderDispatcher",
+		"spider.MixinLivingEntityClient",
+		"spider.MixinLivingEntityRenderer"
 	],
 	"server": [
 	],
