@@ -1,69 +1,32 @@
 package com.min01.solomonlib.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Consumer;
 
-import com.min01.solomonlib.world.SolomonSavedData;
-
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.util.LogicalSidedProvider;
+import net.minecraftforge.fml.LogicalSide;
 
 public class SolomonUtil 
 {
 	public static final String BTA_MODID = "beyondtheabyss";
 	
  	public static final ResourceKey<Level> MIRRORED_CITY = ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath(BTA_MODID, "mirrored_city"));
-	public static final List<BlockPos> GRAVITY_BLOCKS = new ArrayList<>();
 	
-	public static void setBlockUpsideDown(Level level, BlockPos pos)
+	public static void getClientLevel(Consumer<Level> consumer)
 	{
-		SolomonSavedData data = SolomonSavedData.get(level);
-		if(data != null)
+		LogicalSidedProvider.CLIENTWORLD.get(LogicalSide.CLIENT).filter(ClientLevel.class::isInstance).ifPresent(level -> 
 		{
-			data.setBlockUpsideDown(pos);
-		}
-		else
-		{
-			GRAVITY_BLOCKS.add(pos);
-		}
-	}
-	
-	public static void removeUpsideDownBlocks(Level level)
-	{
-		SolomonSavedData data = SolomonSavedData.get(level);
-		if(data != null)
-		{
-			data.getUpsideDownBlocks().removeIf(t -> level.getBlockState(t).isAir());
-		}
-		else
-		{
-			GRAVITY_BLOCKS.removeIf(t -> level.getBlockState(t).isAir());
-		}
-	}
-	
-	public static void removeUpsideDownBlock(Level level, BlockPos pos)
-	{
-		SolomonSavedData data = SolomonSavedData.get(level);
-		if(data != null)
-		{
-			data.getUpsideDownBlocks().removeIf(t -> t.equals(pos));
-		}
-		else
-		{
-			GRAVITY_BLOCKS.removeIf(t -> t.equals(pos));
-		}
+			consumer.accept(level);
+		});
 	}
 	
 	public static boolean isBlockUpsideDown(Level level, BlockPos pos)
 	{
-		SolomonSavedData data = SolomonSavedData.get(level);
-		if(data != null)
-		{
-			return data.isBlockUpsideDown(level, pos);
-		}
-		return GRAVITY_BLOCKS.contains(pos);
+		return level.dimension() == MIRRORED_CITY && pos.getY() >= 150;
 	}
 }

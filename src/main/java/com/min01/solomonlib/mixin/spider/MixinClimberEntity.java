@@ -456,7 +456,7 @@ public abstract class MixinClimberEntity extends PathfinderMob implements IClimb
 		if(closestFacing == null)
 		{
 			this.groundDirection = Pair.of(Direction.DOWN, new Vec3(0, -1, 0));
-		} 
+		}
 		else
 		{
 			this.groundDirection = Pair.of(closestFacing, weighting.normalize().add(0, -0.001F, 0).normalize());
@@ -821,12 +821,12 @@ public abstract class MixinClimberEntity extends PathfinderMob implements IClimb
 
 		boolean isAttached = false;
 
-		double baseStickingOffsetX = 0.0f;
+		double baseStickingOffsetX = 0.0F;
 		double baseStickingOffsetY = this.getVerticalOffset(1);
-		double baseStickingOffsetZ = 0.0f;
+		double baseStickingOffsetZ = 0.0F;
 		Vec3 baseOrientationNormal = new Vec3(0, 1, 0);
 
-		if(!this.isTravelingInFluid && this.onGround()&& this.getVehicle() == null)
+		if(!this.isTravelingInFluid && this.onGround() && this.getVehicle() == null)
 		{
 			Vec3 p = this.position();
 

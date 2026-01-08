@@ -39,18 +39,18 @@ public abstract class MixinMob implements IMobEntityLivingTickHook, IMobEntityTi
 		
 	}
 
-	@Shadow(prefix = "shadow$")
-	private void shadow$registerGoals() 
+	@Shadow
+	private void registerGoals() 
 	{ 
 		
 	}
 
 	@Redirect(method = "<init>*", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;registerGoals()V"))
-	private void onRegisterGoals(Mob _this) 
+	private void onRegisterGoals(Mob mob) 
 	{
-		this.shadow$registerGoals();
+		this.registerGoals();
 
-		if(_this == (Object) this) 
+		if(mob == (Object) this) 
 		{
 			this.onRegisterGoals();
 		}

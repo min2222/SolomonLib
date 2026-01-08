@@ -1,7 +1,6 @@
 package com.min01.solomonlib.mixin.spider;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -90,12 +89,6 @@ public abstract class MixinEntity implements IEntityMovementHook, IEntityReadWri
 
 	@Override
 	public void onWrite(CompoundTag nbt) 
-	{
-		
-	}
-
-	@Shadow(prefix = "shadow$")
-	private void shadow$defineSynchedData() 
 	{
 		
 	}

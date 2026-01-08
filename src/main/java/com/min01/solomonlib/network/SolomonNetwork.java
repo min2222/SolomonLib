@@ -21,7 +21,7 @@ public class SolomonNetwork
 	public static int ID = 0;
 	public static void registerMessages()
 	{
-	
+		
 	}
 	
     public static <MSG> void sendToServer(MSG message) 
