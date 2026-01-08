@@ -1,5 +1,2 @@
 {
-	"embeddium-chunk": "coremods/embeddium-chunk.js",
-	"embeddium-block": "coremods/embeddium-block.js",
-	"entity": "coremods/entity.js"
 }

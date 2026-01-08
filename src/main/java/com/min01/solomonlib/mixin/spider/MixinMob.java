@@ -16,36 +16,49 @@ import com.min01.solomonlib.spider.IMobEntityTickHook;
 public abstract class MixinMob implements IMobEntityLivingTickHook, IMobEntityTickHook, IMobEntityRegisterGoalsHook
 {
 	@Inject(method = "aiStep", at = @At("HEAD"))
-	private void onLivingTick(CallbackInfo ci) {
+	private void onLivingTick(CallbackInfo ci)
+	{
 		this.onLivingTick();
 	}
 
 	@Override
-	public void onLivingTick() { }
-
+	public void onLivingTick() 
+	{
+		
+	}
+	
 	@Inject(method = "tick()V", at = @At("RETURN"))
-	private void onTick(CallbackInfo ci) {
+	private void onTick(CallbackInfo ci) 
+	{
 		this.onTick();
 	}
 
 	@Override
-	public void onTick() { }
+	public void onTick() 
+	{
+		
+	}
 
 	@Shadow(prefix = "shadow$")
-	private void shadow$registerGoals() { }
+	private void shadow$registerGoals() 
+	{ 
+		
+	}
 
-	@Redirect(method = "<init>*", at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/Mob;registerGoals()V"
-			))
-	private void onRegisterGoals(Mob _this) {
+	@Redirect(method = "<init>*", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;registerGoals()V"))
+	private void onRegisterGoals(Mob _this) 
+	{
 		this.shadow$registerGoals();
 
-		if(_this == (Object) this) {
+		if(_this == (Object) this) 
+		{
 			this.onRegisterGoals();
 		}
 	}
 
 	@Override
-	public void onRegisterGoals() { }
+	public void onRegisterGoals() 
+	{
+		
+	}
 }

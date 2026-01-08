@@ -13,7 +13,7 @@
 		"packet.MixinServerboundCustomPayloadPacket",
 		"gravity.MixinBlockStateBase",
 		"gravity.MixinBlockPlaceContext",
-		"spider.MixinClimberEntity",
+		//"spider.MixinClimberEntity",
 		"spider.MixinEntity",
 		"spider.MixinLivingEntity",
 		"spider.MixinMob"

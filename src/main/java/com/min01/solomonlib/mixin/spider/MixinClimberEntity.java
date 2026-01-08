@@ -61,7 +61,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.Level;
@@ -78,8 +78,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-@Mixin(Slime.class)
-public abstract class MixinClimberEntity extends Mob implements IClimberEntity, IMobEntityLivingTickHook, ILivingEntityLookAtHook, IMobEntityTickHook, ILivingEntityRotationHook, ILivingEntityDataManagerHook, ILivingEntityTravelHook, IEntityMovementHook, IEntityReadWriteHook, ILivingEntityJumpHook, IMobEntityRegisterGoalsHook 	 
+@Mixin(Creeper.class)
+public abstract class MixinClimberEntity extends PathfinderMob implements IClimberEntity, IMobEntityLivingTickHook, ILivingEntityLookAtHook, IMobEntityTickHook, ILivingEntityRotationHook, ILivingEntityDataManagerHook, ILivingEntityTravelHook, IEntityMovementHook, IEntityReadWriteHook, ILivingEntityJumpHook, IMobEntityRegisterGoalsHook 	 
 {
 	private static final EntityDataAccessor<Float> MOVEMENT_TARGET_X;
 	private static final EntityDataAccessor<Float> MOVEMENT_TARGET_Y;
@@ -177,12 +177,20 @@ public abstract class MixinClimberEntity extends Mob implements IClimberEntity, 
 		return navigation;
 	}
 
+	//for targeting speific entities
 	@Inject(method = "defineSynchedData", at = @At("RETURN"))
 	public void onDefineSynchedData(CallbackInfo ci)
 	{
 		this.onRegisterData();
 		this.pathFinderDebugPreview = SolomonConfig.PATH_FINDER_DEBUG_PREVIEW.get();
 	}
+	
+	//for targeting globally like PathFinderMob or Monster
+	/*@Override
+	protected void defineSynchedData() 
+	{
+		super.defineSynchedData();
+	}*/
 
 	public void onRegisterData() 
 	{
