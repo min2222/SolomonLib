@@ -34,32 +34,32 @@ public class MixinBlockRenderDispatcher
 	private ModelBlockRenderer modelRenderer;
 	   
 	@Inject(method = "renderBatched(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/BlockAndTintGetter;Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;ZLnet/minecraft/util/RandomSource;Lnet/minecraftforge/client/model/data/ModelData;Lnet/minecraft/client/renderer/RenderType;)V", at = @At("HEAD"), cancellable = true, remap = false)
-	private void renderBatched(BlockState p_234356_, BlockPos p_234357_, BlockAndTintGetter p_234358_, PoseStack p_234359_, VertexConsumer p_234360_, boolean p_234361_, RandomSource p_234362_, net.minecraftforge.client.model.data.ModelData modelData, net.minecraft.client.renderer.RenderType renderType, CallbackInfo ci) 
+	private void renderBatched(BlockState pState, BlockPos pPos, BlockAndTintGetter pLevel, PoseStack pPoseStack, VertexConsumer pConsumer, boolean pCheckSides, RandomSource pRandom, net.minecraftforge.client.model.data.ModelData modelData, net.minecraft.client.renderer.RenderType renderType, CallbackInfo ci) 
 	{
-		if(SolomonUtil.isBlockUpsideDown(p_234357_, SolomonClientUtil.MC.level))
+		if(SolomonUtil.isBlockUpsideDown(SolomonClientUtil.MC.level, pPos))
 		{
 			ci.cancel();
 			try 
 			{
-				RenderShape rendershape = p_234356_.getRenderShape();
+				RenderShape rendershape = pState.getRenderShape();
 				if(rendershape == RenderShape.MODEL) 
 				{
-					GravityBakedModelWrapper wrapper = new GravityBakedModelWrapper(this.getBlockModel(p_234356_));
-					this.modelRenderer.tesselateBlock(p_234358_, wrapper, p_234356_, p_234357_, p_234359_, p_234360_, p_234361_, p_234362_, p_234356_.getSeed(p_234357_), OverlayTexture.NO_OVERLAY, modelData, renderType);
+					GravityBakedModelWrapper wrapper = new GravityBakedModelWrapper(this.getBlockModel(pState));
+					this.modelRenderer.tesselateBlock(pLevel, wrapper, pState, pPos, pPoseStack, pConsumer, pCheckSides, pRandom, pState.getSeed(pPos), OverlayTexture.NO_OVERLAY, modelData, renderType);
 				}
 			} 
 			catch (Throwable throwable) 
 			{
 				CrashReport crashreport = CrashReport.forThrowable(throwable, "Tesselating block in world");
 				CrashReportCategory crashreportcategory = crashreport.addCategory("Block being tesselated");
-				CrashReportCategory.populateBlockDetails(crashreportcategory, p_234358_, p_234357_, p_234356_);
+		         CrashReportCategory.populateBlockDetails(crashreportcategory, pLevel, pPos, pState);
 				throw new ReportedException(crashreport);
 			}
 		}
 	}
 	
 	@Shadow
-	public BakedModel getBlockModel(BlockState p_110911_) 
+	public BakedModel getBlockModel(BlockState state) 
 	{
 		throw new IllegalStateException();
 	}

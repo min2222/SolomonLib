@@ -21,110 +21,110 @@ public class GravityBlockPos extends BlockPos
 	}
 	
 	@Override
-	public BlockPos relative(Direction p_121946_, int p_121949_) 
+	public BlockPos relative(Direction pDirection, int pDistance) 
 	{
 	    return switch (this.direction) 
 	    {
-	        case UP -> switch (p_121946_) 
+	        case UP -> switch (pDirection) 
 	        {
-	            case UP -> this.gravityRelative(Direction.DOWN, p_121949_);
-	            case DOWN -> this.gravityRelative(Direction.UP, p_121949_);
-	            case WEST -> this.gravityRelative(Direction.WEST, p_121949_);
-	            case EAST -> this.gravityRelative(Direction.EAST, p_121949_);
-	            default -> this.gravityRelative(p_121946_, p_121949_);
+	            case UP -> this.gravityRelative(Direction.DOWN, pDistance);
+	            case DOWN -> this.gravityRelative(Direction.UP, pDistance);
+	            case WEST -> this.gravityRelative(Direction.WEST, pDistance);
+	            case EAST -> this.gravityRelative(Direction.EAST, pDistance);
+	            default -> this.gravityRelative(pDirection, pDistance);
 	        };
-	        case NORTH -> switch (p_121946_)
+	        case NORTH -> switch (pDirection)
 	        {
-	            case UP -> this.gravityRelative(Direction.SOUTH, p_121949_);
-	            case DOWN -> this.gravityRelative(Direction.NORTH, p_121949_);
-	            case NORTH -> this.gravityRelative(Direction.UP, p_121949_);
-	            case SOUTH -> this.gravityRelative(Direction.DOWN, p_121949_);
-	            default -> this.gravityRelative(p_121946_, p_121949_);
+	            case UP -> this.gravityRelative(Direction.SOUTH, pDistance);
+	            case DOWN -> this.gravityRelative(Direction.NORTH, pDistance);
+	            case NORTH -> this.gravityRelative(Direction.UP, pDistance);
+	            case SOUTH -> this.gravityRelative(Direction.DOWN, pDistance);
+	            default -> this.gravityRelative(pDirection, pDistance);
 	        };
-	        case SOUTH -> switch (p_121946_)
+	        case SOUTH -> switch (pDirection)
 	        {
-	            case UP -> this.gravityRelative(Direction.NORTH, p_121949_);
-	            case DOWN -> this.gravityRelative(Direction.SOUTH, p_121949_);
-	            case NORTH -> this.gravityRelative(Direction.DOWN, p_121949_);
-	            case SOUTH -> this.gravityRelative(Direction.UP, p_121949_);
-	            default -> this.gravityRelative(p_121946_, p_121949_);
+	            case UP -> this.gravityRelative(Direction.NORTH, pDistance);
+	            case DOWN -> this.gravityRelative(Direction.SOUTH, pDistance);
+	            case NORTH -> this.gravityRelative(Direction.DOWN, pDistance);
+	            case SOUTH -> this.gravityRelative(Direction.UP, pDistance);
+	            default -> this.gravityRelative(pDirection, pDistance);
 	        };
-	        case WEST -> switch (p_121946_) 
+	        case WEST -> switch (pDirection) 
 	        {
-	            case UP -> this.gravityRelative(Direction.EAST, p_121949_);
-	            case DOWN -> this.gravityRelative(Direction.WEST, p_121949_);
-	            case WEST -> this.gravityRelative(Direction.DOWN, p_121949_);
-	            case EAST -> this.gravityRelative(Direction.UP, p_121949_);
-	            default -> this.gravityRelative(p_121946_, p_121949_);
+	            case UP -> this.gravityRelative(Direction.EAST, pDistance);
+	            case DOWN -> this.gravityRelative(Direction.WEST, pDistance);
+	            case WEST -> this.gravityRelative(Direction.DOWN, pDistance);
+	            case EAST -> this.gravityRelative(Direction.UP, pDistance);
+	            default -> this.gravityRelative(pDirection, pDistance);
 	        };
-	        case EAST -> switch (p_121946_) 
+	        case EAST -> switch (pDirection) 
 	        {
-	            case UP -> this.gravityRelative(Direction.WEST, p_121949_);
-	            case DOWN -> this.gravityRelative(Direction.EAST, p_121949_);
-	            case WEST -> this.gravityRelative(Direction.UP, p_121949_);
-	            case EAST -> this.gravityRelative(Direction.DOWN, p_121949_);
-	            default -> this.gravityRelative(p_121946_, p_121949_);
+	            case UP -> this.gravityRelative(Direction.WEST, pDistance);
+	            case DOWN -> this.gravityRelative(Direction.EAST, pDistance);
+	            case WEST -> this.gravityRelative(Direction.UP, pDistance);
+	            case EAST -> this.gravityRelative(Direction.DOWN, pDistance);
+	            default -> this.gravityRelative(pDirection, pDistance);
 	        };
-	        default -> this.gravityRelative(p_121946_, p_121949_);
+	        default -> this.gravityRelative(pDirection, pDistance);
 	    };
 	}
 
 	@Override
-	public BlockPos relative(Direction p_121946_)
+	public BlockPos relative(Direction pDirection)
 	{
 	    return switch (this.direction)
 	    {
-	        case UP -> switch (p_121946_) 
+	        case UP -> switch (pDirection) 
 	        {
 	            case UP -> this.gravityRelative(Direction.DOWN);
 	            case DOWN -> this.gravityRelative(Direction.UP);
 	            case WEST -> this.gravityRelative(Direction.WEST);
 	            case EAST -> this.gravityRelative(Direction.EAST);
-	            default -> this.gravityRelative(p_121946_);
+	            default -> this.gravityRelative(pDirection);
 	        };
-	        case NORTH -> switch (p_121946_) 
+	        case NORTH -> switch (pDirection) 
 	        {
 	            case UP -> this.gravityRelative(Direction.SOUTH);
 	            case DOWN -> this.gravityRelative(Direction.NORTH);
 	            case NORTH -> this.gravityRelative(Direction.UP);
 	            case SOUTH -> this.gravityRelative(Direction.DOWN);
-	            default -> this.gravityRelative(p_121946_);
+	            default -> this.gravityRelative(pDirection);
 	        };
-	        case SOUTH -> switch (p_121946_)
+	        case SOUTH -> switch (pDirection)
 	        {
 	            case UP -> this.gravityRelative(Direction.NORTH);
 	            case DOWN -> this.gravityRelative(Direction.SOUTH);
 	            case NORTH -> this.gravityRelative(Direction.DOWN);
 	            case SOUTH -> this.gravityRelative(Direction.UP);
-	            default -> this.gravityRelative(p_121946_);
+	            default -> this.gravityRelative(pDirection);
 	        };
-	        case WEST -> switch (p_121946_)
+	        case WEST -> switch (pDirection)
 	        {
 	            case UP -> this.gravityRelative(Direction.EAST);
 	            case DOWN -> this.gravityRelative(Direction.WEST);
 	            case WEST -> this.gravityRelative(Direction.DOWN);
 	            case EAST -> this.gravityRelative(Direction.UP);
-	            default -> this.gravityRelative(p_121946_);
+	            default -> this.gravityRelative(pDirection);
 	        };
-	        case EAST -> switch (p_121946_)
+	        case EAST -> switch (pDirection)
 	        {
 	            case UP -> this.gravityRelative(Direction.WEST);
 	            case DOWN -> this.gravityRelative(Direction.EAST);
 	            case WEST -> this.gravityRelative(Direction.UP);
 	            case EAST -> this.gravityRelative(Direction.DOWN);
-	            default -> this.gravityRelative(p_121946_);
+	            default -> this.gravityRelative(pDirection);
 	        };
-	        default -> this.gravityRelative(p_121946_);
+	        default -> this.gravityRelative(pDirection);
 	    };
 	}
 	
-	public BlockPos gravityRelative(Direction p_121946_) 
+	public BlockPos gravityRelative(Direction pDirection) 
 	{
-		return new GravityBlockPos(this.getX() + p_121946_.getStepX(), this.getY() + p_121946_.getStepY(), this.getZ() + p_121946_.getStepZ(), this.direction);
+		return new GravityBlockPos(this.getX() + pDirection.getStepX(), this.getY() + pDirection.getStepY(), this.getZ() + pDirection.getStepZ(), this.direction);
 	}
 
-	public BlockPos gravityRelative(Direction p_121948_, int p_121949_) 
+	public BlockPos gravityRelative(Direction pDirection, int pDistance) 
 	{
-		return p_121949_ == 0 ? this : new GravityBlockPos(this.getX() + p_121948_.getStepX() * p_121949_, this.getY() + p_121948_.getStepY() * p_121949_, this.getZ() + p_121948_.getStepZ() * p_121949_, this.direction);
+		return pDistance == 0 ? this : new GravityBlockPos(this.getX() + pDirection.getStepX() * pDistance, this.getY() + pDirection.getStepY() * pDistance, this.getZ() + pDirection.getStepZ() * pDistance, this.direction);
 	}
 }

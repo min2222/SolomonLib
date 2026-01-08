@@ -1,6 +1,0 @@
-{
-	"parent": "item/generated",
-	"textures": {
-		"layer0": "solomonlib:item/gravity_anchor_west"
-	}
-}

@@ -1,10 +1,14 @@
 package com.min01.solomonlib.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.min01.solomonlib.world.SolomonSavedData;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
 public class SolomonUtil 
@@ -12,18 +16,54 @@ public class SolomonUtil
 	public static final String BTA_MODID = "beyondtheabyss";
 	
  	public static final ResourceKey<Level> MIRRORED_CITY = ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath(BTA_MODID, "mirrored_city"));
- 	
-	public static boolean isBlockUpsideDown(BlockPos pos, Level level)
+	public static final List<BlockPos> GRAVITY_BLOCKS = new ArrayList<>();
+	
+	public static void setBlockUpsideDown(Level level, BlockPos pos)
 	{
-		if(level != null)
+		SolomonSavedData data = SolomonSavedData.get(level);
+		if(data != null)
 		{
-			return level.dimension() == MIRRORED_CITY && pos.getY() >= 150;
+			data.setBlockUpsideDown(pos);
 		}
-		return false;
+		else
+		{
+			GRAVITY_BLOCKS.add(pos);
+		}
 	}
 	
-	public static boolean isUpsideDown(Entity entity)
+	public static void removeUpsideDownBlocks(Level level)
 	{
-		return entity.level.dimension() == MIRRORED_CITY && entity.getY() >= 150;
+		SolomonSavedData data = SolomonSavedData.get(level);
+		if(data != null)
+		{
+			data.getUpsideDownBlocks().removeIf(t -> level.getBlockState(t).isAir());
+		}
+		else
+		{
+			GRAVITY_BLOCKS.removeIf(t -> level.getBlockState(t).isAir());
+		}
+	}
+	
+	public static void removeUpsideDownBlock(Level level, BlockPos pos)
+	{
+		SolomonSavedData data = SolomonSavedData.get(level);
+		if(data != null)
+		{
+			data.getUpsideDownBlocks().removeIf(t -> t.equals(pos));
+		}
+		else
+		{
+			GRAVITY_BLOCKS.removeIf(t -> t.equals(pos));
+		}
+	}
+	
+	public static boolean isBlockUpsideDown(Level level, BlockPos pos)
+	{
+		SolomonSavedData data = SolomonSavedData.get(level);
+		if(data != null)
+		{
+			return data.isBlockUpsideDown(level, pos);
+		}
+		return GRAVITY_BLOCKS.contains(pos);
 	}
 }

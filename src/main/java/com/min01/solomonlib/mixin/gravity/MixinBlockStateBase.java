@@ -33,12 +33,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public abstract class MixinBlockStateBase
 {
 	@Inject(method = "getShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;", at = @At("RETURN"), cancellable = true)
-    private void getShape(BlockGetter p_60652_, BlockPos p_60653_, CollisionContext p_60654_, CallbackInfoReturnable<VoxelShape> cir)
+    private void getShape(BlockGetter pLevel, BlockPos pPos, CollisionContext pContext, CallbackInfoReturnable<VoxelShape> cir)
     {
     	VoxelShape shape = cir.getReturnValue();
-    	if(p_60652_ instanceof Level level)
+    	if(pLevel instanceof Level level)
     	{
-            if(!shape.isEmpty() && SolomonUtil.isBlockUpsideDown(p_60653_, level))
+            if(!shape.isEmpty() && SolomonUtil.isBlockUpsideDown(level, pPos))
             {
                 VoxelShape flipped = Shapes.empty();
                 for(AABB box : shape.toAabbs()) 
@@ -60,7 +60,7 @@ public abstract class MixinBlockStateBase
     	if(p_60711_ instanceof Level level)
     	{
     		BlockStateBase base = BlockStateBase.class.cast(this);
-    		if(SolomonUtil.isBlockUpsideDown(p_60712_, level))
+    		if(SolomonUtil.isBlockUpsideDown(level, p_60712_))
     		{
     			GravityBlockPos gravityPos = new GravityBlockPos(p_60712_, Direction.UP);
     			cir.setReturnValue(base.getBlock().canSurvive(this.asState(), p_60711_, gravityPos));
@@ -74,7 +74,7 @@ public abstract class MixinBlockStateBase
     {
     	BlockPos pos = p_60668_.getBlockPos();
 		BlockStateBase base = BlockStateBase.class.cast(this);
-		if(SolomonUtil.isBlockUpsideDown(pos, p_60665_))
+		if(SolomonUtil.isBlockUpsideDown(p_60665_, pos))
 		{
 			GravityBlockPos gravityPos = new GravityBlockPos(pos, Direction.UP);
 	        cir.setReturnValue(base.getBlock().use(this.asState(), p_60665_, gravityPos, p_60666_, p_60667_, p_60668_));
@@ -88,7 +88,7 @@ public abstract class MixinBlockStateBase
 		if(p_60731_ instanceof Level level)
 		{
     		BlockStateBase base = BlockStateBase.class.cast(this);
-			if(SolomonUtil.isBlockUpsideDown(p_60732_, level))
+			if(SolomonUtil.isBlockUpsideDown(level, p_60732_))
 			{
     			GravityBlockPos gravityPos = new GravityBlockPos(p_60732_, Direction.UP);
     	        cir.setReturnValue(base.getBlock().updateShape(this.asState(), p_60729_, p_60730_, p_60731_, gravityPos, p_60733_));
@@ -101,7 +101,7 @@ public abstract class MixinBlockStateBase
     private void neighborChanged(Level p_60691_, BlockPos p_60692_, Block p_60693_, BlockPos p_60694_, boolean p_60695_, CallbackInfo ci)
     {
 		BlockStateBase base = BlockStateBase.class.cast(this);
-		if(SolomonUtil.isBlockUpsideDown(p_60694_, p_60691_))
+		if(SolomonUtil.isBlockUpsideDown(p_60691_, p_60694_))
 		{
 			ci.cancel();
 			GravityBlockPos gravityPos = new GravityBlockPos(p_60694_, Direction.UP);

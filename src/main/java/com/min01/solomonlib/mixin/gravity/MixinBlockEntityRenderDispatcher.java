@@ -24,31 +24,31 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public class MixinBlockEntityRenderDispatcher
 {
 	@Inject(method = "setupAndRender", at = @At("HEAD"), cancellable = true)
-	private static <T extends BlockEntity> void setupAndRenderBefore(BlockEntityRenderer<T> p_112285_, T p_112286_, float p_112287_, PoseStack p_112288_, MultiBufferSource p_112289_, CallbackInfo ci) 
+	private static <T extends BlockEntity> void setupAndRenderBefore(BlockEntityRenderer<T> pRenderer, T pBlockEntity, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBufferSource, CallbackInfo ci) 
 	{
-		Level level = p_112286_.getLevel();
-		BlockPos pos = p_112286_.getBlockPos();
-		if(level != null && SolomonUtil.isBlockUpsideDown(pos, level))
+		Level level = pBlockEntity.getLevel();
+		BlockPos pos = pBlockEntity.getBlockPos();
+		if(level != null && SolomonUtil.isBlockUpsideDown(level, pos))
 		{
-			p_112288_.pushPose();
-			p_112288_.translate(0.5F, 0.5F, 0.5F);
+			pPoseStack.pushPose();
+			pPoseStack.translate(0.5F, 0.5F, 0.5F);
 			Quaternionf quat = new Quaternionf(RotationUtil.getWorldRotationQuaternion(Direction.UP));
-			p_112288_.mulPose(quat);
-			p_112288_.scale(-1.0F, 1.0F, 1.0F); 
-			p_112288_.translate(-0.5F, -0.5F, -0.5F);
+			pPoseStack.mulPose(quat);
+			pPoseStack.scale(-1.0F, 1.0F, 1.0F); 
+			pPoseStack.translate(-0.5F, -0.5F, -0.5F);
 			RenderSystem.disableCull();
 		}
 	}
 	
 	@Inject(method = "setupAndRender", at = @At("TAIL"), cancellable = true)
-	private static <T extends BlockEntity> void setupAndRenderAfter(BlockEntityRenderer<T> p_112285_, T p_112286_, float p_112287_, PoseStack p_112288_, MultiBufferSource p_112289_, CallbackInfo ci) 
+	private static <T extends BlockEntity> void setupAndRenderAfter(BlockEntityRenderer<T> pRenderer, T pBlockEntity, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBufferSource, CallbackInfo ci) 
 	{
-		Level level = p_112286_.getLevel();
-		BlockPos pos = p_112286_.getBlockPos();
-		if(level != null && SolomonUtil.isBlockUpsideDown(pos, level))
+		Level level = pBlockEntity.getLevel();
+		BlockPos pos = pBlockEntity.getBlockPos();
+		if(level != null && SolomonUtil.isBlockUpsideDown(level, pos))
 		{
             RenderSystem.enableCull();
-            p_112288_.popPose();
+            pPoseStack.popPose();
 		}
 	}
 }

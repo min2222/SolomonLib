@@ -21,16 +21,16 @@ import net.minecraft.world.phys.BlockHitResult;
 @Mixin(value = BlockPlaceContext.class, priority = -10000)
 public abstract class MixinBlockPlaceContext extends UseOnContext
 {
-	public MixinBlockPlaceContext(Level p_43713_, Player p_43714_, InteractionHand p_43715_, ItemStack p_43716_, BlockHitResult p_43717_) 
+	public MixinBlockPlaceContext(Level pLevel, Player pPlayer, InteractionHand pHand, ItemStack pItemStack, BlockHitResult pHitResult)
 	{
-		super(p_43713_, p_43714_, p_43715_, p_43716_, p_43717_);
+		super(pLevel, pPlayer, pHand, pItemStack, pHitResult);
 	}
 
 	@Inject(method = "getClickedPos", at = @At("RETURN"), cancellable = true)
 	private void getClickedPos(CallbackInfoReturnable<BlockPos> cir) 
 	{
 		BlockPos pos = cir.getReturnValue();
-		if(SolomonUtil.isBlockUpsideDown(pos, this.getLevel()))
+		if(SolomonUtil.isBlockUpsideDown(this.getLevel(), pos))
 		{
 			GravityBlockPos gravityPos = new GravityBlockPos(pos, Direction.UP);
 			cir.setReturnValue(gravityPos);
