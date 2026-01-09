@@ -84,8 +84,6 @@
 		"lights.MixinLevelRenderer",
 		"lights.MixinClientLevel",
 		"lights.MixinMinecraft",
-		"gravity.MixinBlockRenderDispatcher",
-		"gravity.MixinBlockEntityRenderDispatcher",
 		"spider.MixinLivingEntityClient",
 		"spider.MixinLivingEntityRenderer"
 	],

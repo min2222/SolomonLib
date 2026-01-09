@@ -30,7 +30,7 @@ public abstract class ServerGamePacketListenerImplMixin
 	@ModifyVariable(method = "handleMovePlayer", at = @At(value = "STORE", ordinal = 0), ordinal = 0, name = "flag")
 	private boolean modifyFlagBasedOnGravity(boolean originalFlag, ServerboundMovePlayerPacket packet)
 	{
-		Direction gravity = GravityAPI.getGravityDirection(player);
+		Direction gravity = GravityAPI.getGravityDirection(this.player);
 
 		double dx = packet.getX(this.player.getX()) - this.lastGoodX;
 		double dy = packet.getY(this.player.getY()) - this.lastGoodY;
