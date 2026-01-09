@@ -45,9 +45,9 @@ public class AdvancedGroundPathNavigation<T extends Mob & IClimberEntity> extend
 		this.advancedPathFindingEntity = entity;
 		this.checkObstructions = checkObstructions;
 
-		if(this.nodeEvaluator instanceof AdvancedWalkNodeProcessor)
+		if(this.nodeEvaluator instanceof AdvancedWalkNodeEvaluator)
 		{
-			AdvancedWalkNodeProcessor processor = (AdvancedWalkNodeProcessor) this.nodeEvaluator;
+			AdvancedWalkNodeEvaluator processor = (AdvancedWalkNodeEvaluator) this.nodeEvaluator;
 			processor.setCheckObstructions(checkObstructions);
 		}
 	}
@@ -67,7 +67,7 @@ public class AdvancedGroundPathNavigation<T extends Mob & IClimberEntity> extend
 
 	protected AdvancedPathFinder createAdvancedPathFinder(int maxExpansions)
 	{
-		AdvancedWalkNodeProcessor nodeProcessor = new AdvancedWalkNodeProcessor();
+		AdvancedWalkNodeEvaluator nodeProcessor = new AdvancedWalkNodeEvaluator();
 		nodeProcessor.setCanPassDoors(true);
 		return new AdvancedPathFinder(nodeProcessor, maxExpansions);
 	}

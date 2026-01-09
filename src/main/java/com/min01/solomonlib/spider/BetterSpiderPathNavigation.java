@@ -6,12 +6,12 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.Path;
 
-public class BetterSpiderPathNavigator<T extends Mob & IClimberEntity> extends AdvancedClimberPathNavigation<T> 
+public class BetterSpiderPathNavigation<T extends Mob & IClimberEntity> extends AdvancedClimberPathNavigation<T> 
 {
 	private boolean useVanillaBehaviour;
 	private BlockPos targetPosition;
 
-	public BetterSpiderPathNavigator(T entity, Level worldIn, boolean useVanillaBehaviour) 
+	public BetterSpiderPathNavigation(T entity, Level worldIn, boolean useVanillaBehaviour) 
 	{
 		super(entity, worldIn, false, true, true);
 		this.useVanillaBehaviour = useVanillaBehaviour;

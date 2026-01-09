@@ -8,7 +8,7 @@ import java.util.EnumSet;
 
 public class DirectionalPathPoint extends Node 
 {
-	protected static final long ALL_DIRECTIONS = AdvancedWalkNodeProcessor.packDirection(Direction.UP, AdvancedWalkNodeProcessor.packDirection(Direction.DOWN, AdvancedWalkNodeProcessor.packDirection(Direction.NORTH, AdvancedWalkNodeProcessor.packDirection(Direction.EAST, AdvancedWalkNodeProcessor.packDirection(Direction.SOUTH, AdvancedWalkNodeProcessor.packDirection(Direction.WEST, 0L))))));
+	protected static final long ALL_DIRECTIONS = AdvancedWalkNodeEvaluator.packDirection(Direction.UP, AdvancedWalkNodeEvaluator.packDirection(Direction.DOWN, AdvancedWalkNodeEvaluator.packDirection(Direction.NORTH, AdvancedWalkNodeEvaluator.packDirection(Direction.EAST, AdvancedWalkNodeEvaluator.packDirection(Direction.SOUTH, AdvancedWalkNodeEvaluator.packDirection(Direction.WEST, 0L))))));
 
 	protected static final Direction[] DIRECTIONS = Direction.values();
 
@@ -26,7 +26,7 @@ public class DirectionalPathPoint extends Node
 		{
 			Direction dir = DIRECTIONS[i];
 
-			if(AdvancedWalkNodeProcessor.unpackDirection(dir, packed))
+			if(AdvancedWalkNodeEvaluator.unpackDirection(dir, packed))
 			{
 				directionsSet.add(dir);
 			}

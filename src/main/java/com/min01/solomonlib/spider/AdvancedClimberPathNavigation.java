@@ -33,9 +33,9 @@ public class AdvancedClimberPathNavigation<T extends Mob & IClimberEntity> exten
     {
         super(entity, worldIn, checkObstructions);
         this.climber = entity;
-        if(this.nodeEvaluator instanceof AdvancedWalkNodeProcessor)
+        if(this.nodeEvaluator instanceof AdvancedWalkNodeEvaluator)
         {
-            AdvancedWalkNodeProcessor processor = (AdvancedWalkNodeProcessor) this.nodeEvaluator;
+            AdvancedWalkNodeEvaluator processor = (AdvancedWalkNodeEvaluator) this.nodeEvaluator;
             processor.setStartPathOnGround(false);
             processor.setCanPathWalls(canPathWalls);
             processor.setCanPathCeiling(canPathCeiling);

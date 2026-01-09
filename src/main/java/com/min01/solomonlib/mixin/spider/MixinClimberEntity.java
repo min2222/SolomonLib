@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.min01.solomonlib.config.SolomonConfig;
 import com.min01.solomonlib.misc.Matrix4f;
 import com.min01.solomonlib.misc.SolomonTags;
-import com.min01.solomonlib.spider.BetterSpiderPathNavigator;
+import com.min01.solomonlib.spider.BetterSpiderPathNavigation;
 import com.min01.solomonlib.spider.ClimberJumpControl;
 import com.min01.solomonlib.spider.ClimberLookControl;
 import com.min01.solomonlib.spider.ClimberMoveControl;
@@ -172,7 +172,7 @@ public abstract class MixinClimberEntity extends PathfinderMob implements IClimb
 	@Override
 	protected PathNavigation createNavigation(Level pLevel)
 	{
-		BetterSpiderPathNavigator<MixinClimberEntity> navigation = new BetterSpiderPathNavigator<>(this, pLevel, false);
+		BetterSpiderPathNavigation<MixinClimberEntity> navigation = new BetterSpiderPathNavigation<>(this, pLevel, false);
 		navigation.setCanFloat(true);
 		return navigation;
 	}

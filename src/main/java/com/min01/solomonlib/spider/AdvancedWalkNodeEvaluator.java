@@ -27,7 +27,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 
-public class AdvancedWalkNodeProcessor extends WalkNodeEvaluator 
+public class AdvancedWalkNodeEvaluator extends WalkNodeEvaluator 
 {
 	protected static final BlockPathTypes[] PATH_NODE_TYPES = BlockPathTypes.values();
 	protected static final Direction[] DIRECTIONS = Direction.values();
