@@ -30,7 +30,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     }
 
     @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("RETURN"))
-    private void renderPos(T livingEntity, float f, float partialTicks, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) 
+    private void renderPost(T livingEntity, float f, float partialTicks, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) 
     {
     	SolomonClientUtil.onPostRenderLiving(livingEntity, partialTicks, poseStack, multiBufferSource);
     }
