@@ -49,14 +49,6 @@ function initializeCoreMod() {
 					    var inject = new InsnList();
 
 					    // Call SolomonUtil.isBlockUpsideDown(ctx.pos(), MC.level)
-					    inject.add(new VarInsnNode(Opcodes.ALOAD, 1)); // ctx
-					    inject.add(new MethodInsnNode(
-					        Opcodes.INVOKEVIRTUAL,
-					        "me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderContext",
-					        "pos",
-					        "()Lnet/minecraft/core/BlockPos;",
-					        false
-					    ));
 					    inject.add(new FieldInsnNode(
 					        Opcodes.GETSTATIC,
 					        "com/min01/solomonlib/util/SolomonClientUtil",
@@ -69,6 +61,14 @@ function initializeCoreMod() {
 					        asmapi.mapField("f_91073_"),
 					        "Lnet/minecraft/client/multiplayer/ClientLevel;"
 					    ));
+						inject.add(new VarInsnNode(Opcodes.ALOAD, 1)); // ctx
+						inject.add(new MethodInsnNode(
+						    Opcodes.INVOKEVIRTUAL,
+						    "me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderContext",
+						    "pos",
+						    "()Lnet/minecraft/core/BlockPos;",
+						    false
+						));
 					    inject.add(new MethodInsnNode(
 					        Opcodes.INVOKESTATIC,
 					        "com/min01/solomonlib/util/SolomonUtil",
@@ -250,14 +250,6 @@ function initializeCoreMod() {
 						// ctx is arg1 (1), face is arg2 (2)
 
 						// isBlockUpsideDown(ctx.pos(), SolomonClientUtil.MC.level)
-						inject.add(new VarInsnNode(Opcodes.ALOAD, 1));
-						inject.add(new MethodInsnNode(
-						    Opcodes.INVOKEVIRTUAL,
-						    "me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderContext",
-						    "pos",
-						    "()Lnet/minecraft/core/BlockPos;",
-						    false
-						));
 						inject.add(new FieldInsnNode(
 						    Opcodes.GETSTATIC,
 						    "com/min01/solomonlib/util/SolomonClientUtil",
@@ -269,6 +261,14 @@ function initializeCoreMod() {
 						    "net/minecraft/client/Minecraft",
 						    asmapi.mapField("f_91073_"),
 						    "Lnet/minecraft/client/multiplayer/ClientLevel;"
+						));
+						inject.add(new VarInsnNode(Opcodes.ALOAD, 1));
+						inject.add(new MethodInsnNode(
+						    Opcodes.INVOKEVIRTUAL,
+						    "me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderContext",
+						    "pos",
+						    "()Lnet/minecraft/core/BlockPos;",
+						    false
 						));
 						inject.add(new MethodInsnNode(
 						    Opcodes.INVOKESTATIC,
