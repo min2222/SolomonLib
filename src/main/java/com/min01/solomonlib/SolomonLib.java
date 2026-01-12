@@ -32,7 +32,7 @@ public class SolomonLib
 		SolomonCreativeTabs.CREATIVE_MODE_TAB.register(bus);
 		
 		SolomonNetwork.registerMessages();
-		MinecraftForge.EVENT_BUS.addGenericListener(Entity.class, SolomonCapabilities::attachEntityCapability);
+		MinecraftForge.EVENT_BUS.addGenericListener(Entity.class, SolomonCapabilities::onAttachEntityCapabilities);
 		ctx.registerConfig(Type.COMMON, SolomonConfig.CONFIG_SPEC, "solomonlib.toml");
 	}
 }

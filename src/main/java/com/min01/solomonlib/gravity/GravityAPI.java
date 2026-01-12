@@ -9,8 +9,6 @@ import java.util.function.Consumer;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 
-import com.min01.solomonlib.capabilities.SolomonCapabilities;
-
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
@@ -191,7 +189,7 @@ public class GravityAPI
     
     public static GravityCapabilityImpl getGravityComponent(Entity entity)
     {
-    	GravityCapabilityImpl cap = (GravityCapabilityImpl) entity.getCapability(SolomonCapabilities.GRAVITY).orElse(new GravityCapabilityImpl());
+    	GravityCapabilityImpl cap = (GravityCapabilityImpl) entity.getCapability(GravityCapabilityImpl.GRAVITY).orElse(new GravityCapabilityImpl(entity));
         return cap;
     }
     

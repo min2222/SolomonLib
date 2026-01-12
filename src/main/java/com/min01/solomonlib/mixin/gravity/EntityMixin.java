@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.min01.solomonlib.capabilities.SolomonCapabilities;
 import com.min01.solomonlib.config.SolomonConfig;
 import com.min01.solomonlib.gravity.GravityAPI;
+import com.min01.solomonlib.gravity.GravityCapabilityImpl;
 import com.min01.solomonlib.gravity.IGravityCapability;
 import com.min01.solomonlib.gravity.RotationUtil;
 
@@ -134,7 +134,7 @@ public abstract class EntityMixin
 	private void tick(CallbackInfo ci) 
 	{
 		Entity entity = Entity.class.cast(this);
-		entity.getCapability(SolomonCapabilities.GRAVITY).ifPresent(IGravityCapability::tick);
+		entity.getCapability(GravityCapabilityImpl.GRAVITY).ifPresent(IGravityCapability::tick);
 	}
 
 	@WrapOperation(method = "Lnet/minecraft/world/entity/Entity;makeBoundingBox()Lnet/minecraft/world/phys/AABB;", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/EntityDimensions;makeBoundingBox(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/AABB;"))

@@ -3,8 +3,8 @@ package com.min01.solomonlib.network;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import com.min01.solomonlib.capabilities.SolomonCapabilities;
 import com.min01.solomonlib.gravity.GravityAPI;
+import com.min01.solomonlib.gravity.GravityCapabilityImpl;
 
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -54,7 +54,7 @@ public class UpdateGravityCapabilityPacket
 				GravityAPI.getClientLevel(level -> 
 				{
 					Entity entity = GravityAPI.getEntityByUUID(level, message.entityUUID);
-					entity.getCapability(SolomonCapabilities.GRAVITY).ifPresent(cap -> 
+					entity.getCapability(GravityCapabilityImpl.GRAVITY).ifPresent(cap -> 
 					{
 						cap.sync(message.noAnimation, message.baseGravityDirection, message.currentGravityDirection, message.baseGravityStrength, message.currentGravityStrength);
 					});

@@ -31,6 +31,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.network.PacketDistributor;
 
 /**
@@ -46,6 +50,8 @@ import net.minecraftforge.network.PacketDistributor;
  */
 public class GravityCapabilityImpl implements IGravityCapability 
 {
+	public static final Capability<IGravityCapability> GRAVITY = CapabilityManager.get(new CapabilityToken<>() {});
+	
     public boolean initialized = false;
     
     // not synchronized
@@ -81,11 +87,10 @@ public class GravityCapabilityImpl implements IGravityCapability
     public boolean noAnimation = false;
     public boolean noPositionAdjust = false;
     
-	@Override
-	public void setEntity(Entity entity) 
-	{
+    public GravityCapabilityImpl(Entity entity) 
+    {
 		this.entity = entity;
-        if(entity.level.isClientSide()) 
+        if(entity.level.isClientSide) 
         {
             this.animation = new RotationAnimation();
         }
@@ -152,7 +157,7 @@ public class GravityCapabilityImpl implements IGravityCapability
     
     private boolean shouldAcceptServerSync()
     {
-        return this.entity.level.isClientSide() && !GravityAPI.isClientPlayer(entity);
+        return this.entity.level.isClientSide && !GravityAPI.isClientPlayer(entity);
     }
     
     @Override
@@ -174,7 +179,7 @@ public class GravityCapabilityImpl implements IGravityCapability
         
         this.applyGravityChange();
         
-        if(!this.entity.level.isClientSide()) 
+        if(!this.entity.level.isClientSide) 
         {
             if(this.needsSync)
             {
@@ -384,7 +389,7 @@ public class GravityCapabilityImpl implements IGravityCapability
         	this.adjustEntityPosition(oldGravity, newGravity, this.entity.getBoundingBox());
         }
         
-        if(this.entity.level.isClientSide()) 
+        if(this.entity.level.isClientSide) 
         {
             Validate.notNull(this.animation, "gravity animation is null");
             
@@ -605,4 +610,10 @@ public class GravityCapabilityImpl implements IGravityCapability
     {
     
     }
+    
+	@Override
+	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) 
+	{
+		return GRAVITY.orEmpty(cap, LazyOptional.of(() -> this));
+	}
 }
