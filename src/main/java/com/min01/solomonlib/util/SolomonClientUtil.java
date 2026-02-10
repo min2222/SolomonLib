@@ -127,7 +127,7 @@ public class SolomonClientUtil
 				matrixStack.mulPose(Axis.XP.rotationDegrees(-renderOrientation.pitch));
 				matrixStack.mulPose(Axis.YP.rotationDegrees(-renderOrientation.yaw));
 
-				if(SolomonClientUtil.MC.getEntityRenderDispatcher().shouldRenderHitBoxes())
+				if(MC.getEntityRenderDispatcher().shouldRenderHitBoxes())
 				{
 					LevelRenderer.renderLineBox(matrixStack, bufferIn.getBuffer(RenderType.LINES), new AABB(0, 0, 0, 0, 0, 0).inflate(0.2F), 1.0F, 1.0F, 1.0F, 1.0F);
 
