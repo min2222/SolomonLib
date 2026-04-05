@@ -7,10 +7,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
-public final class SolomonUtil
+public class SolomonUtil
 {
-    private SolomonUtil() {}
-
     public static Direction getBlockGravityDirection(Level level, BlockPos pos)
     {
         return GravityZoneManager.getDirection(level, pos);

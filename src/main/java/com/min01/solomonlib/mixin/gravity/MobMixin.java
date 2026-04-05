@@ -26,6 +26,4 @@ public abstract class MobMixin
 
 		return RotationUtil.rotWorldToPlayer(original.call(attacker), attacker.getXRot(), gravityDirection).x;
 	}
-
-	// lookAt(Entity, FF) getX/getZ redirects are now handled by gravity-auto-patch coremod.
 }
