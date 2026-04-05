@@ -11,35 +11,60 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class SolomonNetwork
 {
-	private static final String PROTOCOL_VERSION = "1";
-	public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(ResourceLocation.fromNamespaceAndPath(SolomonLib.MODID, SolomonLib.MODID),
-			() -> PROTOCOL_VERSION,
-			PROTOCOL_VERSION::equals,
-			PROTOCOL_VERSION::equals
-	);
-	
-	public static int ID = 0;
-	public static void registerMessages()
-	{
-		CHANNEL.registerMessage(ID++, UpdateGravityCapabilityPacket.class, UpdateGravityCapabilityPacket::write, UpdateGravityCapabilityPacket::read, UpdateGravityCapabilityPacket::handle);
-		CHANNEL.registerMessage(ID++, UpdateGravitySyncStatePacket.class, UpdateGravitySyncStatePacket::write, UpdateGravitySyncStatePacket::read, UpdateGravitySyncStatePacket::handle);
-	}
-	
-    public static <MSG> void sendToServer(MSG message) 
+    private static final String PROTOCOL_VERSION = "1";
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
+        ResourceLocation.fromNamespaceAndPath(SolomonLib.MODID, SolomonLib.MODID),
+        () -> PROTOCOL_VERSION,
+        PROTOCOL_VERSION::equals,
+        PROTOCOL_VERSION::equals
+    );
+
+    private static int ID = 0;
+
+    public static void registerMessages()
     {
-    	CHANNEL.sendToServer(message);
+        CHANNEL.registerMessage(ID++,
+            UpdateGravityCapabilityPacket.class,
+            UpdateGravityCapabilityPacket::write,
+            UpdateGravityCapabilityPacket::read,
+            UpdateGravityCapabilityPacket::handle
+        );
+        CHANNEL.registerMessage(ID++,
+            UpdateGravitySyncStatePacket.class,
+            UpdateGravitySyncStatePacket::write,
+            UpdateGravitySyncStatePacket::read,
+            UpdateGravitySyncStatePacket::handle
+        );
+
+        CHANNEL.registerMessage(ID++,
+            GravityZoneSyncPacket.class,
+            GravityZoneSyncPacket::write,
+            GravityZoneSyncPacket::read,
+            GravityZoneSyncPacket::handle
+        );
+        CHANNEL.registerMessage(ID++,
+            GravityZoneBulkSyncPacket.class,
+            GravityZoneBulkSyncPacket::write,
+            GravityZoneBulkSyncPacket::read,
+            GravityZoneBulkSyncPacket::handle
+        );
     }
-    
+
+    public static <MSG> void sendToServer(MSG message)
+    {
+        CHANNEL.sendToServer(message);
+    }
+
     public static <MSG> void sendToAll(MSG message)
     {
-    	for(ServerPlayer player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) 
-    	{
-    		CHANNEL.sendTo(message, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-    	}
+        for(ServerPlayer player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers())
+        {
+            CHANNEL.sendTo(message, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        }
     }
-    
+
     public static <MSG> void sendNonLocal(MSG msg, ServerPlayer player)
     {
-    	CHANNEL.sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        CHANNEL.sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 }

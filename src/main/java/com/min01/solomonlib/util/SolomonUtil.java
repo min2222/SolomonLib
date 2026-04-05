@@ -1,38 +1,28 @@
 package com.min01.solomonlib.util;
 
-import java.util.function.Consumer;
+import com.min01.solomonlib.gravity.zone.GravityZoneManager;
 
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.LogicalSidedProvider;
-import net.minecraftforge.fml.LogicalSide;
 
-public class SolomonUtil 
+public final class SolomonUtil
 {
-	public static final String BTA_MODID = "beyondtheabyss";
-	
- 	public static final ResourceKey<Level> MIRRORED_CITY = ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath(BTA_MODID, "mirrored_city"));
-	
-	public static void getClientLevel(Consumer<Level> consumer)
-	{
-		LogicalSidedProvider.CLIENTWORLD.get(LogicalSide.CLIENT).filter(ClientLevel.class::isInstance).ifPresent(level -> 
-		{
-			consumer.accept(level);
-		});
-	}
-	
-	public static boolean isBlockUpsideDown(Level level, BlockPos pos)
-	{
-		return level.dimension() == MIRRORED_CITY && pos.getY() >= 150;
-	}
-	
-	public static boolean isUpsideDown(Entity entity)
-	{
-		return entity.level.dimension() == MIRRORED_CITY && entity.getY() >= 150;
-	}
+    private SolomonUtil() {}
+
+    public static Direction getBlockGravityDirection(Level level, BlockPos pos)
+    {
+        return GravityZoneManager.getDirection(level, pos);
+    }
+
+    public static Direction getEntityZoneDirection(Entity entity)
+    {
+        return GravityZoneManager.getDirection(entity.level, entity.blockPosition());
+    }
+
+    public static boolean isBlockUpsideDown(Level level, BlockPos pos)
+    {
+        return GravityZoneManager.getDirection(level, pos) == Direction.UP;
+    }
 }

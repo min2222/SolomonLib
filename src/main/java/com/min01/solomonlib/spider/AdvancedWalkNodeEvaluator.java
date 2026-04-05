@@ -112,11 +112,11 @@ public class AdvancedWalkNodeEvaluator extends WalkNodeEvaluator
 	{
 		super.prepare(sourceIn, mob);
 
-		if(mob instanceof IAdvancedPathFindingEntity) 
+		if(mob instanceof IAdvancedPathFindingEntity)
 		{
 			this.advancedPathFindingEntity = (IAdvancedPathFindingEntity) mob;
-		} 
-		else
+		}
+		else if(this.advancedPathFindingEntity == null)
 		{
 			throw new IllegalArgumentException("Only mobs that extend " + IAdvancedPathFindingEntity.class.getSimpleName() + " are supported. Received: " + mob.getClass().getName());
 		}

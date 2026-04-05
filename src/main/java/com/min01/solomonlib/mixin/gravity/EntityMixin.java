@@ -188,8 +188,17 @@ public abstract class EntityMixin
 		cir.setReturnValue(BlockPos.containing(this.position.add(Vec3.atLowerCornerOf(gravityDirection.getNormal()).scale(0.5000001D))));
 	}
 
+	@Inject(method = "Lnet/minecraft/world/entity/Entity;getEyeY()D", at = @At("HEAD"), cancellable = true)
+	private void inject_getEyeY(CallbackInfoReturnable<Double> cir)
+	{
+		Direction gravityDirection = GravityAPI.getGravityDirection((Entity) (Object) this);
+		if(gravityDirection == Direction.DOWN)
+			return;
+		cir.setReturnValue(this.getEyePosition().y());
+	}
+
 	@Inject(method = "Lnet/minecraft/world/entity/Entity;getEyePosition()Lnet/minecraft/world/phys/Vec3;", at = @At("HEAD"), cancellable = true)
-	private void inject_getEyePos(CallbackInfoReturnable<Vec3> cir) 
+	private void inject_getEyePos(CallbackInfoReturnable<Vec3> cir)
 	{
 		Direction gravityDirection = GravityAPI.getGravityDirection((Entity) (Object) this);
 		if(gravityDirection == Direction.DOWN)

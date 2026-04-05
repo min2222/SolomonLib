@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.min01.solomonlib.gravity.GravityBlockPos;
-import com.min01.solomonlib.util.SolomonUtil;
+import com.min01.solomonlib.gravity.zone.GravityZoneManager;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,13 +27,13 @@ public abstract class MixinBlockPlaceContext extends UseOnContext
 	}
 
 	@Inject(method = "getClickedPos", at = @At("RETURN"), cancellable = true)
-	private void getClickedPos(CallbackInfoReturnable<BlockPos> cir) 
+	private void getClickedPos(CallbackInfoReturnable<BlockPos> cir)
 	{
 		BlockPos pos = cir.getReturnValue();
-		if(SolomonUtil.isBlockUpsideDown(this.getLevel(), pos))
+		Direction gravDir = GravityZoneManager.getDirection(this.getLevel(), pos);
+		if (gravDir != Direction.DOWN)
 		{
-			GravityBlockPos gravityPos = new GravityBlockPos(pos, Direction.UP);
-			cir.setReturnValue(gravityPos);
+			cir.setReturnValue(new GravityBlockPos(pos, gravDir));
 		}
 	}
 }

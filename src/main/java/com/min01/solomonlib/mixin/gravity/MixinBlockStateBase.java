@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.min01.solomonlib.gravity.GravityBlockPos;
-import com.min01.solomonlib.util.SolomonUtil;
+import com.min01.solomonlib.gravity.zone.GravityZoneManager;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,7 +21,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockBehaviour.BlockStateBase;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -32,83 +31,120 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 @Mixin(value = BlockBehaviour.BlockStateBase.class, priority = -10000)
 public abstract class MixinBlockStateBase
 {
-	@Inject(method = "getShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;", at = @At("RETURN"), cancellable = true)
+    @Shadow
+    protected abstract BlockState asState();
+
+    @Inject(method = "getShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;", at = @At("RETURN"), cancellable = true)
     private void getShape(BlockGetter pLevel, BlockPos pPos, CollisionContext pContext, CallbackInfoReturnable<VoxelShape> cir)
     {
-    	VoxelShape shape = cir.getReturnValue();
-    	if(pLevel instanceof Level level)
-    	{
-            if(!shape.isEmpty() && SolomonUtil.isBlockUpsideDown(level, pPos))
-            {
-                VoxelShape flipped = Shapes.empty();
-                for(AABB box : shape.toAabbs()) 
-                {
-                    double minY = 1.0 - box.maxY;
-                    double maxY = 1.0 - box.minY;
-                    AABB flippedBox = new AABB(box.minX, minY, box.minZ, box.maxX, maxY, box.maxZ);
-                    flipped = Shapes.or(flipped, Shapes.create(flippedBox));
-                }
-                cir.setReturnValue(flipped);
-            }
-    	}
-    }
-	
-	@SuppressWarnings("deprecation")
-	@Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
-    private void canSurvive(LevelReader p_60711_, BlockPos p_60712_, CallbackInfoReturnable<Boolean> cir)
-    {
-    	if(p_60711_ instanceof Level level)
-    	{
-    		BlockStateBase base = BlockStateBase.class.cast(this);
-    		if(SolomonUtil.isBlockUpsideDown(level, p_60712_))
-    		{
-    			GravityBlockPos gravityPos = new GravityBlockPos(p_60712_, Direction.UP);
-    			cir.setReturnValue(base.getBlock().canSurvive(this.asState(), p_60711_, gravityPos));
-    		}
-    	}
+        if(!(pLevel instanceof Level level))
+        {
+            return;
+        }
+
+        Direction gravDir = GravityZoneManager.getDirection(level, pPos);
+        if(gravDir == Direction.DOWN)
+        {
+            return;
+        }
+
+        VoxelShape shape = cir.getReturnValue();
+        if(shape.isEmpty())
+        {
+            return;
+        }
+
+        cir.setReturnValue(rotateShape(shape, gravDir));
     }
 
-	@SuppressWarnings("deprecation")
-	@Inject(method = "use", at = @At("HEAD"), cancellable = true)
-    private void use(Level p_60665_, Player p_60666_, InteractionHand p_60667_, BlockHitResult p_60668_, CallbackInfoReturnable<InteractionResult> cir)
+    @SuppressWarnings("deprecation")
+    @Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
+    private void canSurvive(LevelReader pLevel, BlockPos pPos, CallbackInfoReturnable<Boolean> cir)
     {
-    	BlockPos pos = p_60668_.getBlockPos();
-		BlockStateBase base = BlockStateBase.class.cast(this);
-		if(SolomonUtil.isBlockUpsideDown(p_60665_, pos))
-		{
-			GravityBlockPos gravityPos = new GravityBlockPos(pos, Direction.UP);
-	        cir.setReturnValue(base.getBlock().use(this.asState(), p_60665_, gravityPos, p_60666_, p_60667_, p_60668_));
-		}
+        if(!(pLevel instanceof Level level))
+        {
+            return;
+        }
+
+        Direction gravDir = GravityZoneManager.getDirection(level, pPos);
+        if(gravDir == Direction.DOWN)
+        {
+            return;
+        }
+
+        GravityBlockPos gravityPos = new GravityBlockPos(pPos, gravDir);
+        cir.setReturnValue(this.asState().getBlock().canSurvive(this.asState(), pLevel, gravityPos));
     }
 
-	@SuppressWarnings("deprecation")
-	@Inject(method = "updateShape", at = @At("HEAD"), cancellable = true)
-    private void updateShape(Direction p_60729_, BlockState p_60730_, LevelAccessor p_60731_, BlockPos p_60732_, BlockPos p_60733_, CallbackInfoReturnable<BlockState> cir)
+    @SuppressWarnings("deprecation")
+    @Inject(method = "use", at = @At("HEAD"), cancellable = true)
+    private void use(Level pLevel, Player pPlayer, InteractionHand pHand, BlockHitResult pHit, CallbackInfoReturnable<InteractionResult> cir)
     {
-		if(p_60731_ instanceof Level level)
-		{
-    		BlockStateBase base = BlockStateBase.class.cast(this);
-			if(SolomonUtil.isBlockUpsideDown(level, p_60732_))
-			{
-    			GravityBlockPos gravityPos = new GravityBlockPos(p_60732_, Direction.UP);
-    	        cir.setReturnValue(base.getBlock().updateShape(this.asState(), p_60729_, p_60730_, p_60731_, gravityPos, p_60733_));
-			}
-		}
+        BlockPos pos = pHit.getBlockPos();
+        Direction gravDir = GravityZoneManager.getDirection(pLevel, pos);
+        if(gravDir == Direction.DOWN)
+        {
+            return;
+        }
+
+        GravityBlockPos gravityPos = new GravityBlockPos(pos, gravDir);
+        cir.setReturnValue(this.asState().getBlock().use(this.asState(), pLevel, gravityPos, pPlayer, pHand, pHit));
     }
 
-	@SuppressWarnings("deprecation")
-	@Inject(method = "neighborChanged", at = @At("HEAD"), cancellable = true)
-    private void neighborChanged(Level p_60691_, BlockPos p_60692_, Block p_60693_, BlockPos p_60694_, boolean p_60695_, CallbackInfo ci)
+    @SuppressWarnings("deprecation")
+    @Inject(method = "updateShape", at = @At("HEAD"), cancellable = true)
+    private void updateShape(Direction pDirection, BlockState pNeighborState, LevelAccessor pLevel, BlockPos pPos, BlockPos pNeighborPos, CallbackInfoReturnable<BlockState> cir)
     {
-		BlockStateBase base = BlockStateBase.class.cast(this);
-		if(SolomonUtil.isBlockUpsideDown(p_60691_, p_60694_))
-		{
-			ci.cancel();
-			GravityBlockPos gravityPos = new GravityBlockPos(p_60694_, Direction.UP);
-			base.getBlock().neighborChanged(this.asState(), p_60691_, p_60692_, p_60693_, gravityPos, p_60695_);
-		}
+        if(!(pLevel instanceof Level level))
+        {
+            return;
+        }
+
+        Direction gravDir = GravityZoneManager.getDirection(level, pPos);
+        if(gravDir == Direction.DOWN)
+        {
+            return;
+        }
+
+        GravityBlockPos gravityPos = new GravityBlockPos(pPos, gravDir);
+        cir.setReturnValue(this.asState().getBlock().updateShape(this.asState(), pDirection, pNeighborState, pLevel, gravityPos, pNeighborPos));
     }
-	
-	@Shadow
-    protected abstract BlockState asState();
+
+    @SuppressWarnings("deprecation")
+    @Inject(method = "neighborChanged", at = @At("HEAD"), cancellable = true)
+    private void neighborChanged(Level pLevel, BlockPos pPos, Block pBlock, BlockPos pFromPos, boolean pIsMoving, CallbackInfo ci)
+    {
+        Direction gravDir = GravityZoneManager.getDirection(pLevel, pPos);
+        if(gravDir == Direction.DOWN)
+        {
+            return;
+        }
+
+        ci.cancel();
+        GravityBlockPos gravityPos = new GravityBlockPos(pFromPos, gravDir);
+        this.asState().getBlock().neighborChanged(this.asState(), pLevel, pPos, pBlock, gravityPos, pIsMoving);
+    }
+
+    private static VoxelShape rotateShape(VoxelShape original, Direction gravDir)
+    {
+        VoxelShape result = Shapes.empty();
+        for(AABB box : original.toAabbs())
+        {
+            result = Shapes.or(result, Shapes.create(rotateBox(box, gravDir)));
+        }
+        return result;
+    }
+
+    private static AABB rotateBox(AABB box, Direction gravDir)
+    {
+        return switch(gravDir)
+        {
+            case UP -> new AABB(box.minX, 1.0 - box.maxY, box.minZ, box.maxX, 1.0 - box.minY, box.maxZ);
+            case NORTH -> new AABB(box.minX, 1.0 - box.maxZ, box.minY, box.maxX, 1.0 - box.minZ, box.maxY);
+            case SOUTH -> new AABB(box.minX, box.minZ, 1.0 - box.maxY, box.maxX, box.maxZ, 1.0 - box.minY);
+            case WEST -> new AABB(box.minY, 1.0 - box.maxZ, 1.0 - box.maxX, box.maxY, 1.0 - box.minZ, 1.0 - box.minX);
+            case EAST -> new AABB(1.0 - box.maxY, 1.0 - box.maxZ, box.minX, 1.0 - box.minY, 1.0 - box.minZ, box.maxX);
+            default -> box;
+        };
+    }
 }

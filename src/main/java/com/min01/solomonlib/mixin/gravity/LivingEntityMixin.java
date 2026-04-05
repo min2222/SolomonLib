@@ -47,51 +47,12 @@ public abstract class LivingEntityMixin extends Entity
 		super(type, world);
 	}
 
-	@Redirect(method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getY()D", ordinal = 0))
-	private double redirect_travel_getY_0(LivingEntity livingEntity) 
+	@WrapOperation(method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getY()D"))
+	private double wrapOperation_travel_getY(LivingEntity livingEntity, Operation<Double> original)
 	{
 		Direction gravityDirection = GravityAPI.getGravityDirection(livingEntity);
 		if(gravityDirection == Direction.DOWN)
-		{
-			return livingEntity.getY();
-		}
-
-		return RotationUtil.vecWorldToPlayer(livingEntity.position(), gravityDirection).y;
-	}
-
-	@Redirect(method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getY()D", ordinal = 1))
-	private double redirect_travel_getY_1(LivingEntity livingEntity) 
-	{
-		Direction gravityDirection = GravityAPI.getGravityDirection(livingEntity);
-		if(gravityDirection == Direction.DOWN)
-		{
-			return livingEntity.getY();
-		}
-
-		return RotationUtil.vecWorldToPlayer(livingEntity.position(), gravityDirection).y;
-	}
-
-	@Redirect(method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getY()D", ordinal = 2))
-	private double redirect_travel_getY_2(LivingEntity livingEntity) 
-	{
-		Direction gravityDirection = GravityAPI.getGravityDirection(livingEntity);
-		if(gravityDirection == Direction.DOWN) 
-		{
-			return livingEntity.getY();
-		}
-
-		return RotationUtil.vecWorldToPlayer(livingEntity.position(), gravityDirection).y;
-	}
-
-	@Redirect(method = "Lnet/minecraft/world/entity/LivingEntity;travel(Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getY()D", ordinal = 3))
-	private double redirect_travel_getY_3(LivingEntity livingEntity) 
-	{
-		Direction gravityDirection = GravityAPI.getGravityDirection(livingEntity);
-		if(gravityDirection == Direction.DOWN) 
-		{
-			return livingEntity.getY();
-		}
-
+			return original.call(livingEntity);
 		return RotationUtil.vecWorldToPlayer(livingEntity.position(), gravityDirection).y;
 	}
 

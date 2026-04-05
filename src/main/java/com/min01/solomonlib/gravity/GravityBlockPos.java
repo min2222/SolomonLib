@@ -6,125 +6,56 @@ import net.minecraft.core.Vec3i;
 
 public class GravityBlockPos extends BlockPos
 {
-	private final Direction direction;
-	
-	public GravityBlockPos(Vec3i vec3i, Direction direction)
-	{
-		super(vec3i);
-		this.direction = direction;
-	}
-	
-	public GravityBlockPos(int x, int y, int z, Direction direction)
-	{
-		super(x, y, z);
-		this.direction = direction;
-	}
-	
-	@Override
-	public BlockPos relative(Direction pDirection, int pDistance) 
-	{
-	    return switch (this.direction) 
-	    {
-	        case UP -> switch (pDirection) 
-	        {
-	            case UP -> this.gravityRelative(Direction.DOWN, pDistance);
-	            case DOWN -> this.gravityRelative(Direction.UP, pDistance);
-	            case WEST -> this.gravityRelative(Direction.WEST, pDistance);
-	            case EAST -> this.gravityRelative(Direction.EAST, pDistance);
-	            default -> this.gravityRelative(pDirection, pDistance);
-	        };
-	        case NORTH -> switch (pDirection)
-	        {
-	            case UP -> this.gravityRelative(Direction.SOUTH, pDistance);
-	            case DOWN -> this.gravityRelative(Direction.NORTH, pDistance);
-	            case NORTH -> this.gravityRelative(Direction.UP, pDistance);
-	            case SOUTH -> this.gravityRelative(Direction.DOWN, pDistance);
-	            default -> this.gravityRelative(pDirection, pDistance);
-	        };
-	        case SOUTH -> switch (pDirection)
-	        {
-	            case UP -> this.gravityRelative(Direction.NORTH, pDistance);
-	            case DOWN -> this.gravityRelative(Direction.SOUTH, pDistance);
-	            case NORTH -> this.gravityRelative(Direction.DOWN, pDistance);
-	            case SOUTH -> this.gravityRelative(Direction.UP, pDistance);
-	            default -> this.gravityRelative(pDirection, pDistance);
-	        };
-	        case WEST -> switch (pDirection) 
-	        {
-	            case UP -> this.gravityRelative(Direction.EAST, pDistance);
-	            case DOWN -> this.gravityRelative(Direction.WEST, pDistance);
-	            case WEST -> this.gravityRelative(Direction.DOWN, pDistance);
-	            case EAST -> this.gravityRelative(Direction.UP, pDistance);
-	            default -> this.gravityRelative(pDirection, pDistance);
-	        };
-	        case EAST -> switch (pDirection) 
-	        {
-	            case UP -> this.gravityRelative(Direction.WEST, pDistance);
-	            case DOWN -> this.gravityRelative(Direction.EAST, pDistance);
-	            case WEST -> this.gravityRelative(Direction.UP, pDistance);
-	            case EAST -> this.gravityRelative(Direction.DOWN, pDistance);
-	            default -> this.gravityRelative(pDirection, pDistance);
-	        };
-	        default -> this.gravityRelative(pDirection, pDistance);
-	    };
-	}
+    private final Direction gravityDirection;
 
-	@Override
-	public BlockPos relative(Direction pDirection)
-	{
-	    return switch (this.direction)
-	    {
-	        case UP -> switch (pDirection) 
-	        {
-	            case UP -> this.gravityRelative(Direction.DOWN);
-	            case DOWN -> this.gravityRelative(Direction.UP);
-	            case WEST -> this.gravityRelative(Direction.WEST);
-	            case EAST -> this.gravityRelative(Direction.EAST);
-	            default -> this.gravityRelative(pDirection);
-	        };
-	        case NORTH -> switch (pDirection) 
-	        {
-	            case UP -> this.gravityRelative(Direction.SOUTH);
-	            case DOWN -> this.gravityRelative(Direction.NORTH);
-	            case NORTH -> this.gravityRelative(Direction.UP);
-	            case SOUTH -> this.gravityRelative(Direction.DOWN);
-	            default -> this.gravityRelative(pDirection);
-	        };
-	        case SOUTH -> switch (pDirection)
-	        {
-	            case UP -> this.gravityRelative(Direction.NORTH);
-	            case DOWN -> this.gravityRelative(Direction.SOUTH);
-	            case NORTH -> this.gravityRelative(Direction.DOWN);
-	            case SOUTH -> this.gravityRelative(Direction.UP);
-	            default -> this.gravityRelative(pDirection);
-	        };
-	        case WEST -> switch (pDirection)
-	        {
-	            case UP -> this.gravityRelative(Direction.EAST);
-	            case DOWN -> this.gravityRelative(Direction.WEST);
-	            case WEST -> this.gravityRelative(Direction.DOWN);
-	            case EAST -> this.gravityRelative(Direction.UP);
-	            default -> this.gravityRelative(pDirection);
-	        };
-	        case EAST -> switch (pDirection)
-	        {
-	            case UP -> this.gravityRelative(Direction.WEST);
-	            case DOWN -> this.gravityRelative(Direction.EAST);
-	            case WEST -> this.gravityRelative(Direction.UP);
-	            case EAST -> this.gravityRelative(Direction.DOWN);
-	            default -> this.gravityRelative(pDirection);
-	        };
-	        default -> this.gravityRelative(pDirection);
-	    };
-	}
-	
-	public BlockPos gravityRelative(Direction pDirection) 
-	{
-		return new GravityBlockPos(this.getX() + pDirection.getStepX(), this.getY() + pDirection.getStepY(), this.getZ() + pDirection.getStepZ(), this.direction);
-	}
+    public GravityBlockPos(Vec3i vec3i, Direction gravityDirection)
+    {
+        super(vec3i);
+        this.gravityDirection = gravityDirection;
+    }
 
-	public BlockPos gravityRelative(Direction pDirection, int pDistance) 
-	{
-		return pDistance == 0 ? this : new GravityBlockPos(this.getX() + pDirection.getStepX() * pDistance, this.getY() + pDirection.getStepY() * pDistance, this.getZ() + pDirection.getStepZ() * pDistance, this.direction);
-	}
+    public GravityBlockPos(int x, int y, int z, Direction gravityDirection)
+    {
+        super(x, y, z);
+        this.gravityDirection = gravityDirection;
+    }
+
+    public GravityBlockPos(BlockPos pos, Direction gravityDirection)
+    {
+        super(pos);
+        this.gravityDirection = gravityDirection;
+    }
+
+    public Direction getGravityDirection()
+    {
+        return this.gravityDirection;
+    }
+
+    @Override
+    public BlockPos relative(Direction localDirection)
+    {
+        Direction worldDirection = RotationUtil.dirPlayerToWorld(localDirection, this.gravityDirection);
+        return this.gravityRelative(worldDirection);
+    }
+
+    @Override
+    public BlockPos relative(Direction localDirection, int pDistance)
+    {
+        if(pDistance == 0)
+        {
+            return this;
+        }
+        Direction worldDirection = RotationUtil.dirPlayerToWorld(localDirection, this.gravityDirection);
+        return this.gravityRelative(worldDirection, pDistance);
+    }
+
+    public GravityBlockPos gravityRelative(Direction worldDirection)
+    {
+        return new GravityBlockPos(this.getX() + worldDirection.getStepX(), this.getY() + worldDirection.getStepY(), this.getZ() + worldDirection.getStepZ(), this.gravityDirection);
+    }
+
+    public GravityBlockPos gravityRelative(Direction worldDirection, int distance)
+    {
+        return new GravityBlockPos(this.getX() + worldDirection.getStepX() * distance, this.getY() + worldDirection.getStepY() * distance, this.getZ() + worldDirection.getStepZ() * distance, this.gravityDirection);
+    }
 }

@@ -1,4 +1,6 @@
 {
 	"embeddium-chunk": "coremods/embeddium-chunk.js",
-	"embeddium-block": "coremods/embeddium-block.js"
+	"embeddium-block": "coremods/embeddium-block.js",
+	"gravity-auto-patch": "coremods/gravity-auto-patch.js",
+	"gravity-strength-patch": "coremods/gravity-strength-patch.js"
 }

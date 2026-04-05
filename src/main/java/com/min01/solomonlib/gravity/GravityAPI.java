@@ -1,8 +1,6 @@
 package com.min01.solomonlib.gravity;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -26,10 +24,8 @@ import net.minecraftforge.common.util.LogicalSidedProvider;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
-public class GravityAPI 
+public class GravityAPI
 {
-	public static final Map<Integer, Entity> ENTITY_MAP = new HashMap<>();
-	public static final Map<Integer, Entity> ENTITY_MAP2 = new HashMap<>();
 	public static final Method GET_ENTITY = ObfuscationReflectionHelper.findMethod(Level.class, "m_142646_");
 	
 	public static void getClientLevel(Consumer<Level> consumer)
@@ -118,12 +114,7 @@ public class GravityAPI
      */
     public static Direction getGravityDirection(Entity entity)
     {
-        GravityCapabilityImpl cap = getGravityComponentEarly(entity);
-        if(cap == null)
-        {
-            return Direction.DOWN;
-        }
-        return cap.getCurrGravityDirection();
+        return getGravityComponent(entity).getCurrGravityDirection();
     }
     
     public static double getGravityStrength(Entity entity) 
@@ -189,16 +180,9 @@ public class GravityAPI
     
     public static GravityCapabilityImpl getGravityComponent(Entity entity)
     {
-    	GravityCapabilityImpl cap = (GravityCapabilityImpl) entity.getCapability(GravityCapabilityImpl.GRAVITY).orElse(new GravityCapabilityImpl(entity));
-        return cap;
+    	return (GravityCapabilityImpl) entity.getCapability(GravityCapabilityImpl.GRAVITY).orElse(new GravityCapabilityImpl(entity));
     }
-    
-    @Nullable
-    public static GravityCapabilityImpl getGravityComponentEarly(Entity entity) 
-    {
-        return getGravityComponent(entity);
-    }
-    
+
     /**
      * Returns the world relative velocity for the given entity
      * Using minecraft's methods to get the velocity will return entity local velocity
@@ -224,4 +208,29 @@ public class GravityAPI
     {
         return RotationUtil.vecPlayerToWorld(0, (double) entity.getEyeHeight(), 0, getGravityDirection(entity));
     }
+    
+	public static double eyeX(Entity entity)
+	{
+		return getGravityDirection(entity) == Direction.DOWN ? entity.getX() : entity.getEyePosition().x;
+	}
+
+	public static double eyeZ(Entity entity)
+	{
+		return getGravityDirection(entity) == Direction.DOWN ? entity.getZ() : entity.getEyePosition().z;
+	}
+	
+	public static Vec3 addWithGravity(Vec3 vec, double x, double y, double z, Entity entity)
+	{
+		return vec.add(x, y * getGravityStrength(entity), z);
+	}
+
+	public static double scale(double constant, Entity entity)
+	{
+		return constant * getGravityStrength(entity);
+	}
+
+	public static float scaleF(float value, Entity entity)
+	{
+		return value * (float) getGravityStrength(entity);
+	}
 }
