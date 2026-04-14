@@ -24,7 +24,7 @@ public class GravityStrengthMobEffect extends MobEffect
         return Math.pow(this.base, (double) level) * this.signum;
     }
     
-    public void apply(LivingEntity entity, GravityCapabilityImpl component)
+    public void apply(LivingEntity entity, GravityCapabilityImpl capability)
     {
         MobEffectInstance effectInstance = entity.getEffect(this);
         
@@ -34,7 +34,7 @@ public class GravityStrengthMobEffect extends MobEffect
         }
         
         int level = effectInstance.getAmplifier() + 1;
-    
-        component.applyGravityStrengthEffect(this.getGravityStrengthMultiplier(level));
+
+        capability.applyGravityStrengthEffect(this.getGravityStrengthMultiplier(level));
     }
 }

@@ -114,28 +114,28 @@ public class GravityAPI
      */
     public static Direction getGravityDirection(Entity entity)
     {
-        return getGravityComponent(entity).getCurrGravityDirection();
+        return getGravityCapability(entity).getCurrGravityDirection();
     }
     
     public static double getGravityStrength(Entity entity) 
     {
-        return getGravityComponent(entity).getCurrGravityStrength();
+        return getGravityCapability(entity).getCurrGravityStrength();
     }
     
     public static double getBaseGravityStrength(Entity entity)
     {
-        return getGravityComponent(entity).getBaseGravityStrength();
+        return getGravityCapability(entity).getBaseGravityStrength();
     }
     
     public static void setBaseGravityStrength(Entity entity, double strength) 
     {
-        GravityCapabilityImpl component = getGravityComponent(entity);
-        component.setBaseGravityStrength(strength);
+        GravityCapabilityImpl cap = getGravityCapability(entity);
+		cap.setBaseGravityStrength(strength);
     }
     
     public static void resetGravity(Entity entity)
     {
-        getGravityComponent(entity).reset();
+        getGravityCapability(entity).reset();
     }
     
     /**
@@ -144,20 +144,20 @@ public class GravityAPI
      */
     public static Direction getBaseGravityDirection(Entity entity) 
     {
-        return getGravityComponent(entity).getBaseGravityDirection();
+        return getGravityCapability(entity).getBaseGravityDirection();
     }
     
     public static void setBaseGravityDirection(Entity entity, Direction gravityDirection) 
     {
-        GravityCapabilityImpl component = getGravityComponent(entity);
-        component.setBaseGravityDirection(gravityDirection);
+        GravityCapabilityImpl cap = getGravityCapability(entity);
+		cap.setBaseGravityDirection(gravityDirection);
     }
     
     @Nullable
     @OnlyIn(Dist.CLIENT)
     public static RotationAnimation getRotationAnimation(Entity entity)
     {
-        return getGravityComponent(entity).getRotationAnimation();
+        return getGravityCapability(entity).getRotationAnimation();
     }
     
     /**
@@ -167,18 +167,15 @@ public class GravityAPI
      */
     public static void instantlySetClientBaseGravityDirection(Entity entity, Direction direction)
     {
-        Validate.isTrue(entity.level().isClientSide(), "should only be used on client");
+        Validate.isTrue(entity.level.isClientSide(), "should only be used on client");
         
-        GravityCapabilityImpl component = getGravityComponent(entity);
-        
-        component.setBaseGravityDirection(direction);
-        
-        component.updateGravityStatus(false);
-        
-        component.forceApplyGravityChange();
+        GravityCapabilityImpl cap = getGravityCapability(entity);
+        cap.setBaseGravityDirection(direction);
+		cap.updateGravityStatus(false);
+		cap.forceApplyGravityChange();
     }
     
-    public static GravityCapabilityImpl getGravityComponent(Entity entity)
+    public static GravityCapabilityImpl getGravityCapability(Entity entity)
     {
     	return (GravityCapabilityImpl) entity.getCapability(GravityCapabilityImpl.GRAVITY).orElse(new GravityCapabilityImpl(entity));
     }

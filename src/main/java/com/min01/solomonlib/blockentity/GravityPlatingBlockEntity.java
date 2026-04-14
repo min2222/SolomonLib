@@ -295,8 +295,8 @@ public class GravityPlatingBlockEntity extends BlockEntity
         {
             boolean applies = false;
             
-            GravityCapabilityImpl comp = GravityAPI.getGravityComponent(entity);
-            Direction entityGravityDir = comp.getCurrGravityDirection();
+            GravityCapabilityImpl cap = GravityAPI.getGravityCapability(entity);
+            Direction entityGravityDir = cap.getCurrGravityDirection();
             
             for(Direction plateDir : Direction.values()) 
             {
@@ -343,14 +343,14 @@ public class GravityPlatingBlockEntity extends BlockEntity
                         // reduce the chance of opposite side plating interference
                         priority -= 10;
                     }
-                    comp.applyGravityDirectionEffect(gravityEffectDir, null, priority);
+                    cap.applyGravityDirectionEffect(gravityEffectDir, null, priority);
                     applies = true;
                 }
             }
             
             if(applies && SolomonConfig.autoJumpOnGravityPlateInnerCorner.get()) 
             {
-                tryToDoCornerAutoJump(blockState, blockPos, entity, comp);
+                tryToDoCornerAutoJump(blockState, blockPos, entity, cap);
             }
         }
     }

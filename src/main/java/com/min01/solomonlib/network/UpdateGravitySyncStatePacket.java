@@ -36,7 +36,7 @@ public class UpdateGravitySyncStatePacket
 			if(ctx.get().getDirection().getReceptionSide().isServer())
 			{
 				Entity entity = GravityAPI.getEntityByUUID(ctx.get().getSender().level, message.entityUUID);
-				GravityCapabilityImpl cap = GravityAPI.getGravityComponent(entity);
+				GravityCapabilityImpl cap = GravityAPI.getGravityCapability(entity);
 				cap.needsSync = false;
 				cap.noAnimation = false;
 			}

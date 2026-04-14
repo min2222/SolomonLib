@@ -41,7 +41,7 @@ public class EventHandlerForge
     			{
     				continue;
     			}
-    			GravityCapabilityImpl cap = GravityAPI.getGravityComponent(entity);
+    			GravityCapabilityImpl cap = GravityAPI.getGravityCapability(entity);
     			cap.initialized = false;
 				cap.deserializeNBT(cap.serializeNBT());
 			}
