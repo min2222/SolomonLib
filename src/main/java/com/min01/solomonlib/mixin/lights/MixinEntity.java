@@ -286,7 +286,7 @@ public abstract class MixinEntity implements IDynamicLight
 
 			this.scheduleTrackedChunksRebuild(renderer);
 			this.trackedLitChunkPos = newPos;
-			return false;
+			return true;
 		}
 		return false;
 	}

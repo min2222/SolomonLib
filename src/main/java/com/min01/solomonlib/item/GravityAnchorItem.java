@@ -2,18 +2,12 @@ package com.min01.solomonlib.item;
 
 import java.util.List;
 
-import com.min01.solomonlib.gravity.GravityZone;
-import com.min01.solomonlib.gravity.GravityZoneManager;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 // based on AmethystGravity
@@ -25,15 +19,6 @@ public class GravityAnchorItem extends Item
     {
         super(settings);
         this.direction = _direction;
-    }
-    
-    @Override
-    public InteractionResult useOn(UseOnContext pContext) {
-    	if(pContext.getLevel() instanceof ServerLevel serverLevel)
-    	{
-    		GravityZoneManager.setZone(serverLevel, pContext.getClickedPos(), new GravityZone(this.direction, 1.0D));
-    	}
-    	return super.useOn(pContext);
     }
     
     @Override
