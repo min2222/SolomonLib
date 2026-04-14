@@ -30,21 +30,13 @@ public class SolomonMixinPlugin implements IMixinConfigPlugin
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) 
 	{
-		if(mixinClassName.equals("com.min01.solomonlib.mixin.compat.ACEntityMixin") && LoadingModList.get().getModFileById("alexscaves") == null)
+		if(mixinClassName.endsWith("ACEntityMixin"))
 		{
-			return false;
+			return LoadingModList.get().getModFileById("alexscaves") != null;
 		}
 		if(mixinClassName.endsWith("EmbeddiumBlockRendererMixin") || mixinClassName.endsWith("EmbeddiumDefaultChunkRendererMixin"))
 		{
-			try
-			{
-				Class.forName("me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer", false, getClass().getClassLoader());
-				return true;
-			}
-			catch(ClassNotFoundException e)
-			{
-				return false;
-			}
+			return LoadingModList.get().getModFileById("embeddium") != null;
 		}
 		return true;
 	}
