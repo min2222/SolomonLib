@@ -1,4 +1,4 @@
-package com.min01.solomonlib.misc;
+package com.min01.solomonlib.spider;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
