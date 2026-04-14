@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.min01.solomonlib.gravity.GravityBakedModelWrapper;
-import com.min01.solomonlib.gravity.zone.GravityZoneManager;
+import com.min01.solomonlib.gravity.GravityZoneManager;
 import com.min01.solomonlib.util.SolomonClientUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

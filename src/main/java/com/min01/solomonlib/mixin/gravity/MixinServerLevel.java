@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.min01.solomonlib.gravity.GravityAPI;
-import com.min01.solomonlib.gravity.zone.GravityZoneManager;
+import com.min01.solomonlib.gravity.GravityZoneManager;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;

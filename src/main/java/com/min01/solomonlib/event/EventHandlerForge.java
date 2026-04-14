@@ -4,8 +4,8 @@ import com.min01.solomonlib.SolomonLib;
 import com.min01.solomonlib.config.SolomonConfig;
 import com.min01.solomonlib.gravity.GravityAPI;
 import com.min01.solomonlib.gravity.GravityCapabilityImpl;
-import com.min01.solomonlib.gravity.zone.GravityZoneManager;
-import com.min01.solomonlib.gravity.zone.GravityZoneSavedData;
+import com.min01.solomonlib.gravity.GravityZoneManager;
+import com.min01.solomonlib.gravity.GravityZoneSavedData;
 
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

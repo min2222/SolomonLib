@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.min01.solomonlib.gravity.zone.GravityZone;
-import com.min01.solomonlib.gravity.zone.GravityZoneManager;
+import com.min01.solomonlib.gravity.GravityZone;
+import com.min01.solomonlib.gravity.GravityZoneManager;
 import com.min01.solomonlib.util.SolomonClientUtil;
 
 import net.minecraft.client.Minecraft;

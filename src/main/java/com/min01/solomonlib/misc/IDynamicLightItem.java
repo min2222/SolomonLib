@@ -6,7 +6,12 @@ import net.minecraft.world.phys.Vec3;
 
 public interface IDynamicLightItem
 {
-	public boolean shouldUpdateDynamicLight(Entity player, ItemStack stack);
-	
-	public Vec3 getDynamicLightPos(Entity player, ItemStack stack);
+	boolean shouldUpdateDynamicLight(Entity player, ItemStack stack);
+
+	Vec3 getDynamicLightPos(Entity player, ItemStack stack);
+
+	default int getDynamicLightLuminance(Entity player, ItemStack stack)
+	{
+		return 15;
+	}
 }

@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.min01.solomonlib.gravity.pathfinding.GravityPathNavigation;
-import com.min01.solomonlib.gravity.zone.GravityZoneManager;
+import com.min01.solomonlib.gravity.GravityPathNavigation;
+import com.min01.solomonlib.gravity.GravityZoneManager;
 import com.min01.solomonlib.spider.IClimberEntity;
 
 import net.minecraft.core.Direction;
@@ -54,6 +54,7 @@ public abstract class MixinGravityMobNavigation
 		{
 			if(!(this.navigation instanceof GravityPathNavigation))
 			{
+				this.navigation.stop();
 				this.solomonlib$originalNavigation = this.navigation;
 				this.navigation = new GravityPathNavigation(self, self.level);
 			}
@@ -62,6 +63,7 @@ public abstract class MixinGravityMobNavigation
 		{
 			if(this.navigation instanceof GravityPathNavigation)
 			{
+				this.navigation.stop();
 				this.navigation = this.solomonlib$originalNavigation != null ? this.solomonlib$originalNavigation : this.createNavigation(self.level);
 				this.solomonlib$originalNavigation = null;
 			}

@@ -1,6 +1,6 @@
 package com.min01.solomonlib.util;
 
-import com.min01.solomonlib.gravity.zone.GravityZoneManager;
+import com.min01.solomonlib.gravity.GravityZoneManager;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

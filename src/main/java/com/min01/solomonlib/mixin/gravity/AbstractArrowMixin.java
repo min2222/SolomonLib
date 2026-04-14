@@ -3,8 +3,6 @@ package com.min01.solomonlib.mixin.gravity;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.min01.solomonlib.gravity.GravityAPI;
@@ -32,11 +30,5 @@ public abstract class AbstractArrowMixin extends Entity
         modify = new Vec3(modify.x, modify.y - 0.05, modify.z);
         modify = RotationUtil.vecPlayerToWorld(modify, GravityAPI.getGravityDirection(this));
         return modify;
-    }
-    
-    @ModifyConstant(method = "Lnet/minecraft/world/entity/projectile/AbstractArrow;tick()V", constant = @Constant(doubleValue = 0.05000000074505806))
-    private double multiplyGravity(double constant) 
-    {
-        return constant * GravityAPI.getGravityStrength(this);
     }
 }

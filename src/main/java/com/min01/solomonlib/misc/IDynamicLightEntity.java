@@ -2,9 +2,14 @@ package com.min01.solomonlib.misc;
 
 import net.minecraft.world.phys.Vec3;
 
-public interface IDynamicLightEntity 
+public interface IDynamicLightEntity
 {
-	public boolean shouldUpdateDynamicLight();
-	
-	public Vec3 getDynamicLightPos();
+	boolean shouldUpdateDynamicLight();
+
+	Vec3 getDynamicLightPos();
+
+	default int getDynamicLightLuminance()
+	{
+		return 15;
+	}
 }

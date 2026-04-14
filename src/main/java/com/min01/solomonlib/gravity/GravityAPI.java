@@ -214,9 +214,90 @@ public class GravityAPI
 		return getGravityDirection(entity) == Direction.DOWN ? entity.getX() : entity.getEyePosition().x;
 	}
 
+	public static double eyeY(Entity entity)
+	{
+		return getGravityDirection(entity) == Direction.DOWN ? entity.getY() : entity.getEyePosition().y;
+	}
+
 	public static double eyeZ(Entity entity)
 	{
 		return getGravityDirection(entity) == Direction.DOWN ? entity.getZ() : entity.getEyePosition().z;
+	}
+
+	public static Vec3 deltaMovement(net.minecraft.world.entity.LivingEntity target)
+	{
+		Direction grav = getGravityDirection(target);
+		if (grav == Direction.DOWN) return target.getDeltaMovement();
+		return RotationUtil.vecPlayerToWorld(target.getDeltaMovement(), grav);
+	}
+
+	public static double rangedBodyTargetX(net.minecraft.world.entity.LivingEntity target)
+	{
+		Direction grav = getGravityDirection(target);
+		if(grav == Direction.DOWN)
+		{
+			return target.getX();
+		}
+		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getBbHeight() * 0.3333333333333333, 0.0, grav)).x;
+	}
+
+	public static double rangedBodyTargetY(net.minecraft.world.entity.LivingEntity target, double heightScale)
+	{
+		Direction grav = getGravityDirection(target);
+		if(grav == Direction.DOWN)
+		{
+			return target.getY(heightScale);
+		}
+		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getBbHeight() * 0.3333333333333333, 0.0, grav)).y;
+	}
+
+	public static double rangedBodyTargetZ(net.minecraft.world.entity.LivingEntity target)
+	{
+		Direction grav = getGravityDirection(target);
+		if(grav == Direction.DOWN)
+		{
+			return target.getZ();
+		}
+		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getBbHeight() * 0.3333333333333333, 0.0, grav)).z;
+	}
+
+	public static double rangedEyeTargetX(net.minecraft.world.entity.LivingEntity target)
+	{
+		Direction grav = getGravityDirection(target);
+		if(grav == Direction.DOWN)
+		{
+			return target.getX();
+		}
+		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getEyeHeight() - 1.1, 0.0, grav)).x;
+	}
+
+	public static double rangedEyeTargetY(net.minecraft.world.entity.LivingEntity target)
+	{
+		Direction grav = getGravityDirection(target);
+		if(grav == Direction.DOWN)
+		{
+			return target.getEyeY();
+		}
+		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getEyeHeight() - 1.1, 0.0, grav)).y + 1.1;
+	}
+
+	public static double rangedEyeTargetZ(net.minecraft.world.entity.LivingEntity target)
+	{
+		Direction grav = getGravityDirection(target);
+		if(grav == Direction.DOWN)
+		{
+			return target.getZ();
+		}
+		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getEyeHeight() - 1.1, 0.0, grav)).z;
+	}
+
+	public static double rangedSqrt(double value, net.minecraft.world.entity.LivingEntity target)
+	{
+		if(getGravityDirection(target) == Direction.DOWN)
+		{
+			return Math.sqrt(value);
+		}
+		return Math.sqrt(Math.sqrt(value));
 	}
 	
 	public static Vec3 addWithGravity(Vec3 vec, double x, double y, double z, Entity entity)

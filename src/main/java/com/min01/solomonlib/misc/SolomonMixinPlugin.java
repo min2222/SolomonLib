@@ -34,9 +34,17 @@ public class SolomonMixinPlugin implements IMixinConfigPlugin
 		{
 			return false;
 		}
-		if(LoadingModList.get().getModFileById("connectivity") != null || LoadingModList.get().getModFileById("xlpackets") != null || LoadingModList.get().getModFileById("bigcontraptions") != null || LoadingModList.get().getModFileById("packetfixer") != null)
+		if(mixinClassName.endsWith("EmbeddiumBlockRendererMixin") || mixinClassName.endsWith("EmbeddiumDefaultChunkRendererMixin"))
 		{
-			return !mixinClassName.contains("com.min01.solomonlib.mixin.packet");
+			try
+			{
+				Class.forName("me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer", false, getClass().getClassLoader());
+				return true;
+			}
+			catch(ClassNotFoundException e)
+			{
+				return false;
+			}
 		}
 		return true;
 	}

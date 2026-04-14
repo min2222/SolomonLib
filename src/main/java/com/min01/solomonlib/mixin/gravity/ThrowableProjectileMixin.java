@@ -5,11 +5,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.min01.solomonlib.gravity.GravityAPI;
 import com.min01.solomonlib.gravity.RotationUtil;
 
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.phys.Vec3;
 
@@ -27,11 +25,5 @@ public abstract class ThrowableProjectileMixin
 		modify = new Vec3(modify.x, modify.y - this.getGravity(), modify.z);
 		modify = RotationUtil.vecPlayerToWorld(modify, GravityAPI.getGravityDirection((ThrowableProjectile) (Object) this));
 		return modify;
-	}
-
-	@ModifyReturnValue(method = "getGravity", at = @At("RETURN"))
-	private float multiplyGravity(float original) 
-	{
-		return original * (float) GravityAPI.getGravityStrength(((Entity) (Object) this));
 	}
 }

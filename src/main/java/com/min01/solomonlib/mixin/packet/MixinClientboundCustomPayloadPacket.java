@@ -1,17 +1,24 @@
 package com.min01.solomonlib.mixin.packet;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 
 @Mixin(value = ClientboundCustomPayloadPacket.class, priority = -30000)
 public class MixinClientboundCustomPayloadPacket
 {
-    @ModifyConstant(method = {"<init>*"}, constant = @Constant(intValue = 1048576))
-    private int init(int constant)
+    @ModifyExpressionValue(method = "<init>(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "CONSTANT", args = "intValue=1048576"))
+    private static int init(int value) 
     {
-        return 2147483647;
+        return Integer.MAX_VALUE;
+    }
+
+    @ModifyExpressionValue(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "CONSTANT", args = "intValue=1048576"))
+    private static int init2(int value)
+    {
+        return Integer.MAX_VALUE;
     }
 }

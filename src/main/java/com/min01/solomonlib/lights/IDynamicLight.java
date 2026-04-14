@@ -10,14 +10,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 /*
  * Copyright © 2020 LambdAurora <email@lambdaurora.dev>
+ * Copyright © 2024 toni (https://github.com/txnimc/SodiumDynamicLights)
  *
- * This file is part of SodiumDynamicLights.
- *
- * Licensed under the MIT License. For more information,
- * see the LICENSE file.
+ * This file is derived from SodiumDynamicLights (DynamicLightSource) / LambDynLights.
+ * Licensed under the MIT License. The full license text is included in README.md at
+ * the repository root.
  */
-
-//https://github.com/txnimc/SodiumDynamicLights/blob/main/src/main/java/toni/sodiumdynamiclights/DynamicLightSource.java
 public interface IDynamicLight 
 {
 	double getDynamicLightX();
@@ -34,7 +32,7 @@ public interface IDynamicLight
 	}
 	
 	@ApiStatus.Internal
-	default void setBTADynamicLightEnabled(boolean enabled) 
+	default void setDynamicSolomonLightEnabled(boolean enabled)
 	{
 		this.resetDynamicLight();
 		if(enabled)
