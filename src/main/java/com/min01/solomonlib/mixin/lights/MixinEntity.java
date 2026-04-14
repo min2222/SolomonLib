@@ -227,6 +227,11 @@ public abstract class MixinEntity implements IDynamicLight
 	@OnlyIn(Dist.CLIENT)
 	public boolean updateDynamicLight(@NotNull LevelRenderer renderer)
 	{
+		if(!this.shouldUpdateDynamicLight())
+		{
+			return false;
+		}
+		
 		Entity self = Entity.class.cast(this);
 		double deltaX = this.getDynamicLightX() - this.solomon$prevLightX;
 		double deltaY = this.getDynamicLightY() - this.solomon$prevLightY;
@@ -281,7 +286,7 @@ public abstract class MixinEntity implements IDynamicLight
 
 			this.scheduleTrackedChunksRebuild(renderer);
 			this.trackedLitChunkPos = newPos;
-			return this.shouldUpdateDynamicLight();
+			return false;
 		}
 		return false;
 	}
