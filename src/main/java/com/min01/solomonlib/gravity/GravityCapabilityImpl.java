@@ -31,6 +31,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -220,6 +221,8 @@ public class GravityCapabilityImpl implements IGravityCapability
             
             try 
             {
+            	MinecraftForge.EVENT_BUS.post(new GravityEffectEvent(this.entity));
+            	
                 for(ItemStack handSlot : this.entity.getHandSlots()) 
                 {
                     Item item = handSlot.getItem();

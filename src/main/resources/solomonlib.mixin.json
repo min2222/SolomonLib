@@ -38,8 +38,7 @@
 		"gravity.BehaviorUtilsMixin",
 		"gravity.MixinBlockStateBase",
 		"gravity.MixinForgeHooks",
-		"gravity.MixinServerLevel",
-		"gravity.MixinGravityMobNavigation"
+		"gravity.MixinServerLevel"
 	],
 	"client": [
 		"compat.EmbeddiumBlockRendererMixin",
