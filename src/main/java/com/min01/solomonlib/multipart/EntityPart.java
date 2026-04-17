@@ -154,12 +154,17 @@ public final class EntityPart
         return this.changed;
     }
 
+    boolean isChangedDeep()
+    {
+        return this.changed || (this.parent != null && this.parent.isChangedDeep());
+    }
+
     /**
      * @return Oriented box represented by this EntityPart after all transformations have been applied
      */
     public OrientedBox getBox()
     {
-        if(this.cachedBox == null || this.changed)
+        if(this.cachedBox == null || this.isChangedDeep())
         {
             OrientedBox orientedBox = new OrientedBox(this.box, this.collide);
             OrientedBox child = this.transformChild(orientedBox);

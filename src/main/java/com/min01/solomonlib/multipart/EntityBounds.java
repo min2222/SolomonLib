@@ -16,10 +16,12 @@ public class EntityBounds
 {
     private CompoundOrientedBox cache;
     private final Map<String, EntityPart> partMap;
+    private final List<OrientedBox> buildBuffer;
 
     EntityBounds(Map<String, EntityPart> partMap)
     {
         this.partMap = partMap;
+        this.buildBuffer = new ObjectArrayList<>(partMap.size());
     }
 
     public boolean hasPart(String name) 
@@ -83,21 +85,25 @@ public class EntityBounds
     public CompoundOrientedBox getBox(AABB bounds) 
     {
         boolean changed = this.cache == null;
-        for(EntityPart value : this.partMap.values())
+        if(!changed)
         {
-            if(value.isChanged())
+            for(EntityPart value : this.partMap.values())
             {
-                changed = true;
+                if(value.isChanged())
+                {
+                    changed = true;
+                    break;
+                }
             }
         }
         if(changed)
         {
-            List<OrientedBox> parts = new ObjectArrayList<>(this.partMap.size());
+            this.buildBuffer.clear();
             for(EntityPart value : this.partMap.values())
             {
-                parts.add(value.getBox());
+                this.buildBuffer.add(value.getBox());
             }
-            this.cache = new CompoundOrientedBox(bounds, parts);
+            this.cache = new CompoundOrientedBox(bounds, new ObjectArrayList<>(this.buildBuffer));
         }
         return this.cache.withBounds(bounds);
     }

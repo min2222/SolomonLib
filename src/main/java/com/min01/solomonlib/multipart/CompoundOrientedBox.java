@@ -122,6 +122,6 @@ public class CompoundOrientedBox extends AABB implements Iterable<OrientedBox>
 
     public CompoundOrientedBox withBounds(AABB bounds) 
     {
-        return new CompoundOrientedBox(bounds, new ObjectArrayList<>(this.boxes));
+        return new CompoundOrientedBox(bounds, this.boxes);
     }
 }

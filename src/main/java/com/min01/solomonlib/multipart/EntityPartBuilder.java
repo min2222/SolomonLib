@@ -21,7 +21,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;	
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.AABB;
@@ -40,7 +40,11 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
 	public final Map<String, String> parts = new HashMap<>();
 	public final Map<String, Part> partMap = new HashMap<>();
 	public final Map<ModelPart, String> partNameCache = new HashMap<>();
+	public final Map<String, PartState> lastStates = new HashMap<>();
 	public final Map<String, String> cubeToModelPart = new HashMap<>();
+
+	@Nullable
+	private ModelPart currentModelRoot;
 
 	public EntityPartBuilder(T entity)
 	{
@@ -118,11 +122,8 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
 	    {
 	        String name = part.name;
 	        EntityPart entityPart = this.hitbox.getPart(name);
-	        if(entityPart == null)
-	        {
+	        if(entityPart == null) 
 	        	continue;
-	        }
-
 	        if(this.cubeToModelPart.containsKey(name))
 	        {
 	            Vec3 offset = this.partOffset.getOrDefault(name, Vec3.ZERO);
@@ -178,13 +179,12 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
     @OnlyIn(Dist.CLIENT)
 	public void clientTick(HierarchicalModel<T> model)
 	{
-    	Map<String, PartState> lastStates = new HashMap<>();
     	ModelPart root = model.root();
     	root.getAllParts().forEach(part -> 
     	{
     	    if(!this.partNameCache.containsKey(part))
     	    {
-    	    	String name = this.getModelPartName(model.root(), part);
+    	    	String name = this.getModelPartName(root, part);
     	    	this.partNameCache.put(part, name);
     	    	return;
     	    }
@@ -193,12 +193,12 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
     	    if(p != null)
     	    {
     	        PartState current = new PartState(part.x, part.y, part.z, part.xRot, part.yRot, part.zRot);
-    	        PartState last = lastStates.get(name);
+    	        PartState last = this.lastStates.get(name);
     	        if(last == null || current.changed(last))
     	        {
     	            p.tick(part.x, part.y, part.z, part.xRot, part.yRot, part.zRot);
     	            SolomonNetwork.sendToServer(new UpdatePartPacket(this.entity.getUUID(), name, part.x, part.y, part.z, part.xRot, part.yRot, part.zRot));
-    	            lastStates.put(name, current);
+    	            this.lastStates.put(name, current);
     	        }
     	    }
     	});
@@ -209,7 +209,10 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
 	{
 		HierarchicalModel<T> model = SolomonClientUtil.getModelFromEntity(this.entity);
         EntityBounds.EntityBoundsBuilder builder = EntityBounds.builder();
-        return this.addPart(builder, model.root(), false, null).getFactory().create();
+        this.currentModelRoot = model.root();
+        EntityBounds result = this.addPart(builder, this.currentModelRoot, false, null).getFactory().create();
+        this.currentModelRoot = null;
+        return result;
 	}
 
     @OnlyIn(Dist.CLIENT)
@@ -237,6 +240,7 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
             Part p = new Part(name, part.x, part.y, part.z, part.xRot, part.yRot, part.zRot);
             this.partMap.putIfAbsent(name, p);
         }
+
         AABB empty = new AABB(Vec3.ZERO, Vec3.ZERO);
         if(part.cubes.isEmpty())
         {
@@ -263,27 +267,22 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
                 cubeInfo.setCollide(isCollide);
                 cubeInfo.setParent(name);
                 this.parts.put(cubeName, name);
-
                 double scale = SCALE * this.getRenderScale();
                 Vec3 min = new Vec3(cube.minX, cube.minY, cube.minZ).scale(scale);
                 Vec3 max = new Vec3(cube.maxX, cube.maxY, cube.maxZ).scale(scale);
                 AABB cubeAABB = sanitizeAABB(new AABB(min, max));
-
                 Vec3 center = cubeAABB.getCenter();
                 Vec3 offset = center.multiply(-1.0, -1.0, 1.0);
                 this.partOffset.put(cubeName, offset);
-
                 double hw = cubeAABB.getXsize() / 2.0;
                 double hh = cubeAABB.getYsize() / 2.0;
                 double hd = cubeAABB.getZsize() / 2.0;
                 cubeInfo.setBounds(new AABB(-hw, -hh, -hd, hw, hh, hd));
                 builder2 = cubeInfo.build();
-
                 this.partMap.putIfAbsent(cubeName, new Part(cubeName, 0, 0, 0, 0, 0, 0));
                 cubeIdx++;
             }
         }
-
         for(ModelPart child : part.children.values())
         {
             this.addPart(builder2, child, isCollide, name);
@@ -297,17 +296,17 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
         double minX = box.minX, maxX = box.maxX;
         double minY = box.minY, maxY = box.maxY;
         double minZ = box.minZ, maxZ = box.maxZ;
-        if(maxX - minX < MIN)
+        if(maxX - minX < MIN) 
         { 
-        	double c = (minX + maxX) / 2; minX = c - MIN/2; maxX = c + MIN/2;
+        	double c = (minX + maxX) / 2; minX = c - MIN / 2; maxX = c + MIN / 2; 
         }
         if(maxY - minY < MIN) 
         { 
-        	double c = (minY + maxY) / 2; minY = c - MIN/2; maxY = c + MIN/2; 
+        	double c = (minY + maxY) / 2; minY = c - MIN / 2; maxY = c + MIN / 2; 
         }
-        if(maxZ - minZ < MIN)
+        if(maxZ - minZ < MIN) 
         { 
-        	double c = (minZ + maxZ) / 2; minZ = c - MIN/2; maxZ = c + MIN/2; 
+        	double c = (minZ + maxZ) / 2; minZ = c - MIN / 2; maxZ = c + MIN / 2; 
         }
         return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
     }

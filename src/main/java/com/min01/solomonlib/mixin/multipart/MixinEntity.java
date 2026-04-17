@@ -56,19 +56,14 @@ public class MixinEntity
             return pDeltaMovement;
         }
 
-        Vec3 totalMtv = Vec3.ZERO;
         for(OrientedBox obb : obbs)
         {
             Vec3 mtv = obb.getDepenetrationVector(pEntityBB);
             if(mtv.lengthSqr() > 1.0E-7)
             {
-                totalMtv = totalMtv.add(mtv);
+                pEntityBB = pEntityBB.move(mtv);
+                pDeltaMovement = pDeltaMovement.add(mtv);
             }
-        }
-        if(totalMtv.lengthSqr() > 1.0E-7)
-        {
-            pEntityBB = pEntityBB.move(totalMtv);
-            pDeltaMovement = pDeltaMovement.add(totalMtv);
         }
 
         double d0 = pDeltaMovement.x;

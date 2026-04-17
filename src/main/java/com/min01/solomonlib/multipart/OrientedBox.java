@@ -138,36 +138,28 @@ public class OrientedBox
     public void computeVertices() 
     {
         AABB box = this.getExtents();
-        Vec3[] vertices = getVertices(box);
+        Vec3[] verts = getVertices(box);
         this.vertices = new Vec3[8];
         Matrix3d matrix = this.getMatrix();
-        for(int i = 0; i < vertices.length; i++)
+        for(int i = 0; i < verts.length; i++)
         {
-            this.vertices[i] = matrix.transform(vertices[i]).add(this.center);
+            this.vertices[i] = matrix.transform(verts[i]).add(this.center);
         }
     }
 
     public static Vec3[] getVertices(AABB box) 
     {
-        Vec3[] vertices = new Vec3[8];
-        int index = 0;
-        Direction.AxisDirection[] axisDirections = Direction.AxisDirection.values();
-        for(Direction.AxisDirection x : axisDirections)
+        return new Vec3[]
         {
-            for(Direction.AxisDirection y : axisDirections) 
-            {
-                for(Direction.AxisDirection z : axisDirections) 
-                {
-                    vertices[index++] = new Vec3(getPoint(box, x, Direction.Axis.X), getPoint(box, y, Direction.Axis.Y), getPoint(box, z, Direction.Axis.Z));
-                }
-            }
-        }
-        return vertices;
-    }
-
-    private static double getPoint(AABB box, Direction.AxisDirection direction, Direction.Axis axis)
-    {
-        return direction == Direction.AxisDirection.NEGATIVE ? box.min(axis) : box.max(axis);
+            new Vec3(box.minX, box.minY, box.minZ),
+            new Vec3(box.minX, box.minY, box.maxZ),
+            new Vec3(box.minX, box.maxY, box.minZ),
+            new Vec3(box.minX, box.maxY, box.maxZ),
+            new Vec3(box.maxX, box.minY, box.minZ),
+            new Vec3(box.maxX, box.minY, box.maxZ),
+            new Vec3(box.maxX, box.maxY, box.minZ),
+            new Vec3(box.maxX, box.maxY, box.maxZ)
+        };
     }
     
     public static double collide(Direction.Axis pMovementAxis, AABB pCollisionBox, Iterable<OrientedBox> pPossibleHits, double pDesiredOffset)
@@ -192,36 +184,35 @@ public class OrientedBox
         
         if(this.intersects(aabb)) 
         {
-            return desiredMove;
+            return 0.0D;
         }
 
         double sign = Math.signum(desiredMove);
-        Vec3 axisVec = switch (axis) 
-        {
-            case X -> new Vec3(sign, 0, 0);
-            case Y -> new Vec3(0, sign, 0);
-            case Z -> new Vec3(0, 0, sign);
-        };
+        double abs = Math.abs(desiredMove);
 
-        AABB finalMovedAABB = aabb.move(axisVec.scale(Math.abs(desiredMove)));
+        double ax = axis == Direction.Axis.X ? sign : 0.0;
+        double ay = axis == Direction.Axis.Y ? sign : 0.0;
+        double az = axis == Direction.Axis.Z ? sign : 0.0;
+
+        AABB finalMovedAABB = aabb.move(ax * abs, ay * abs, az * abs);
         if(!this.intersects(finalMovedAABB)) 
         {
             return desiredMove;
         }
 
+        Vec3[] baseVerts = getVertices(aabb);
+
         double low = 0.0;
-        double high = Math.abs(desiredMove);
+        double high = abs;
 
         for(int i = 0; i < 10; i++)
         {
             double mid = (low + high) / 2.0;
-            if (mid == low || mid == high) 
+            if(mid == low || mid == high) 
             {
                 break;
             }
-
-            AABB testAABB = aabb.move(axisVec.scale(mid));
-            if(this.intersects(testAABB)) 
+            if(this.intersectsTranslated(baseVerts, ax * mid, ay * mid, az * mid)) 
             {
                 high = mid;
             } 
@@ -233,7 +224,66 @@ public class OrientedBox
 
         return low * sign;
     }
-    
+
+    private boolean intersectsTranslated(Vec3[] baseVerts, double dx, double dy, double dz)
+    {
+        if(this.vertices == null)
+        {
+            this.computeVertices();
+        }
+        Vec3[] v1 = this.vertices;
+        Vec3[] normals1 = this.getBasis();
+
+        for(Vec3 n : normals1)
+        {
+            if(!satTranslated(n.x, n.y, n.z, v1, baseVerts, dx, dy, dz)) 
+            	return false;
+        }
+        if(!satTranslated(1, 0, 0, v1, baseVerts, dx, dy, dz)) 
+        	return false;
+        if(!satTranslated(0, 1, 0, v1, baseVerts, dx, dy, dz)) 
+        	return false;
+        if(!satTranslated(0, 0, 1, v1, baseVerts, dx, dy, dz)) 
+        	return false;
+        for(Vec3 a : normals1)
+        {
+            if(!satTranslated(0, a.z, -a.y, v1, baseVerts, dx, dy, dz)) 
+            	return false;
+            if(!satTranslated(-a.z, 0, a.x, v1, baseVerts, dx, dy, dz)) 
+            	return false;
+            if(!satTranslated(a.y, -a.x, 0, v1, baseVerts, dx, dy, dz)) 
+            	return false;
+        }
+        return true;
+    }
+
+    private static boolean satTranslated(double nx, double ny, double nz, Vec3[] v1, Vec3[] v2, double dx, double dy, double dz)
+    {
+        double lenSq = nx * nx + ny * ny + nz * nz;
+        if(lenSq < 1.0E-9)
+        {
+            return true;
+        }
+        double min1 = Double.MAX_VALUE;
+        double max1 = -Double.MAX_VALUE;
+        for(Vec3 v : v1)
+        {
+            double p = v.x * nx + v.y * ny + v.z * nz;
+            if(p < min1) min1 = p;
+            if(p > max1) max1 = p;
+        }
+        double shift = dx * nx + dy * ny + dz * nz;
+        double min2 = Double.MAX_VALUE;
+        double max2 = -Double.MAX_VALUE;
+        for(Vec3 v : v2)
+        {
+            double p = v.x * nx + v.y * ny + v.z * nz + shift;
+            if(p < min2) min2 = p;
+            if(p > max2) max2 = p;
+        }
+        return min1 <= max2 && min2 <= max1;
+    }
+
     public Vec3 getDepenetrationVector(AABB other) 
     {
         if(!this.intersects(other)) 
@@ -241,7 +291,7 @@ public class OrientedBox
             return Vec3.ZERO;
         }
 
-        if (this.vertices == null) this.computeVertices();
+        if(this.vertices == null) this.computeVertices();
         Vec3[] obbVerts = this.vertices;
         Vec3[] aabbVerts = getVertices(other);
 
@@ -254,15 +304,13 @@ public class OrientedBox
         int totalAxes = obbBasis.length + aabbBasis.length;
         Vec3[] axes = new Vec3[totalAxes + 9];
         int idx = 0;
-        for (Vec3 a : obbBasis)  axes[idx++] = a;
-        for (Vec3 a : aabbBasis) axes[idx++] = a;
-
+        for(Vec3 a : obbBasis)  axes[idx++] = a;
+        for(Vec3 a : aabbBasis) axes[idx++] = a;
         for(Vec3 a : obbBasis)
         {
-            for(Vec3 b : aabbBasis) 
-            {
-                axes[idx++] = cross(a, b);
-            }
+            axes[idx++] = new Vec3(0,    a.z, -a.y);
+            axes[idx++] = new Vec3(-a.z, 0,    a.x);
+            axes[idx++] = new Vec3(a.y, -a.x,  0  );
         }
 
         for(Vec3 axis : axes)
@@ -274,16 +322,16 @@ public class OrientedBox
             for(Vec3 v : obbVerts)
             {
                 double proj = v.dot(axis);
-                min1 = Math.min(min1, proj);
-                max1 = Math.max(max1, proj);
+                if(proj < min1) min1 = proj;
+                if(proj > max1) max1 = proj;
             }
 
             double min2 = Double.MAX_VALUE, max2 = -Double.MAX_VALUE;
             for(Vec3 v : aabbVerts) 
             {
                 double proj = v.dot(axis);
-                min2 = Math.min(min2, proj);
-                max2 = Math.max(max2, proj);
+                if(proj < min2) min2 = proj;
+                if(proj > max2) max2 = proj;
             }
 
             double overlap = Math.min(max1, max2) - Math.max(min1, min2);
@@ -322,6 +370,7 @@ public class OrientedBox
         }
         Vec3[] vertices1 = this.vertices;
         Vec3[] normals1 = this.getBasis();
+
         for(Vec3 normal : normals1)
         {
             if(!sat(normal, vertices1, otherVertices))
@@ -329,53 +378,72 @@ public class OrientedBox
                 return false;
             }
         }
-        Vec3[] normals2 = Matrix3d.IDENTITY_BASIS;
-        for(Vec3 normal : normals2) 
+
+        for(Vec3 normal : Matrix3d.IDENTITY_BASIS) 
         {
             if(!sat(normal, vertices1, otherVertices))
             {
                 return false;
             }
         }
-        for(int i = 0; i < normals1.length; i++)
+
+        for(Vec3 a : normals1)
         {
-            for(int j = 0; j < normals2.length; j++) 
-            {
-                Vec3 normal = cross(normals1[i], normals2[j]);
-                if (normal.lengthSqr() < 1.0E-9) {
-                    continue;
-                }
-                if(!sat(normal, vertices1, otherVertices))
-                {
-                    return false;
-                }
-            }
+            if(!satAxes(0, a.z, -a.y, vertices1, otherVertices)) 
+            	return false;
+            if(!satAxes(-a.z, 0, a.x, vertices1, otherVertices)) 
+            	return false;
+            if(!satAxes(a.y, -a.x,  0, vertices1, otherVertices)) 
+            	return false;
         }
         return true;
     }
-    
+
     private static boolean sat(Vec3 normal, Vec3[] vertices1, Vec3[] vertices2)
     {
         double min1 = Double.MAX_VALUE;
         double max1 = -Double.MAX_VALUE;
         for(Vec3 d : vertices1)
         {
-        	if(d != null)
-        	{
-                double v = d.dot(normal);
-                min1 = Math.min(min1, v);
-                max1 = Math.max(max1, v);
-        	}
+            double v = d.dot(normal);
+            if(v < min1) min1 = v;
+            if(v > max1) max1 = v;
         }
         double min2 = Double.MAX_VALUE;
         double max2 = -Double.MAX_VALUE;
-        for(Vec3 vec3d : vertices2)
+        for(Vec3 v : vertices2)
         {
-            double v = vec3d.dot(normal);
-            min2 = Math.min(min2, v);
-            max2 = Math.max(max2, v);
+            double p = v.dot(normal);
+            if(p < min2) min2 = p;
+            if(p > max2) max2 = p;
         }
-        return min1 <= min2 && min2 <= max1 || min2 <= min1 && min1 <= max2;
+        return min1 <= max2 && min2 <= max1;
+    }
+
+    private static boolean satAxes(double nx, double ny, double nz, Vec3[] vertices1, Vec3[] vertices2)
+    {
+        double lenSq = nx * nx + ny * ny + nz * nz;
+        if(lenSq < 1.0E-9)
+        {
+            return true;
+        }
+        double min1 = Double.MAX_VALUE;
+        double max1 = -Double.MAX_VALUE;
+        for(Vec3 v : vertices1)
+        {
+            double p = v.x * nx + v.y * ny + v.z * nz;
+            if(p < min1) min1 = p;
+            if(p > max1) max1 = p;
+        }
+        double min2 = Double.MAX_VALUE;
+        double max2 = -Double.MAX_VALUE;
+        for(Vec3 v : vertices2)
+        {
+            double p = v.x * nx + v.y * ny + v.z * nz;
+            if(p < min2) min2 = p;
+            if(p > max2) max2 = p;
+        }
+        return min1 <= max2 && min2 <= max1;
     }
 
     public static Vec3 cross(Vec3 first, Vec3 second)
@@ -458,10 +526,8 @@ public class OrientedBox
         x -= this.center.x;
         y -= this.center.y;
         z -= this.center.z;
-        double transX = this.getMatrix().transformX(x, y, z);
-        double transY = this.getMatrix().transformY(x, y, z);
-        double transZ = this.getMatrix().transformZ(x, y, z);
-        return this.getExtents().contains(transX, transY, transZ);
+        Matrix3d m = this.getMatrix();
+        return this.getExtents().contains(m.transformX(x, y, z), m.transformY(x, y, z), m.transformZ(x, y, z));
     }
 
     public double getMax(Direction.Axis axis) 
