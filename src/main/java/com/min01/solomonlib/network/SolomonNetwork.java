@@ -25,6 +25,8 @@ public class SolomonNetwork
 		CHANNEL.registerMessage(ID++, UpdateGravitySyncStatePacket.class, UpdateGravitySyncStatePacket::write, UpdateGravitySyncStatePacket::read, UpdateGravitySyncStatePacket::handle);
 		CHANNEL.registerMessage(ID++, GravityZoneSyncPacket.class, GravityZoneSyncPacket::write, GravityZoneSyncPacket::read, GravityZoneSyncPacket::handle);
 		CHANNEL.registerMessage(ID++, GravityZoneBulkSyncPacket.class, GravityZoneBulkSyncPacket::write, GravityZoneBulkSyncPacket::read, GravityZoneBulkSyncPacket::handle);
+		CHANNEL.registerMessage(ID++, BuildMultipartPacket.class, BuildMultipartPacket::write, BuildMultipartPacket::read, BuildMultipartPacket::handle);
+ 		CHANNEL.registerMessage(ID++, UpdatePartPacket.class, UpdatePartPacket::write, UpdatePartPacket::read, UpdatePartPacket::handle);
 	}
 
     public static <MSG> void sendToServer(MSG message)

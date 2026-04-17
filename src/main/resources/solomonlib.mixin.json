@@ -38,7 +38,8 @@
 		"gravity.BehaviorUtilsMixin",
 		"gravity.MixinBlockStateBase",
 		"gravity.MixinForgeHooks",
-		"gravity.MixinServerLevel"
+		"gravity.MixinServerLevel",
+		"multipart.MixinEntity"
 	],
 	"client": [
 		"compat.EmbeddiumBlockRendererMixin",
@@ -59,7 +60,8 @@
 		"lights.MixinEntityRenderer",
 		"lights.MixinLevelRenderer",
 		"lights.MixinClientLevel",
-		"lights.MixinMinecraft"
+		"lights.MixinMinecraft",
+		"multipart.MixinEntityRenderDispatcher"
 	],
 	"server": [
 	],

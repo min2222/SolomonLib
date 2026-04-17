@@ -183,6 +183,10 @@ public abstract class MixinEntity implements IDynamicLight
 	{
 		Entity self = Entity.class.cast(this);
 		this.luminance = 0;
+		if(!this.shouldUpdateDynamicLight())
+		{
+			return;
+		}
 
 		if(self instanceof IDynamicLightEntity lightEntity)
 		{
@@ -229,6 +233,14 @@ public abstract class MixinEntity implements IDynamicLight
 	{
 		if(!this.shouldUpdateDynamicLight())
 		{
+			if(this.solomon$lastDynamicLuminance > 0 || !this.trackedLitChunkPos.isEmpty())
+			{
+				this.solomon$lastDynamicLuminance = 0;
+				this.luminance = 0;
+				this.scheduleTrackedChunksRebuild(renderer);
+				this.trackedLitChunkPos = new LongOpenHashSet();
+				return true;
+			}
 			return false;
 		}
 		

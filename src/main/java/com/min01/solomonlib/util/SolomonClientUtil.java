@@ -8,6 +8,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import com.min01.solomonlib.multipart.IMultiModel;
 import com.min01.solomonlib.spider.IClimberEntity;
 import com.min01.solomonlib.spider.Orientation;
 import com.min01.solomonlib.spider.PathingTarget;
@@ -17,12 +18,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -32,6 +37,21 @@ public class SolomonClientUtil
 	public static final Minecraft MC = Minecraft.getInstance();
 	
 	public static final int VERTEX_SIZE_INTS = DefaultVertexFormat.BLOCK.getIntegerSize();
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <T extends Entity> HierarchicalModel<T> getModelFromEntity(T entity)
+	{
+		EntityRenderer renderer = MC.getEntityRenderDispatcher().getRenderer(entity);
+		if(renderer instanceof IMultiModel multiModel)
+		{
+			return multiModel.getModel(entity);
+		}
+		if(renderer instanceof LivingEntityRenderer livingRenderer)
+		{
+			return (HierarchicalModel<T>) livingRenderer.getModel();
+		}
+		return null;
+	}
 	
     public static BakedQuad transform(BakedQuad quad, PoseStack poseStack, boolean flipWindingOrder) 
     {
