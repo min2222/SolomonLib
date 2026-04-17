@@ -21,14 +21,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.Pose;	
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -42,6 +40,7 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
 	public final Map<String, String> parts = new HashMap<>();
 	public final Map<String, Part> partMap = new HashMap<>();
 	public final Map<ModelPart, String> partNameCache = new HashMap<>();
+	public final Map<String, String> cubeToModelPart = new HashMap<>();
 
 	public EntityPartBuilder(T entity)
 	{
@@ -115,13 +114,31 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
 	
 	public void partTick()
 	{
-		for(Part part : this.partMap.values())
-		{
-			String name = part.name;
-	    	EntityPart entityPart = this.hitbox.getPart(name);
-	        Vec3 partPos = (new Vec3((double)(-part.x), (double)(-part.y), (double)part.z)).scale(SCALE * this.getRenderScale());
+	    for(Part part : this.partMap.values())
+	    {
+	        String name = part.name;
+	        EntityPart entityPart = this.hitbox.getPart(name);
+	        if(entityPart == null)
+	        {
+	        	continue;
+	        }
+
+	        if(this.cubeToModelPart.containsKey(name))
+	        {
+	            Vec3 offset = this.partOffset.getOrDefault(name, Vec3.ZERO);
+	            entityPart.setX(offset.x);
+	            entityPart.setY(offset.y);
+	            entityPart.setZ(offset.z);
+	            entityPart.setPivotX(offset.x);
+	            entityPart.setPivotY(offset.y);
+	            entityPart.setPivotZ(offset.z);
+	            entityPart.setRotation(new QuaternionD(0, 0, 0, 1));
+	            continue;
+	        }
+
+	        Vec3 partPos = new Vec3(-part.x, -part.y, part.z).scale(SCALE * this.getRenderScale());
 	        Vec3 pivot = Vec3.ZERO;
-	        
+
 	        if(this.partOffset.containsKey(name))
 	        {
 	            Vec3 offset = this.partOffset.get(name);
@@ -129,17 +146,14 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
 	            partPos = partPos.add(offset);
 	        }
 
-	        if(this.parts.containsKey(name)) 
+	        if(this.parts.containsKey(name))
 	        {
-	            String parent = this.parts.get(name);
-	            if(this.partOffset.containsKey(parent)) 
+	            String parentName = this.parts.get(name);
+	            if(this.partOffset.containsKey(parentName))
 	            {
-	                partPos = partPos.subtract(this.partOffset.get(parent));
+	                partPos = partPos.subtract(this.partOffset.get(parentName));
 	            }
 	        }
-	        
-	        if(entityPart == null)
-	        	return;
 
 	        entityPart.setX(partPos.x);
 	        entityPart.setY(partPos.y);
@@ -147,9 +161,10 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
 	        entityPart.setPivotX(pivot.x);
 	        entityPart.setPivotY(pivot.y);
 	        entityPart.setPivotZ(pivot.z);
-            Quaternionf rotation = new Quaternionf().rotateZYX(part.zRot, -part.yRot, -part.xRot);
-            entityPart.setRotation(new QuaternionD((double)rotation.x, (double)rotation.y, (double)rotation.z, (double)rotation.w));
-		}
+
+	        Quaternionf rotation = new Quaternionf().rotateZYX(part.zRot, -part.yRot, -part.xRot);
+	        entityPart.setRotation(new QuaternionD(rotation.x, rotation.y, rotation.z, rotation.w));
+	    }
 	}
 	
 	record PartState(float x, float y, float z, float xRot, float yRot, float zRot)
@@ -200,91 +215,101 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
     @OnlyIn(Dist.CLIENT)
     public EntityBounds.EntityBoundsBuilder addPart(EntityBounds.EntityBoundsBuilder builder, ModelPart part, boolean collide, @Nullable String parent)
     {
-		HierarchicalModel<T> model = SolomonClientUtil.getModelFromEntity(this.entity);
+        HierarchicalModel<T> model = SolomonClientUtil.getModelFromEntity(this.entity);
         String name = this.getModelPartName(model.root(), part);
-        EntityBounds.EntityPartInfoBuilder partInfo = builder.add(name);
         boolean isCollide = this.entity.getCollidePart().contains(name) || collide;
-        boolean isIgnore = this.entity.getIgnorePart().contains(name);
-    	partInfo.setCollide(isCollide);
-    	boolean flag = this.entity.skipInvisiblePart() ? part.visible : true;
-    	flag = flag && !isIgnore;
-    	if(flag)
-    	{
-            if(parent != null)
-            {
-                partInfo.setParent(parent);
-                this.parts.put(name, parent);
-            }
-    	}
-        partInfo.setBounds(this.getPartSize(part, name));
-        EntityBounds.EntityBoundsBuilder builder2 = partInfo.build();
-        for(ModelPart child : part.children.values())
-        {
-        	this.addPart(builder2, child, isCollide, name);
-        }
-    	if(flag)
-    	{
-            Part p = new Part(name, part.x, part.y, part.z, part.xRot, part.yRot, part.zRot);
-            if(!this.partMap.containsValue(p))
-            {
-            	this.partMap.put(p.name, p);
-            }
-    	}
-        return builder2;
-    }
+        boolean isIgnore  = this.entity.getIgnorePart().contains(name);
+        boolean flag = (this.entity.skipInvisiblePart() ? part.visible : true) && !isIgnore;
 
-    @OnlyIn(Dist.CLIENT)
-    public AABB getPartSize(ModelPart part, String name)
-    {
-    	VoxelShape shape = Shapes.empty();
-        AABB box = null;
+        EntityBounds.EntityPartInfoBuilder pivotInfo = builder.add(name);
+        pivotInfo.setCollide(false);
+        if (flag && parent != null)
+        {
+            pivotInfo.setParent(parent);
+            this.parts.put(name, parent);
+        }
+        this.partOffset.put(name, Vec3.ZERO);
+        pivotInfo.setBounds(new AABB(Vec3.ZERO, Vec3.ZERO));
+        EntityBounds.EntityBoundsBuilder builder2 = pivotInfo.build();
+
+        if(flag)
+        {
+            Part p = new Part(name, part.x, part.y, part.z, part.xRot, part.yRot, part.zRot);
+            this.partMap.putIfAbsent(name, p);
+        }
         AABB empty = new AABB(Vec3.ZERO, Vec3.ZERO);
-        for(ModelPart.Cube cube : part.cubes)
+        if(part.cubes.isEmpty())
         {
-            Vec3 min = new Vec3(cube.minX, cube.minY, cube.minZ).scale(SCALE * this.getRenderScale());
-            Vec3 max = new Vec3(cube.maxX, cube.maxY, cube.maxZ).scale(SCALE * this.getRenderScale());
-            AABB cubeBox = new AABB(min, max);
-            if(box == null || shape.isEmpty())
-            {
-                box = cubeBox;
-                shape = Shapes.create(cubeBox);
-            }
-            else
-            {
-            	VoxelShape boxShape = Shapes.create(box);
-            	VoxelShape cubeBoxShape = Shapes.create(cubeBox);
-            	AABB aabb = Shapes.or(boxShape, cubeBoxShape).bounds();
-                box = aabb;
-            }
-        }
-        
-        if(box != null && (box.minX == 0.0 || box.minY == 0.0 || box.minZ == 0.0 || box.maxX == 0.0 || box.maxY == 0.0 || box.maxZ == 0.0))
-        {
-        	double minX = box.minX == 0.0 ? -0.01F / 2 : box.minX;
-        	double maxX = box.maxX == 0.0 ? 0.01F / 2 : box.maxX;
-        	
-        	double minY = box.minY == 0.0 ? -0.01F / 2 : box.minY;
-        	double maxY = box.maxY == 0.0 ? 0.01F / 2 : box.maxY;
-        	
-        	double minZ = box.minZ == 0.0 ? -0.01F / 2 : box.minZ;
-        	double maxZ = box.maxZ == 0.0 ? 0.01F / 2 : box.maxZ;
-        	
-        	box = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
-            Vec3 offset = box.getCenter().multiply(-1.0F, -1.0F, 1.0F);
-            this.partOffset.put(name, offset);
-            return new AABB(-box.getXsize() / 2.0F, -box.getYsize() / 2.0F, -box.getZsize() / 2.0F, box.getXsize() / 2.0F, box.getYsize() / 2.0F, box.getZsize() / 2.0F);
-        }
-        
-        if(box == null || shape.isEmpty()) 
-        {
-            return empty;
+            String dummyName = name + "_empty";
+            EntityBounds.EntityPartInfoBuilder dummyInfo = builder2.add(dummyName);
+            dummyInfo.setCollide(false);
+            dummyInfo.setParent(name);
+            this.parts.put(dummyName, name);
+            this.partOffset.put(dummyName, Vec3.ZERO);
+            dummyInfo.setBounds(empty);
+            builder2 = dummyInfo.build();
+            this.partMap.putIfAbsent(dummyName, new Part(dummyName, 0, 0, 0, 0, 0, 0));
+            this.cubeToModelPart.put(dummyName, name);
         }
         else
         {
-            Vec3 offset = box.getCenter().multiply(-1.0F, -1.0F, 1.0F);
-            this.partOffset.put(name, offset);
-            return new AABB(-box.getXsize() / 2.0F, -box.getYsize() / 2.0F, -box.getZsize() / 2.0F, box.getXsize() / 2.0F, box.getYsize() / 2.0F, box.getZsize() / 2.0F);
+            int cubeIdx = 0;
+            for(ModelPart.Cube cube : part.cubes)
+            {
+                String cubeName = part.cubes.size() == 1 ? name + "_cube" : name + "_cube_" + cubeIdx;
+                this.cubeToModelPart.put(cubeName, name);
+
+                EntityBounds.EntityPartInfoBuilder cubeInfo = builder2.add(cubeName);
+                cubeInfo.setCollide(isCollide);
+                cubeInfo.setParent(name);
+                this.parts.put(cubeName, name);
+
+                double scale = SCALE * this.getRenderScale();
+                Vec3 min = new Vec3(cube.minX, cube.minY, cube.minZ).scale(scale);
+                Vec3 max = new Vec3(cube.maxX, cube.maxY, cube.maxZ).scale(scale);
+                AABB cubeAABB = sanitizeAABB(new AABB(min, max));
+
+                Vec3 center = cubeAABB.getCenter();
+                Vec3 offset = center.multiply(-1.0, -1.0, 1.0);
+                this.partOffset.put(cubeName, offset);
+
+                double hw = cubeAABB.getXsize() / 2.0;
+                double hh = cubeAABB.getYsize() / 2.0;
+                double hd = cubeAABB.getZsize() / 2.0;
+                cubeInfo.setBounds(new AABB(-hw, -hh, -hd, hw, hh, hd));
+                builder2 = cubeInfo.build();
+
+                this.partMap.putIfAbsent(cubeName, new Part(cubeName, 0, 0, 0, 0, 0, 0));
+                cubeIdx++;
+            }
         }
+
+        for(ModelPart child : part.children.values())
+        {
+            this.addPart(builder2, child, isCollide, name);
+        }
+        return builder2;
+    }
+
+    private AABB sanitizeAABB(AABB box)
+    {
+        final double MIN = 0.005;
+        double minX = box.minX, maxX = box.maxX;
+        double minY = box.minY, maxY = box.maxY;
+        double minZ = box.minZ, maxZ = box.maxZ;
+        if(maxX - minX < MIN)
+        { 
+        	double c = (minX + maxX) / 2; minX = c - MIN/2; maxX = c + MIN/2;
+        }
+        if(maxY - minY < MIN) 
+        { 
+        	double c = (minY + maxY) / 2; minY = c - MIN/2; maxY = c + MIN/2; 
+        }
+        if(maxZ - minZ < MIN)
+        { 
+        	double c = (minZ + maxZ) / 2; minZ = c - MIN/2; maxZ = c + MIN/2; 
+        }
+        return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     @OnlyIn(Dist.CLIENT)
