@@ -226,7 +226,7 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
 
         EntityBounds.EntityPartInfoBuilder pivotInfo = builder.add(name);
         pivotInfo.setCollide(false);
-        if (flag && parent != null)
+        if(flag && parent != null)
         {
             pivotInfo.setParent(parent);
             this.parts.put(name, parent);
