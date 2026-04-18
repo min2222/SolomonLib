@@ -225,6 +225,14 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
+jar {
+    archiveClassifier = 'slim'
+}
+
+tasks.named('jarJar') {
+    archiveClassifier = ''
+}
+
 // Example for how to get properties into the manifest for reading at runtime.
 tasks.named('jar', Jar).configure {
     manifest {
