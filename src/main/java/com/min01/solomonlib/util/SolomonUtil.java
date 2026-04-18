@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.min01.solomonlib.gravity.GravityZoneManager;
 import com.min01.solomonlib.multipart.EntityBounds;
+import com.min01.solomonlib.multipart.IMultipart;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
@@ -25,10 +26,22 @@ public class SolomonUtil
 	{
 		return bounds.intersects(entity.getBoundingBox());
 	}
+
+	public static String getIntersectingMultiPart(IMultipart multipart, Entity entity)
+	{
+		String raw = getIntersectingMultiPart(multipart.getBounds(), entity);
+		return multipart.canonicalMultipartPartName(raw);
+	}
 	
 	public static String getCollidingMultiPart(EntityBounds bounds, Entity entity)
 	{
     	return bounds.raycast(entity.position(), entity.position().add(entity.getDeltaMovement()));
+	}
+
+	public static String getCollidingMultiPart(IMultipart multipart, Entity entity)
+	{
+		String raw = getCollidingMultiPart(multipart.getBounds(), entity);
+		return multipart.canonicalMultipartPartName(raw);
 	}
 	
 	public static String getMultiPart(EntityBounds bounds, Player player)
@@ -37,6 +50,12 @@ public class SolomonUtil
         Vec3 dir = player.getViewVector(1.0F);
         double reach = player.getBlockReach();
     	return bounds.raycast(pos, pos.add(dir.scale(reach)));
+	}
+
+	public static String getMultiPart(IMultipart multipart, Player player)
+	{
+		String raw = getMultiPart(multipart.getBounds(), player);
+		return multipart.canonicalMultipartPartName(raw);
 	}
 	
 	public static ByteBuf writeVec3(FriendlyByteBuf buf, Vec3 vec3)

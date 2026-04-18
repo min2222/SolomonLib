@@ -52,7 +52,7 @@ public class EntityBounds
         for(Map.Entry<String, EntityPart> entry : this.partMap.entrySet())
         {
         	EntityPart part = entry.getValue();
-        	if(!part.collide)
+        	if(part.collide)
         	{
         		continue;
         	}
@@ -85,15 +85,12 @@ public class EntityBounds
     public CompoundOrientedBox getBox(AABB bounds) 
     {
         boolean changed = this.cache == null;
-        if(!changed)
+        for(EntityPart value : this.partMap.values())
         {
-            for(EntityPart value : this.partMap.values())
+            if(value.isChanged())
             {
-                if(value.isChanged())
-                {
-                    changed = true;
-                    break;
-                }
+                changed = true;
+                value.setChanged(false);
             }
         }
         if(changed)

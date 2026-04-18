@@ -18,7 +18,6 @@ public final class EntityPart
     private QuaternionD rotation;
     private @Nullable EntityPart parent;
     public boolean collide;
-    private @Nullable OrientedBox cachedBox;
 
     EntityPart(@Nullable EntityPart parent, AABB box, boolean center, double offX, double offY, double offZ)
     {
@@ -154,25 +153,15 @@ public final class EntityPart
         return this.changed;
     }
 
-    boolean isChangedDeep()
-    {
-        return this.changed || (this.parent != null && this.parent.isChangedDeep());
-    }
-
     /**
      * @return Oriented box represented by this EntityPart after all transformations have been applied
      */
     public OrientedBox getBox()
     {
-        if(this.cachedBox == null || this.isChangedDeep())
-        {
-            OrientedBox orientedBox = new OrientedBox(this.box, this.collide);
-            OrientedBox child = this.transformChild(orientedBox);
-            child.collide = this.collide;
-            this.cachedBox = child;
-            this.changed = false;
-        }
-        return this.cachedBox;
+        OrientedBox orientedBox = new OrientedBox(this.box, this.collide);
+        OrientedBox child = this.transformChild(orientedBox);
+        child.collide = this.collide;
+        return child;
     }
 
     private OrientedBox transformChild(OrientedBox orientedBox)
