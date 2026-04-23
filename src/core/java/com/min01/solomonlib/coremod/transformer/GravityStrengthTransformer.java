@@ -3,6 +3,7 @@ package com.min01.solomonlib.coremod.transformer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +24,13 @@ public class GravityStrengthTransformer implements ITransformer<ClassNode>
 	private static final Logger LOGGER = LogManager.getLogger("SolomonLib/Coremod");
 
 	private static final String BRIDGE = "com/min01/solomonlib/gravity/GravityAPIBridge";
+	
+	private final Set<Target> targets;
+
+	public GravityStrengthTransformer(Set<String> classNames)
+	{
+	    this.targets = classNames.stream().map(Target::targetClass).collect(Collectors.toSet());
+	}
 
 	@Override
 	public ClassNode transform(ClassNode classNode, ITransformerVotingContext context)
@@ -65,7 +73,7 @@ public class GravityStrengthTransformer implements ITransformer<ClassNode>
 			list.insertBefore(fret, inject);
 		}
 
-		LOGGER.debug("[SolomonLib/Coremod] GravityStrength A3 OK {} — {} FRETURN(s) patched", owner, freturns.size());
+		LOGGER.info("[SolomonLib/Coremod] GravityStrength A3 OK {} — {} FRETURN(s) patched", owner, freturns.size());
 	}
 
 	@Override
@@ -77,6 +85,6 @@ public class GravityStrengthTransformer implements ITransformer<ClassNode>
 	@Override
 	public Set<Target> targets()
 	{
-		return Set.of();
+	    return this.targets;
 	}
 }

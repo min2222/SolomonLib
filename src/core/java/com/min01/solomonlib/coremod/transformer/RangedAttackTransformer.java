@@ -1,6 +1,7 @@
 package com.min01.solomonlib.coremod.transformer;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -13,11 +14,10 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import net.minecraftforge.coremod.api.ASMAPI;
-
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
+import net.minecraftforge.coremod.api.ASMAPI;
 
 public class RangedAttackTransformer implements ITransformer<ClassNode>
 {
@@ -39,6 +39,13 @@ public class RangedAttackTransformer implements ITransformer<ClassNode>
 	private static final String PERFORM_RANGED_ATTACK_1 = ASMAPI.mapMethod("m_31448_");
 	private static final String PERFORM_RANGED_ATTACK_2 = ASMAPI.mapMethod("m_31457_");
 
+	private final Set<Target> targets;
+
+	public RangedAttackTransformer(Set<String> classNames)
+	{
+	    this.targets = classNames.stream().map(Target::targetClass).collect(Collectors.toSet());
+	}
+	
 	private enum Pattern
 	{
 		BODY, EYE
@@ -78,7 +85,7 @@ public class RangedAttackTransformer implements ITransformer<ClassNode>
 	@Override
 	public Set<Target> targets()
 	{
-		return Set.of();
+	    return this.targets;
 	}
 
 	private boolean isPerformRangedAttack(String methodName)
@@ -186,7 +193,7 @@ public class RangedAttackTransformer implements ITransformer<ClassNode>
 		}
 
 		boolean ok = pX && pY && pZ && pSqrt;
-		LOGGER.log(ok ? Level.DEBUG : Level.WARN, "[SolomonLib/Coremod] RangedAttack({}) {} {} (x={},y={},z={},sqrt={},delta={})", pattern, ok ? "OK" : "FAIL", owner, pX, pY, pZ, pSqrt, pDelta);
+		LOGGER.log(ok ? Level.INFO : Level.WARN, "[SolomonLib/Coremod] RangedAttack({}) {} {} (x={},y={},z={},sqrt={},delta={})", pattern, ok ? "OK" : "FAIL", owner, pX, pY, pZ, pSqrt, pDelta);
 	}
 
 	private static boolean isAload1(AbstractInsnNode insn)

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,11 +16,10 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import net.minecraftforge.coremod.api.ASMAPI;
-
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
+import net.minecraftforge.coremod.api.ASMAPI;
 
 public class EyePositionTransformer implements ITransformer<ClassNode>
 {
@@ -35,6 +35,13 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 	private static final String FIELD_Y = ASMAPI.mapField("f_46014_");
 	private static final String FIELD_Z = ASMAPI.mapField("f_46015_");
 
+	private final Set<Target> targets;
+
+	public EyePositionTransformer(Set<String> classNames)
+	{
+	    this.targets = classNames.stream().map(Target::targetClass).collect(Collectors.toSet());
+	}
+	
 	private enum Axis
 	{
 		X, Y, Z
@@ -56,7 +63,7 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 
 		if(total > 0)
 		{
-			LOGGER.debug("[SolomonLib/Coremod] EyePos {} — {} site(s) patched", classNode.name, total);
+			LOGGER.info("[SolomonLib/Coremod] EyePos {} — {} site(s) patched", classNode.name, total);
 		}
 
 		return classNode;
@@ -71,7 +78,7 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 	@Override
 	public Set<Target> targets()
 	{
-		return Set.of();
+	    return this.targets;
 	}
 
 	private int scanAndPatch(MethodNode method, ClassNode classNode)
@@ -151,7 +158,7 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 
 		method.instructions.set(m, new MethodInsnNode(Opcodes.INVOKESTATIC, BRIDGE, helper, BRIDGE_DESC, false));
 
-		LOGGER.debug("[SolomonLib/Coremod] EyePos patched {} in {}.{}{}", helper, owner, method.name, method.desc);
+		LOGGER.info("[SolomonLib/Coremod] EyePos patched {} in {}.{}{}", helper, owner, method.name, method.desc);
 		return 1;
 	}
 

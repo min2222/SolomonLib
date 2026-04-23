@@ -22,6 +22,7 @@ public class FallingBlockGravityTransformer implements ITransformer<ClassNode>
 {
 	private static final Logger LOGGER = LogManager.getLogger("SolomonLib/Coremod");
 
+	private static final String TARGET_CLASS  = "net.minecraft.world.entity.item.FallingBlockEntity";
 	private static final String TARGET_INTERNAL = "net/minecraft/world/entity/item/FallingBlockEntity";
 	private static final String VEC3_INTERNAL = "net/minecraft/world/phys/Vec3";
 	private static final String BRIDGE = "com/min01/solomonlib/gravity/GravityAPIBridge";
@@ -42,9 +43,9 @@ public class FallingBlockGravityTransformer implements ITransformer<ClassNode>
 			{
 				continue;
 			}
-			if(patchTick(method))
+			if(this.patchTick(method))
 			{
-				LOGGER.debug("[SolomonLib/Coremod] FallingBlockGravity OK {}", classNode.name);
+				LOGGER.info("[SolomonLib/Coremod] FallingBlockGravity OK {}", classNode.name);
 			}
 			else
 			{
@@ -61,18 +62,12 @@ public class FallingBlockGravityTransformer implements ITransformer<ClassNode>
 		while(cur != null)
 		{
 			AbstractInsnNode next = cur.getNext();
-			if(cur instanceof MethodInsnNode m
-					&& m.getOpcode() == Opcodes.INVOKEVIRTUAL
-					&& VEC3_INTERNAL.equals(m.owner)
-					&& VEC3_ADD.equals(m.name)
-					&& "(DDD)Lnet/minecraft/world/phys/Vec3;".equals(m.desc))
+			if(cur instanceof MethodInsnNode m && m.getOpcode() == Opcodes.INVOKEVIRTUAL && VEC3_INTERNAL.equals(m.owner) && VEC3_ADD.equals(m.name) && "(DDD)Lnet/minecraft/world/phys/Vec3;".equals(m.desc))
 			{
 				method.instructions.insertBefore(m, new VarInsnNode(Opcodes.ALOAD, 0));
-				MethodInsnNode bridgeCall = new MethodInsnNode(
-					Opcodes.INVOKESTATIC, BRIDGE, "addWithGravity", BRIDGE_DESC, false);
+				MethodInsnNode bridgeCall = new MethodInsnNode(Opcodes.INVOKESTATIC, BRIDGE, "addWithGravity", BRIDGE_DESC, false);
 				method.instructions.set(m, bridgeCall);
-				method.instructions.insertBefore(bridgeCall.getNext(),
-					new TypeInsnNode(Opcodes.CHECKCAST, VEC3_INTERNAL));
+				method.instructions.insertBefore(bridgeCall.getNext(), new TypeInsnNode(Opcodes.CHECKCAST, VEC3_INTERNAL));
 				return true;
 			}
 			cur = next;
@@ -89,6 +84,6 @@ public class FallingBlockGravityTransformer implements ITransformer<ClassNode>
 	@Override
 	public Set<Target> targets()
 	{
-		return Set.of(Target.targetClass(TARGET_INTERNAL));
+	    return Set.of(Target.targetClass(TARGET_CLASS));
 	}
 }

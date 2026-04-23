@@ -256,6 +256,11 @@ tasks.register('coreJar', Jar) {
     archiveVersion.set(project.version)
     from sourceSets.core.output
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+   	manifest {
+        attributes([
+                'FMLModType': 'LIBRARY'
+        ])
+    }
     dependsOn sourceSets.core.compileJavaTaskName, sourceSets.core.processResourcesTaskName
 }
 
