@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import com.bawnorton.mixinsquared.MixinSquaredBootstrap;
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 
+import io.github.mincl.mixinglobal.bootstrap.GlobalMixinBootstrap;
 import net.minecraftforge.fml.loading.LoadingModList;
 
 public class SolomonMixinPlugin implements IMixinConfigPlugin
@@ -19,6 +20,7 @@ public class SolomonMixinPlugin implements IMixinConfigPlugin
     {
         MixinExtrasBootstrap.init();
         MixinSquaredBootstrap.init();
+        GlobalMixinBootstrap.init();
     }
 
 	@Override
