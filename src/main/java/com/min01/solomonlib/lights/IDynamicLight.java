@@ -26,13 +26,13 @@ public interface IDynamicLight
 
 	Level getDynamicLightLevel();
 
-	default boolean isDynamicLightEnabled()
+	default boolean solomonlib$isDynamicLightEnabled()
 	{
 		return DynamicLights.get().containsLightSource(this);
 	}
 	
 	@ApiStatus.Internal
-	default void setDynamicSolomonLightEnabled(boolean enabled)
+	default void solomonlib$setDynamicLightEnabled(boolean enabled)
 	{
 		this.resetDynamicLight();
 		if(enabled)

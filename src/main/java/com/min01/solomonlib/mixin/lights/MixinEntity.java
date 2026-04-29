@@ -83,7 +83,7 @@ public abstract class MixinEntity implements IDynamicLight
 		}
 		if(self.isRemoved())
 		{
-			this.setDynamicSolomonLightEnabled(false);
+			this.solomonlib$setDynamicLightEnabled(false);
 		}
 		else
 		{
@@ -98,7 +98,7 @@ public abstract class MixinEntity implements IDynamicLight
 		Entity self = Entity.class.cast(this);
 		if(self.level().isClientSide())
 		{
-			this.setDynamicSolomonLightEnabled(false);
+			this.solomonlib$setDynamicLightEnabled(false);
 		}
 	}
 

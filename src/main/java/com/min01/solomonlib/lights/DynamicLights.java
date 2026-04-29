@@ -87,15 +87,15 @@ public class DynamicLights
 
 	public static void updateTracking(@NotNull IDynamicLight lightSource)
 	{
-		boolean enabled = lightSource.isDynamicLightEnabled();
+		boolean enabled = lightSource.solomonlib$isDynamicLightEnabled();
 		int luminance = lightSource.getLuminance();
 		if(!enabled && luminance > 0)
 		{
-			lightSource.setDynamicSolomonLightEnabled(true);
+			lightSource.solomonlib$setDynamicLightEnabled(true);
 		}
 		else if(enabled && luminance < 1)
 		{
-			lightSource.setDynamicSolomonLightEnabled(false);
+			lightSource.solomonlib$setDynamicLightEnabled(false);
 		}
 	}
 

@@ -19,12 +19,15 @@ public class EyePositionPatcher implements ClassNodePatcher
 	private static final String GRAVITY_API = "com/min01/solomonlib/gravity/GravityAPI";
 	private static final String ENTITY_DESC = "(Lnet/minecraft/world/entity/Entity;)D";
 
-	private static final String GET_X = ASMAPI.mapMethod("m_20185_");
-	private static final String GET_Y = ASMAPI.mapMethod("m_20186_");
-	private static final String GET_Z = ASMAPI.mapMethod("m_20189_");
-	private static final String FIELD_X = ASMAPI.mapField("f_46013_");
-	private static final String FIELD_Y = ASMAPI.mapField("f_46014_");
-	private static final String FIELD_Z = ASMAPI.mapField("f_46015_");
+	private static final class Names
+	{
+		static final String GET_X = ASMAPI.mapMethod("m_20185_");
+		static final String GET_Y = ASMAPI.mapMethod("m_20186_");
+		static final String GET_Z = ASMAPI.mapMethod("m_20189_");
+		static final String FIELD_X = ASMAPI.mapField("f_46013_");
+		static final String FIELD_Y = ASMAPI.mapField("f_46014_");
+		static final String FIELD_Z = ASMAPI.mapField("f_46015_");
+	}
 
 	private enum Axis
 	{
@@ -333,15 +336,15 @@ public class EyePositionPatcher implements ClassNodePatcher
 
 	private Axis axisOf(String methodName)
 	{
-		if(GET_X.equals(methodName))
+		if(Names.GET_X.equals(methodName))
 		{
 			return Axis.X;
 		}
-		if(GET_Y.equals(methodName))
+		if(Names.GET_Y.equals(methodName))
 		{
 			return Axis.Y;
 		}
-		if(GET_Z.equals(methodName))
+		if(Names.GET_Z.equals(methodName))
 		{
 			return Axis.Z;
 		}
@@ -350,15 +353,15 @@ public class EyePositionPatcher implements ClassNodePatcher
 
 	private Axis axisOfField(String fieldName)
 	{
-		if(FIELD_X.equals(fieldName))
+		if(Names.FIELD_X.equals(fieldName))
 		{
 			return Axis.X;
 		}
-		if(FIELD_Y.equals(fieldName))
+		if(Names.FIELD_Y.equals(fieldName))
 		{
 			return Axis.Y;
 		}
-		if(FIELD_Z.equals(fieldName))
+		if(Names.FIELD_Z.equals(fieldName))
 		{
 			return Axis.Z;
 		}

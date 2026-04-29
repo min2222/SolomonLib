@@ -16,8 +16,12 @@ public class FallingBlockGravityPatcher implements ClassNodePatcher
 	private static final String VEC3_INTERNAL = "net/minecraft/world/phys/Vec3";
 	private static final String GRAVITY_API = "com/min01/solomonlib/gravity/GravityAPI";
 	private static final String ADD_WITH_GRAVITY_DESC = "(Lnet/minecraft/world/phys/Vec3;DDDLnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/Vec3;";
-	private static final String VEC3_ADD = ASMAPI.mapMethod("m_82520_");
-	private static final String TICK_NAME = ASMAPI.mapMethod("m_8119_");
+
+	private static final class Names
+	{
+		static final String VEC3_ADD = ASMAPI.mapMethod("m_82520_");
+		static final String TICK_NAME = ASMAPI.mapMethod("m_8119_");
+	}
 
 	@Override
 	public int patch(ClassNode classNode)
@@ -28,7 +32,7 @@ public class FallingBlockGravityPatcher implements ClassNodePatcher
 		}
 		for(MethodNode method : classNode.methods)
 		{
-			if(!"()V".equals(method.desc) || !TICK_NAME.equals(method.name))
+			if(!"()V".equals(method.desc) || !Names.TICK_NAME.equals(method.name))
 			{
 				continue;
 			}
@@ -43,7 +47,7 @@ public class FallingBlockGravityPatcher implements ClassNodePatcher
 		while(cur != null)
 		{
 			AbstractInsnNode next = cur.getNext();
-			if(cur instanceof MethodInsnNode m && m.getOpcode() == Opcodes.INVOKEVIRTUAL && VEC3_INTERNAL.equals(m.owner) && VEC3_ADD.equals(m.name) && "(DDD)Lnet/minecraft/world/phys/Vec3;".equals(m.desc))
+			if(cur instanceof MethodInsnNode m && m.getOpcode() == Opcodes.INVOKEVIRTUAL && VEC3_INTERNAL.equals(m.owner) && Names.VEC3_ADD.equals(m.name) && "(DDD)Lnet/minecraft/world/phys/Vec3;".equals(m.desc))
 			{
 				method.instructions.insertBefore(m, new VarInsnNode(Opcodes.ALOAD, 0));
 				MethodInsnNode bridgeCall = new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "addWithGravity", ADD_WITH_GRAVITY_DESC, false);

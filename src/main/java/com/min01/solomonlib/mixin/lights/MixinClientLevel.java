@@ -34,7 +34,7 @@ public abstract class MixinClientLevel
 		if(entity != null) 
 		{
 			var dls = (IDynamicLight) entity;
-			dls.setDynamicSolomonLightEnabled(false);
+			dls.solomonlib$setDynamicLightEnabled(false);
 		}
 	}
 }

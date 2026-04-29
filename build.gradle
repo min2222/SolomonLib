@@ -36,19 +36,6 @@ mixin {
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-sourceSets {
-    core {
-        java {
-            srcDir 'src/core/java'
-        }
-        resources {
-            srcDir 'src/core/resources'
-        }
-        compileClasspath += sourceSets.main.compileClasspath
-        runtimeClasspath += sourceSets.main.runtimeClasspath
-    }
-}
-
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
@@ -111,7 +98,6 @@ minecraft {
             mods {
                 "${mod_id}" {
                     source sourceSets.main
-                    source sourceSets.core
                 }
             }
         }
@@ -186,10 +172,10 @@ dependencies {
     {
         jarJar.ranged(it, "[0.5.3,)")
     }
-    compileOnly "io.github.mincl:mixin-global:0.1"
-    implementation(jarJar("io.github.mincl:mixin-global:0.1"))
+    compileOnly(annotationProcessor("io.github.mincl:mixin-global:0.2.0"))
+    implementation(jarJar("io.github.mincl:mixin-global:0.2.0")) 
     {
-        jarJar.ranged(it, "[0.1,)")
+        jarJar.ranged(it, "[0.2.0,)")
     }
 	annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 	
@@ -256,24 +242,6 @@ tasks.named('jar', Jar).configure {
     finalizedBy 'reobfJar'
 }
 
-tasks.register('coreJar', Jar) {
-    archiveBaseName = 'solomonlib-core'
-    archiveClassifier.set('')
-    archiveVersion.set(project.version)
-    from sourceSets.core.output
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-   	manifest {
-        attributes([
-                'FMLModType': 'LIBRARY'
-        ])
-    }
-    dependsOn sourceSets.core.compileJavaTaskName, sourceSets.core.processResourcesTaskName
-}
-
-tasks.named('assemble').configure {
-    dependsOn 'coreJar'
-}
-
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing:
 // tasks.named('publish').configure {
 //     dependsOn 'reobfJar'
@@ -284,7 +252,6 @@ publishing {
     publications {
         register('mavenJava', MavenPublication) {
             artifact jar
-            artifact coreJar
         }
     }
     repositories {
@@ -296,11 +263,4 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-}
-
-afterEvaluate {
-    tasks.named('processCoreResources', ProcessResources).configure {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
-    tasks.findByName('addMixinsToCoreJar')?.enabled = false
 }

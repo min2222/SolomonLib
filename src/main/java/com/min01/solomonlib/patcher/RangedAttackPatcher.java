@@ -20,14 +20,17 @@ public class RangedAttackPatcher implements ClassNodePatcher
 	private static final String D_LIVING_DESC = "(DLnet/minecraft/world/entity/LivingEntity;)D";
 	private static final String DELTA_MOVEMENT_DESC = "(Lnet/minecraft/world/entity/LivingEntity;)Lnet/minecraft/world/phys/Vec3;";
 
-	private static final String GET_X = ASMAPI.mapMethod("m_20185_");
-	private static final String GET_Y = ASMAPI.mapMethod("m_20227_");
-	private static final String GET_EYE_Y = ASMAPI.mapMethod("m_20188_");
-	private static final String GET_Z = ASMAPI.mapMethod("m_20189_");
-	private static final String GET_DELTA_MOVEMENT = ASMAPI.mapMethod("m_20184_");
-	private static final String PERFORM_RANGED_ATTACK_0 = ASMAPI.mapMethod("m_6504_");
-	private static final String PERFORM_RANGED_ATTACK_1 = ASMAPI.mapMethod("m_31448_");
-	private static final String PERFORM_RANGED_ATTACK_2 = ASMAPI.mapMethod("m_31457_");
+	private static final class Names
+	{
+		static final String GET_X = ASMAPI.mapMethod("m_20185_");
+		static final String GET_Y = ASMAPI.mapMethod("m_20227_");
+		static final String GET_EYE_Y = ASMAPI.mapMethod("m_20188_");
+		static final String GET_Z = ASMAPI.mapMethod("m_20189_");
+		static final String GET_DELTA_MOVEMENT = ASMAPI.mapMethod("m_20184_");
+		static final String PERFORM_RANGED_ATTACK_0 = ASMAPI.mapMethod("m_6504_");
+		static final String PERFORM_RANGED_ATTACK_1 = ASMAPI.mapMethod("m_31448_");
+		static final String PERFORM_RANGED_ATTACK_2 = ASMAPI.mapMethod("m_31457_");
+	}
 
 	private enum Pattern
 	{
@@ -62,7 +65,7 @@ public class RangedAttackPatcher implements ClassNodePatcher
 
 	private boolean isPerformRangedAttack(String methodName)
 	{
-		return PERFORM_RANGED_ATTACK_0.equals(methodName) || PERFORM_RANGED_ATTACK_1.equals(methodName) || PERFORM_RANGED_ATTACK_2.equals(methodName) || "performRangedAttack".equals(methodName);
+		return Names.PERFORM_RANGED_ATTACK_0.equals(methodName) || Names.PERFORM_RANGED_ATTACK_1.equals(methodName) || Names.PERFORM_RANGED_ATTACK_2.equals(methodName) || "performRangedAttack".equals(methodName);
 	}
 
 	private Pattern detectPattern(MethodNode method)
@@ -120,29 +123,29 @@ public class RangedAttackPatcher implements ClassNodePatcher
 			{
 				if(m.getOpcode() == Opcodes.INVOKEVIRTUAL)
 				{
-					if(!pX && GET_X.equals(m.name) && "()D".equals(m.desc))
+					if(!pX && Names.GET_X.equals(m.name) && "()D".equals(m.desc))
 					{
 						String helper = pattern == Pattern.BODY ? "rangedBodyTargetX" : "rangedEyeTargetX";
 						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, helper, LIVING_DESC, false));
 						pX = true;
 					}
-					else if(!pY && pattern == Pattern.BODY && GET_Y.equals(m.name) && "(D)D".equals(m.desc))
+					else if(!pY && pattern == Pattern.BODY && Names.GET_Y.equals(m.name) && "(D)D".equals(m.desc))
 					{
 						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "rangedBodyTargetY", LIVING_D_DESC, false));
 						pY = true;
 					}
-					else if(!pY && pattern == Pattern.EYE && GET_EYE_Y.equals(m.name) && "()D".equals(m.desc))
+					else if(!pY && pattern == Pattern.EYE && Names.GET_EYE_Y.equals(m.name) && "()D".equals(m.desc))
 					{
 						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "rangedEyeTargetY", LIVING_DESC, false));
 						pY = true;
 					}
-					else if(!pZ && GET_Z.equals(m.name) && "()D".equals(m.desc))
+					else if(!pZ && Names.GET_Z.equals(m.name) && "()D".equals(m.desc))
 					{
 						String helper = pattern == Pattern.BODY ? "rangedBodyTargetZ" : "rangedEyeTargetZ";
 						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, helper, LIVING_DESC, false));
 						pZ = true;
 					}
-					else if(!pDelta && GET_DELTA_MOVEMENT.equals(m.name) && "()Lnet/minecraft/world/phys/Vec3;".equals(m.desc) && isAload1(prevSignificant(list, current)))
+					else if(!pDelta && Names.GET_DELTA_MOVEMENT.equals(m.name) && "()Lnet/minecraft/world/phys/Vec3;".equals(m.desc) && isAload1(prevSignificant(list, current)))
 					{
 						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "deltaMovement", DELTA_MOVEMENT_DESC, false));
 						pDelta = true;
