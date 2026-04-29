@@ -1,11 +1,5 @@
-package com.min01.solomonlib.coremod.transformer;
+package com.min01.solomonlib.patcher;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -14,21 +8,17 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import cpw.mods.modlauncher.api.ITransformer;
-import cpw.mods.modlauncher.api.ITransformerVotingContext;
-import cpw.mods.modlauncher.api.TransformerVoteResult;
 import net.minecraftforge.coremod.api.ASMAPI;
 
-public class RangedAttackTransformer implements ITransformer<ClassNode>
+public class RangedAttackPatcher implements ClassNodePatcher
 {
-	private static final Logger LOGGER = LogManager.getLogger("SolomonLib/Coremod");
-
 	private static final String RANGED_ATTACK_DESC = "(Lnet/minecraft/world/entity/LivingEntity;F)V";
 
-	private static final String BRIDGE = "com/min01/solomonlib/gravity/GravityAPIBridge";
-	private static final String OBJ_DESC = "(Ljava/lang/Object;)D";
-	private static final String OBJ_D_DESC = "(Ljava/lang/Object;D)D";
-	private static final String D_OBJ_DESC = "(DLjava/lang/Object;)D";
+	private static final String GRAVITY_API = "com/min01/solomonlib/gravity/GravityAPI";
+	private static final String LIVING_DESC = "(Lnet/minecraft/world/entity/LivingEntity;)D";
+	private static final String LIVING_D_DESC = "(Lnet/minecraft/world/entity/LivingEntity;D)D";
+	private static final String D_LIVING_DESC = "(DLnet/minecraft/world/entity/LivingEntity;)D";
+	private static final String DELTA_MOVEMENT_DESC = "(Lnet/minecraft/world/entity/LivingEntity;)Lnet/minecraft/world/phys/Vec3;";
 
 	private static final String GET_X = ASMAPI.mapMethod("m_20185_");
 	private static final String GET_Y = ASMAPI.mapMethod("m_20227_");
@@ -39,21 +29,15 @@ public class RangedAttackTransformer implements ITransformer<ClassNode>
 	private static final String PERFORM_RANGED_ATTACK_1 = ASMAPI.mapMethod("m_31448_");
 	private static final String PERFORM_RANGED_ATTACK_2 = ASMAPI.mapMethod("m_31457_");
 
-	private final Set<Target> targets;
-
-	public RangedAttackTransformer(Set<String> classNames)
-	{
-	    this.targets = classNames.stream().map(Target::targetClass).collect(Collectors.toSet());
-	}
-	
 	private enum Pattern
 	{
 		BODY, EYE
 	}
 
 	@Override
-	public ClassNode transform(ClassNode classNode, ITransformerVotingContext context)
+	public int patch(ClassNode classNode)
 	{
+		int total = 0;
 		for(MethodNode method : classNode.methods)
 		{
 			if(!RANGED_ATTACK_DESC.equals(method.desc))
@@ -71,21 +55,9 @@ public class RangedAttackTransformer implements ITransformer<ClassNode>
 				continue;
 			}
 
-			this.applyPatch(method, pattern, classNode.name);
+			total += this.applyPatch(method, pattern);
 		}
-		return classNode;
-	}
-
-	@Override
-	public TransformerVoteResult castVote(ITransformerVotingContext context)
-	{
-		return TransformerVoteResult.YES;
-	}
-
-	@Override
-	public Set<Target> targets()
-	{
-	    return this.targets;
+		return total;
 	}
 
 	private boolean isPerformRangedAttack(String methodName)
@@ -130,7 +102,7 @@ public class RangedAttackTransformer implements ITransformer<ClassNode>
 		return null;
 	}
 
-	private void applyPatch(MethodNode method, Pattern pattern, String owner)
+	private int applyPatch(MethodNode method, Pattern pattern)
 	{
 		boolean pX = false;
 		boolean pY = false;
@@ -151,36 +123,35 @@ public class RangedAttackTransformer implements ITransformer<ClassNode>
 					if(!pX && GET_X.equals(m.name) && "()D".equals(m.desc))
 					{
 						String helper = pattern == Pattern.BODY ? "rangedBodyTargetX" : "rangedEyeTargetX";
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, BRIDGE, helper, OBJ_DESC, false));
+						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, helper, LIVING_DESC, false));
 						pX = true;
 					}
 					else if(!pY && pattern == Pattern.BODY && GET_Y.equals(m.name) && "(D)D".equals(m.desc))
 					{
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, BRIDGE, "rangedBodyTargetY", OBJ_D_DESC, false));
+						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "rangedBodyTargetY", LIVING_D_DESC, false));
 						pY = true;
 					}
-					else if(!pY && pattern == Pattern.EYE
-							&& GET_EYE_Y.equals(m.name) && "()D".equals(m.desc))
+					else if(!pY && pattern == Pattern.EYE && GET_EYE_Y.equals(m.name) && "()D".equals(m.desc))
 					{
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, BRIDGE, "rangedEyeTargetY", OBJ_DESC, false));
+						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "rangedEyeTargetY", LIVING_DESC, false));
 						pY = true;
 					}
 					else if(!pZ && GET_Z.equals(m.name) && "()D".equals(m.desc))
 					{
 						String helper = pattern == Pattern.BODY ? "rangedBodyTargetZ" : "rangedEyeTargetZ";
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, BRIDGE, helper, OBJ_DESC, false));
+						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, helper, LIVING_DESC, false));
 						pZ = true;
 					}
 					else if(!pDelta && GET_DELTA_MOVEMENT.equals(m.name) && "()Lnet/minecraft/world/phys/Vec3;".equals(m.desc) && isAload1(prevSignificant(list, current)))
 					{
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, BRIDGE, "deltaMovement", "(Ljava/lang/Object;)Ljava/lang/Object;", false));
+						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "deltaMovement", DELTA_MOVEMENT_DESC, false));
 						pDelta = true;
 					}
 				}
 				else if(!pSqrt && m.getOpcode() == Opcodes.INVOKESTATIC && "java/lang/Math".equals(m.owner) && "sqrt".equals(m.name) && "(D)D".equals(m.desc))
 				{
 					list.insertBefore(current, new VarInsnNode(Opcodes.ALOAD, 1));
-					list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, BRIDGE, "rangedSqrt", D_OBJ_DESC, false));
+					list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "rangedSqrt", D_LIVING_DESC, false));
 					pSqrt = true;
 				}
 			}
@@ -191,9 +162,7 @@ public class RangedAttackTransformer implements ITransformer<ClassNode>
 			}
 			current = next;
 		}
-
-		boolean ok = pX && pY && pZ && pSqrt;
-		LOGGER.log(ok ? Level.INFO : Level.WARN, "[SolomonLib/Coremod] RangedAttack({}) {} {} (x={},y={},z={},sqrt={},delta={})", pattern, ok ? "OK" : "FAIL", owner, pX, pY, pZ, pSqrt, pDelta);
+		return (pX ? 1 : 0) + (pY ? 1 : 0) + (pZ ? 1 : 0) + (pSqrt ? 1 : 0) + (pDelta ? 1 : 0);
 	}
 
 	private static boolean isAload1(AbstractInsnNode insn)

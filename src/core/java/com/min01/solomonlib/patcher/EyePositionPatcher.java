@@ -1,13 +1,9 @@
-package com.min01.solomonlib.coremod.transformer;
+package com.min01.solomonlib.patcher;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -16,17 +12,12 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import cpw.mods.modlauncher.api.ITransformer;
-import cpw.mods.modlauncher.api.ITransformerVotingContext;
-import cpw.mods.modlauncher.api.TransformerVoteResult;
 import net.minecraftforge.coremod.api.ASMAPI;
 
-public class EyePositionTransformer implements ITransformer<ClassNode>
+public class EyePositionPatcher implements ClassNodePatcher
 {
-	private static final Logger LOGGER = LogManager.getLogger("SolomonLib/Coremod");
-
-	private static final String BRIDGE = "com/min01/solomonlib/gravity/GravityAPIBridge";
-	private static final String BRIDGE_DESC = "(Ljava/lang/Object;)D";
+	private static final String GRAVITY_API = "com/min01/solomonlib/gravity/GravityAPI";
+	private static final String ENTITY_DESC = "(Lnet/minecraft/world/entity/Entity;)D";
 
 	private static final String GET_X = ASMAPI.mapMethod("m_20185_");
 	private static final String GET_Y = ASMAPI.mapMethod("m_20186_");
@@ -35,13 +26,6 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 	private static final String FIELD_Y = ASMAPI.mapField("f_46014_");
 	private static final String FIELD_Z = ASMAPI.mapField("f_46015_");
 
-	private final Set<Target> targets;
-
-	public EyePositionTransformer(Set<String> classNames)
-	{
-	    this.targets = classNames.stream().map(Target::targetClass).collect(Collectors.toSet());
-	}
-	
 	private enum Axis
 	{
 		X, Y, Z
@@ -52,33 +36,25 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 		THIS, OTHER, UNKNOWN
 	}
 
+	private record AxisOrigin(Axis axis, Origin origin)
+	{
+		static final AxisOrigin UNKNOWN = new AxisOrigin(null, Origin.UNKNOWN);
+
+		boolean isKnown()
+		{
+			return origin != Origin.UNKNOWN;
+		}
+	}
+
 	@Override
-	public ClassNode transform(ClassNode classNode, ITransformerVotingContext context)
+	public int patch(ClassNode classNode)
 	{
 		int total = 0;
 		for(MethodNode method : classNode.methods)
 		{
 			total += this.scanAndPatch(method, classNode);
 		}
-
-		if(total > 0)
-		{
-			LOGGER.info("[SolomonLib/Coremod] EyePos {} — {} site(s) patched", classNode.name, total);
-		}
-
-		return classNode;
-	}
-
-	@Override
-	public TransformerVoteResult castVote(ITransformerVotingContext context)
-	{
-		return TransformerVoteResult.YES;
-	}
-
-	@Override
-	public Set<Target> targets()
-	{
-	    return this.targets;
+		return total;
 	}
 
 	private int scanAndPatch(MethodNode method, ClassNode classNode)
@@ -116,19 +92,19 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 			}
 
 			int targetIdx = (aoA.origin == Origin.OTHER) ? producers[0] : producers[1];
-			patches += this.patchSite(method, insns, targetIdx, aoA.axis, classNode.name);
+			patches += this.patchSite(method, insns, targetIdx, aoA.axis);
 		}
 
 		return patches;
 	}
 
-	private int patchSite(MethodNode method, AbstractInsnNode[] insns, int idx, Axis axis, String owner)
+	private int patchSite(MethodNode method, AbstractInsnNode[] insns, int idx, Axis axis)
 	{
 		AbstractInsnNode target = insns[idx];
 
 		if(target instanceof MethodInsnNode m && m.getOpcode() == Opcodes.INVOKEVIRTUAL && "()D".equals(m.desc) && axisOf(m.name) == axis)
 		{
-			return this.replaceGetXYZ(method, m, axis, owner);
+			return this.replaceGetXYZ(method, m, axis);
 		}
 
 		if(target.getOpcode() == Opcodes.DLOAD)
@@ -139,7 +115,7 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 			{
 				if("()D".equals(ms.desc) && axisOf(ms.name) == axis)
 				{
-					return this.replaceGetXYZ(method, ms, axis, owner);
+					return this.replaceGetXYZ(method, ms, axis);
 				}
 			}
 		}
@@ -147,7 +123,7 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 		return 0;
 	}
 
-	private int replaceGetXYZ(MethodNode method, MethodInsnNode m, Axis axis, String owner)
+	private int replaceGetXYZ(MethodNode method, MethodInsnNode m, Axis axis)
 	{
 		String helper = switch(axis)
 		{
@@ -156,20 +132,8 @@ public class EyePositionTransformer implements ITransformer<ClassNode>
 			case Z -> "eyeZ";
 		};
 
-		method.instructions.set(m, new MethodInsnNode(Opcodes.INVOKESTATIC, BRIDGE, helper, BRIDGE_DESC, false));
-
-		LOGGER.info("[SolomonLib/Coremod] EyePos patched {} in {}.{}{}", helper, owner, method.name, method.desc);
+		method.instructions.set(m, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, helper, ENTITY_DESC, false));
 		return 1;
-	}
-
-	private record AxisOrigin(Axis axis, Origin origin)
-	{
-		static final AxisOrigin UNKNOWN = new AxisOrigin(null, Origin.UNKNOWN);
-
-		boolean isKnown()
-		{
-			return origin != Origin.UNKNOWN;
-		}
 	}
 
 	private Map<Integer, AxisOrigin> buildVarOriginMap(AbstractInsnNode[] insns, ClassNode classNode)

@@ -166,6 +166,7 @@ repositories {
     maven { 
     	url = "https://maven.bawnorton.com/releases" 
     }
+    mavenLocal()
 }
 
 dependencies {
@@ -184,6 +185,11 @@ dependencies {
     implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.5.3")) 
     {
         jarJar.ranged(it, "[0.5.3,)")
+    }
+    compileOnly "io.github.mincl:mixin-global:0.1"
+    implementation(jarJar("io.github.mincl:mixin-global:0.1"))
+    {
+        jarJar.ranged(it, "[0.1,)")
     }
 	annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 	
