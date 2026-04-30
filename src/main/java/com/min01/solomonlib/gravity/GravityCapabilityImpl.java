@@ -232,14 +232,14 @@ public class GravityCapabilityImpl implements IGravityCapability
                     }
                 }
                 
-                if(!(this.entity instanceof LivingEntity livingEntity)) 
+                if(!(this.entity instanceof LivingEntity living)) 
                 {
                     return;
                 }
                 
                 for(GravityDirectionMobEffect dirEffect : GravityDirectionMobEffect.EFFECT_MAP.values()) 
                 {
-                    MobEffectInstance effectInstance = livingEntity.getEffect(dirEffect);
+                    MobEffectInstance effectInstance = living.getEffect(dirEffect);
                     if(effectInstance != null)
                     {
                         int amplifier = effectInstance.getAmplifier();
@@ -247,22 +247,16 @@ public class GravityCapabilityImpl implements IGravityCapability
                         this.applyGravityDirectionEffect(dirEffect.gravityDirection, null, amplifier + 1.0);
                     }
                 }
-                if(this.entity instanceof LivingEntity living) 
+                if(living.hasEffect(SolomonMobEffects.INVERT.get())) 
                 {
-                    if(living.hasEffect(SolomonMobEffects.INVERT.get())) 
-                    {
-                        this.applyGravityDirectionEffect(this.getCurrGravityDirection().getOpposite(), null, 5);
-                    }
+                    this.applyGravityDirectionEffect(this.getCurrGravityDirection().getOpposite(), null, 5);
                 }
-                if(this.entity instanceof LivingEntity living)
-                {
-                	SolomonMobEffects.INCREASE.get().apply(living, this);
-                    SolomonMobEffects.DECREASE.get().apply(living, this);
-                    SolomonMobEffects.REVERSE.get().apply(living, this);
-                }
+            	SolomonMobEffects.INCREASE.get().apply(living, this);
+                SolomonMobEffects.DECREASE.get().apply(living, this);
+                SolomonMobEffects.REVERSE.get().apply(living, this);
                 if(this.delayApplyDirEffect != null) 
                 {
-                    applyGravityDirectionEffect(this.delayApplyDirEffect.direction(), this.delayApplyDirEffect.rotationParameters(), this.delayApplyDirEffect.priority());
+                    this.applyGravityDirectionEffect(this.delayApplyDirEffect.direction(), this.delayApplyDirEffect.rotationParameters(), this.delayApplyDirEffect.priority());
                     this.delayApplyDirEffect = null;
                 }
                 this.currGravityStrength *= this.delayApplyStrengthEffect;
