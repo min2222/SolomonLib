@@ -14,20 +14,15 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import net.minecraftforge.coremod.api.ASMAPI;
 
-public class EyePositionPatcher implements ClassNodePatcher
+public class EyePositionPatcher
 {
-	private static final String GRAVITY_API = "com/min01/solomonlib/gravity/GravityAPI";
 	private static final String ENTITY_DESC = "(Lnet/minecraft/world/entity/Entity;)D";
-
-	private static final class Names
-	{
-		static final String GET_X = ASMAPI.mapMethod("m_20185_");
-		static final String GET_Y = ASMAPI.mapMethod("m_20186_");
-		static final String GET_Z = ASMAPI.mapMethod("m_20189_");
-		static final String FIELD_X = ASMAPI.mapField("f_46013_");
-		static final String FIELD_Y = ASMAPI.mapField("f_46014_");
-		static final String FIELD_Z = ASMAPI.mapField("f_46015_");
-	}
+	private static final String GET_X = ASMAPI.mapMethod("m_20185_");
+	private static final String GET_Y = ASMAPI.mapMethod("m_20186_");
+	private static final String GET_Z = ASMAPI.mapMethod("m_20189_");
+	private static final String FIELD_X = ASMAPI.mapField("f_46013_");
+	private static final String FIELD_Y = ASMAPI.mapField("f_46014_");
+	private static final String FIELD_Z = ASMAPI.mapField("f_46015_");
 
 	private enum Axis
 	{
@@ -49,7 +44,6 @@ public class EyePositionPatcher implements ClassNodePatcher
 		}
 	}
 
-	@Override
 	public int patch(ClassNode classNode)
 	{
 		int total = 0;
@@ -62,41 +56,50 @@ public class EyePositionPatcher implements ClassNodePatcher
 
 	private int scanAndPatch(MethodNode method, ClassNode classNode)
 	{
-		AbstractInsnNode[] insns = method.instructions.toArray();
-
-		Map<Integer, AxisOrigin> varOrigins = this.buildVarOriginMap(insns, classNode);
-		AxisOrigin[] produced = this.computeProducedOrigins(insns, varOrigins, classNode);
-
 		int patches = 0;
-
-		for(int i = 0; i < insns.length; i++)
+		boolean progress;
+		do
 		{
-			if(insns[i].getOpcode() != Opcodes.DSUB)
-			{
-				continue;
-			}
+			progress = false;
+			AbstractInsnNode[] insns = method.instructions.toArray();
+			Map<Integer, AxisOrigin> varOrigins = this.buildVarOriginMap(insns, classNode);
+			AxisOrigin[] produced = this.computeProducedOrigins(insns, varOrigins, classNode);
 
-			int[] producers = findDSubProducers(produced, i);
-			if(producers == null)
+			for(int i = 0; i < insns.length; i++)
 			{
-				continue;
-			}
+				if(insns[i].getOpcode() != Opcodes.DSUB)
+				{
+					continue;
+				}
 
-			AxisOrigin aoA = produced[producers[0]];
-			AxisOrigin aoB = produced[producers[1]];
+				int[] producers = findDSubProducers(produced, i);
+				if(producers == null)
+				{
+					continue;
+				}
 
-			if(!isSubtractionPattern(aoA, aoB))
-			{
-				continue;
-			}
-			if(aoA.axis != aoB.axis)
-			{
-				continue;
-			}
+				AxisOrigin aoA = produced[producers[0]];
+				AxisOrigin aoB = produced[producers[1]];
 
-			int targetIdx = (aoA.origin == Origin.OTHER) ? producers[0] : producers[1];
-			patches += this.patchSite(method, insns, targetIdx, aoA.axis);
-		}
+				if(!isSubtractionPattern(aoA, aoB))
+				{
+					continue;
+				}
+				if(aoA.axis != aoB.axis)
+				{
+					continue;
+				}
+
+				int targetIdx = (aoA.origin == Origin.OTHER) ? producers[0] : producers[1];
+				int applied = this.patchSite(method, insns, targetIdx, aoA.axis);
+				if(applied > 0)
+				{
+					patches += applied;
+					progress = true;
+					break;
+				}
+			}
+		} while(progress);
 
 		return patches;
 	}
@@ -128,6 +131,11 @@ public class EyePositionPatcher implements ClassNodePatcher
 
 	private int replaceGetXYZ(MethodNode method, MethodInsnNode m, Axis axis)
 	{
+		if(m.getOpcode() != Opcodes.INVOKEVIRTUAL || !"()D".equals(m.desc))
+		{
+			return 0;
+		}
+
 		String helper = switch(axis)
 		{
 			case X -> "eyeX";
@@ -135,7 +143,7 @@ public class EyePositionPatcher implements ClassNodePatcher
 			case Z -> "eyeZ";
 		};
 
-		method.instructions.set(m, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, helper, ENTITY_DESC, false));
+		method.instructions.set(m, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, helper, ENTITY_DESC, false));
 		return 1;
 	}
 
@@ -336,15 +344,15 @@ public class EyePositionPatcher implements ClassNodePatcher
 
 	private Axis axisOf(String methodName)
 	{
-		if(Names.GET_X.equals(methodName))
+		if(GET_X.equals(methodName))
 		{
 			return Axis.X;
 		}
-		if(Names.GET_Y.equals(methodName))
+		if(GET_Y.equals(methodName))
 		{
 			return Axis.Y;
 		}
-		if(Names.GET_Z.equals(methodName))
+		if(GET_Z.equals(methodName))
 		{
 			return Axis.Z;
 		}
@@ -353,15 +361,15 @@ public class EyePositionPatcher implements ClassNodePatcher
 
 	private Axis axisOfField(String fieldName)
 	{
-		if(Names.FIELD_X.equals(fieldName))
+		if(FIELD_X.equals(fieldName))
 		{
 			return Axis.X;
 		}
-		if(Names.FIELD_Y.equals(fieldName))
+		if(FIELD_Y.equals(fieldName))
 		{
 			return Axis.Y;
 		}
-		if(Names.FIELD_Z.equals(fieldName))
+		if(FIELD_Z.equals(fieldName))
 		{
 			return Axis.Z;
 		}

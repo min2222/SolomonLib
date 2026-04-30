@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -71,13 +70,13 @@ public abstract class PlayerMixin extends LivingEntity
 		return original.call((double) x - rotate.x, (double) y - rotate.y + (1.0D - 0.1D), (double) z - rotate.z);
 	}
 
-	@Redirect(method = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/entity/item/ItemEntity;", ordinal = 0))
-	private ItemEntity redirect_dropItem_new_0(Level world, double x, double y, double z, ItemStack stack) 
+	@WrapOperation(method = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/entity/item/ItemEntity;", ordinal = 0))
+	private ItemEntity wrap_drop_new_ItemEntity(Level world, double x, double y, double z, ItemStack stack, Operation<ItemEntity> original)
 	{
 		Direction gravityDirection = GravityAPI.getGravityDirection((Entity) (Object) this);
 		if(gravityDirection == Direction.DOWN)
 		{
-			return new ItemEntity(world, x, y, z, stack);
+			return original.call(world, x, y, z, stack);
 		}
 
 		Vec3 vec3d = this.getEyePosition().subtract(RotationUtil.vecPlayerToWorld(0.0D, 0.3D, 0.0D, gravityDirection));

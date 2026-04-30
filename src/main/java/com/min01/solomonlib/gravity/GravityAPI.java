@@ -15,6 +15,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.phys.Vec3;
@@ -228,6 +229,31 @@ public class GravityAPI
 		return RotationUtil.vecPlayerToWorld(target.getDeltaMovement(), grav);
 	}
 
+	private static Vec3 projectileSpawnVec(LivingEntity shooter)
+	{
+		Direction g = getGravityDirection(shooter);
+		if(g == Direction.DOWN)
+		{
+			return new Vec3(shooter.getX(), shooter.getEyeY() - 0.1D, shooter.getZ());
+		}
+		return shooter.getEyePosition().subtract(RotationUtil.vecPlayerToWorld(0.0D, 0.1D, 0.0D, g));
+	}
+
+	public static double projectileSpawnX(LivingEntity shooter)
+	{
+		return projectileSpawnVec(shooter).x;
+	}
+
+	public static double projectileSpawnY(LivingEntity shooter)
+	{
+		return projectileSpawnVec(shooter).y;
+	}
+
+	public static double projectileSpawnZ(LivingEntity shooter)
+	{
+		return projectileSpawnVec(shooter).z;
+	}
+
 	public static double rangedBodyTargetX(net.minecraft.world.entity.LivingEntity target)
 	{
 		Direction grav = getGravityDirection(target);
@@ -258,6 +284,8 @@ public class GravityAPI
 		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getBbHeight() * 0.3333333333333333, 0.0, grav)).z;
 	}
 
+	private static final double RANGED_WITCH_EYE_OFFSET = 1.100000023841858D;
+
 	public static double rangedEyeTargetX(net.minecraft.world.entity.LivingEntity target)
 	{
 		Direction grav = getGravityDirection(target);
@@ -265,7 +293,7 @@ public class GravityAPI
 		{
 			return target.getX();
 		}
-		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getEyeHeight() - 1.1, 0.0, grav)).x;
+		return target.position().add(RotationUtil.vecPlayerToWorld(0.0D, target.getEyeHeight() - RANGED_WITCH_EYE_OFFSET, 0.0D, grav)).x;
 	}
 
 	public static double rangedEyeTargetY(net.minecraft.world.entity.LivingEntity target)
@@ -275,7 +303,7 @@ public class GravityAPI
 		{
 			return target.getEyeY();
 		}
-		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getEyeHeight() - 1.1, 0.0, grav)).y + 1.1;
+		return target.position().add(RotationUtil.vecPlayerToWorld(0.0D, target.getEyeHeight() - RANGED_WITCH_EYE_OFFSET, 0.0D, grav)).y + RANGED_WITCH_EYE_OFFSET;
 	}
 
 	public static double rangedEyeTargetZ(net.minecraft.world.entity.LivingEntity target)
@@ -285,7 +313,7 @@ public class GravityAPI
 		{
 			return target.getZ();
 		}
-		return target.position().add(RotationUtil.vecPlayerToWorld(0.0, target.getEyeHeight() - 1.1, 0.0, grav)).z;
+		return target.position().add(RotationUtil.vecPlayerToWorld(0.0D, target.getEyeHeight() - RANGED_WITCH_EYE_OFFSET, 0.0D, grav)).z;
 	}
 
 	public static double rangedSqrt(double value, net.minecraft.world.entity.LivingEntity target)

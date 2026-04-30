@@ -11,12 +11,10 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class GravityStrengthPatcher implements ClassNodePatcher
+public class GravityStrengthPatcher
 {
-	private static final String GRAVITY_API = "com/min01/solomonlib/gravity/GravityAPI";
 	private static final String SCALE_F_DESC = "(FLnet/minecraft/world/entity/Entity;)F";
 
-	@Override
 	public int patch(ClassNode classNode)
 	{
 		for(MethodNode method : classNode.methods)
@@ -51,7 +49,7 @@ public class GravityStrengthPatcher implements ClassNodePatcher
 		{
 			InsnList inject = new InsnList();
 			inject.add(new VarInsnNode(Opcodes.ALOAD, 0));
-			inject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "scaleF", SCALE_F_DESC, false));
+			inject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "scaleF", SCALE_F_DESC, false));
 			list.insertBefore(fret, inject);
 		}
 		return freturns.size();

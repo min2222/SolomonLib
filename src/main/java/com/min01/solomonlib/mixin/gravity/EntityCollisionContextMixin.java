@@ -6,9 +6,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.min01.solomonlib.gravity.RotationUtil;
 
 import net.minecraft.core.BlockPos;
@@ -29,13 +30,13 @@ public abstract class EntityCollisionContextMixin
 	@Final
 	private double entityBottom;
 
-	@Redirect(method = "<init>(Lnet/minecraft/world/entity/Entity;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getY()D", ordinal = 0))
-	private static double redirect_init_getY_0(Entity entity) 
+	@WrapOperation(method = "<init>(Lnet/minecraft/world/entity/Entity;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getY()D", ordinal = 0))
+	private static double wrap_init_getY_0(Entity entity, Operation<Double> original)
 	{
 		Direction gravityDirection = GravityAPI.getGravityDirection(entity);
-		if(gravityDirection == Direction.DOWN) 
+		if(gravityDirection == Direction.DOWN)
 		{
-			return entity.getY();
+			return original.call(entity);
 		}
 
 		return RotationUtil.boxWorldToPlayer(entity.getBoundingBox(), gravityDirection).minY;

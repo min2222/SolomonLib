@@ -68,5 +68,8 @@
 	"injectors": {
 		"defaultRequire": 1
 	},
+	"overwrites": {
+		"requireAnnotations": true
+	},
 	"refmap": "solomonlib.refmap.json"
 }

@@ -4,9 +4,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.min01.solomonlib.gravity.GravityAPI;
 import com.min01.solomonlib.gravity.RotationUtil;
 import com.mojang.authlib.GameProfile;
@@ -30,13 +32,13 @@ public abstract class LocalPlayerEntityMixin extends AbstractClientPlayer
 	@Shadow
 	protected abstract boolean suffocatesAt(BlockPos pos);
 
-	@Redirect(method = "Lnet/minecraft/client/player/LocalPlayer;suffocatesAt(Lnet/minecraft/core/BlockPos;)Z", at = @At(value = "NEW", target = "(DDDDDD)Lnet/minecraft/world/phys/AABB;", ordinal = 0))
-	private AABB redirect_wouldCollideAt_new_0(double x1, double y1, double z1, double x2, double y2, double z2, BlockPos pos)
+	@WrapOperation(method = "Lnet/minecraft/client/player/LocalPlayer;suffocatesAt(Lnet/minecraft/core/BlockPos;)Z", at = @At(value = "NEW", target = "(DDDDDD)Lnet/minecraft/world/phys/AABB;", ordinal = 0))
+	private AABB wrap_suffocatesAt_new_AABB(double x1, double y1, double z1, double x2, double y2, double z2, Operation<AABB> original, @Local(argsOnly = true) BlockPos pos)
 	{
 		Direction gravityDirection = GravityAPI.getGravityDirection(this);
 		if(gravityDirection == Direction.DOWN)
 		{
-			return new AABB(x1, y1, z1, x2, y2, z2);
+			return original.call(x1, y1, z1, x2, y2, z2);
 		}
 
 		AABB playerBox = this.getBoundingBox();

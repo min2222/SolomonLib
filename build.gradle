@@ -142,6 +142,8 @@ repositories {
     //     dir 'libs'
     // }
 	
+    mavenLocal()
+    
 	maven {
         url "https://cursemaven.com"
         content {
@@ -152,7 +154,6 @@ repositories {
     maven { 
     	url = "https://maven.bawnorton.com/releases" 
     }
-    mavenLocal()
 }
 
 dependencies {
@@ -172,8 +173,8 @@ dependencies {
     {
         jarJar.ranged(it, "[0.5.3,)")
     }
-    compileOnly(annotationProcessor("io.github.mincl:mixin-global:0.2.0"))
-    implementation(jarJar("io.github.mincl:mixin-global:0.2.0")) 
+    minecraftLibrary "io.github.mincl:mixin-global:0.2.0"
+    implementation(jarJar("io.github.mincl:mixin-global:0.2.0"))
     {
         jarJar.ranged(it, "[0.2.0,)")
     }

@@ -10,34 +10,28 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import net.minecraftforge.coremod.api.ASMAPI;
 
-public class RangedAttackPatcher implements ClassNodePatcher
+public class RangedAttackPatcher
 {
 	private static final String RANGED_ATTACK_DESC = "(Lnet/minecraft/world/entity/LivingEntity;F)V";
-
-	private static final String GRAVITY_API = "com/min01/solomonlib/gravity/GravityAPI";
 	private static final String LIVING_DESC = "(Lnet/minecraft/world/entity/LivingEntity;)D";
 	private static final String LIVING_D_DESC = "(Lnet/minecraft/world/entity/LivingEntity;D)D";
 	private static final String D_LIVING_DESC = "(DLnet/minecraft/world/entity/LivingEntity;)D";
 	private static final String DELTA_MOVEMENT_DESC = "(Lnet/minecraft/world/entity/LivingEntity;)Lnet/minecraft/world/phys/Vec3;";
+	private static final String GET_X = ASMAPI.mapMethod("m_20185_");
+	private static final String GET_Z = ASMAPI.mapMethod("m_20189_");
+	private static final String GET_Y = ASMAPI.mapMethod("m_20227_");
+	private static final String GET_EYE_Y = ASMAPI.mapMethod("m_20188_");
+	private static final String GET_DELTA_MOVEMENT = ASMAPI.mapMethod("m_20184_");
+	private static final String PERFORM_RANGED_ATTACK_0 = ASMAPI.mapMethod("m_6504_");
+	private static final String PERFORM_RANGED_ATTACK_1 = ASMAPI.mapMethod("m_31448_");
+	private static final String PERFORM_RANGED_ATTACK_2 = ASMAPI.mapMethod("m_31457_");
 
-	private static final class Names
+	private enum AimMode
 	{
-		static final String GET_X = ASMAPI.mapMethod("m_20185_");
-		static final String GET_Y = ASMAPI.mapMethod("m_20227_");
-		static final String GET_EYE_Y = ASMAPI.mapMethod("m_20188_");
-		static final String GET_Z = ASMAPI.mapMethod("m_20189_");
-		static final String GET_DELTA_MOVEMENT = ASMAPI.mapMethod("m_20184_");
-		static final String PERFORM_RANGED_ATTACK_0 = ASMAPI.mapMethod("m_6504_");
-		static final String PERFORM_RANGED_ATTACK_1 = ASMAPI.mapMethod("m_31448_");
-		static final String PERFORM_RANGED_ATTACK_2 = ASMAPI.mapMethod("m_31457_");
+		BODY,
+		EYE
 	}
 
-	private enum Pattern
-	{
-		BODY, EYE
-	}
-
-	@Override
 	public int patch(ClassNode classNode)
 	{
 		int total = 0;
@@ -51,121 +45,143 @@ public class RangedAttackPatcher implements ClassNodePatcher
 			{
 				continue;
 			}
-
-			Pattern pattern = this.detectPattern(method);
-			if(pattern == null)
+			if(!this.hasRangedAimSqrt(method))
 			{
 				continue;
 			}
-
-			total += this.applyPatch(method, pattern);
+			total += this.applyPatch(method);
 		}
 		return total;
 	}
 
 	private boolean isPerformRangedAttack(String methodName)
 	{
-		return Names.PERFORM_RANGED_ATTACK_0.equals(methodName) || Names.PERFORM_RANGED_ATTACK_1.equals(methodName) || Names.PERFORM_RANGED_ATTACK_2.equals(methodName) || "performRangedAttack".equals(methodName);
+		return PERFORM_RANGED_ATTACK_0.equals(methodName) || PERFORM_RANGED_ATTACK_1.equals(methodName) || PERFORM_RANGED_ATTACK_2.equals(methodName) || "performRangedAttack".equals(methodName);
 	}
 
-	private Pattern detectPattern(MethodNode method)
+	private boolean hasRangedAimSqrt(MethodNode method)
 	{
-		boolean hasGetYD = false;
-		boolean hasVoidD = false;
+		for(AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext())
+		{
+			if(insn instanceof MethodInsnNode m && m.getOpcode() == Opcodes.INVOKESTATIC && "java/lang/Math".equals(m.owner) && "sqrt".equals(m.name) && "(D)D".equals(m.desc))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
-		for(var insn = method.instructions.getFirst(); insn != null; insn = insn.getNext())
+	private AimMode detectAimMode(MethodNode method)
+	{
+		for(AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext())
 		{
 			if(!(insn instanceof MethodInsnNode m))
 			{
 				continue;
 			}
-			if(m.getOpcode() != Opcodes.INVOKEVIRTUAL)
+			int op = m.getOpcode();
+			if(op != Opcodes.INVOKEVIRTUAL && op != Opcodes.INVOKEINTERFACE)
 			{
 				continue;
 			}
-
-			if("(D)D".equals(m.desc))
+			if(GET_Y.equals(m.name) && "(D)D".equals(m.desc))
 			{
-				hasGetYD = true;
-			}
-			if("()D".equals(m.desc))
-			{
-				hasVoidD = true;
+				return AimMode.BODY;
 			}
 		}
-
-		if(hasGetYD)
-		{
-			return Pattern.BODY;
-		}
-		if(hasVoidD)
-		{
-			return Pattern.EYE;
-		}
-		return null;
+		return AimMode.EYE;
 	}
 
-	private int applyPatch(MethodNode method, Pattern pattern)
+	private int applyPatch(MethodNode method)
 	{
-		boolean pX = false;
-		boolean pY = false;
-		boolean pZ = false;
-		boolean pSqrt = false;
-		boolean pDelta = false;
+		AimMode mode = this.detectAimMode(method);
+		int total = 0;
+		int ordX = 0;
+		int ordZ = 0;
+		int ordYScaled = 0;
+		int ordEyeY = 0;
 		InsnList list = method.instructions;
-		var current = list.getFirst();
-
-		while(current != null)
+		for(AbstractInsnNode cur = list.getFirst(); cur != null; cur = cur.getNext())
 		{
-			var next = current.getNext();
-
-			if(current instanceof MethodInsnNode m)
+			if(!(cur instanceof MethodInsnNode m))
 			{
-				if(m.getOpcode() == Opcodes.INVOKEVIRTUAL)
-				{
-					if(!pX && Names.GET_X.equals(m.name) && "()D".equals(m.desc))
-					{
-						String helper = pattern == Pattern.BODY ? "rangedBodyTargetX" : "rangedEyeTargetX";
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, helper, LIVING_DESC, false));
-						pX = true;
-					}
-					else if(!pY && pattern == Pattern.BODY && Names.GET_Y.equals(m.name) && "(D)D".equals(m.desc))
-					{
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "rangedBodyTargetY", LIVING_D_DESC, false));
-						pY = true;
-					}
-					else if(!pY && pattern == Pattern.EYE && Names.GET_EYE_Y.equals(m.name) && "()D".equals(m.desc))
-					{
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "rangedEyeTargetY", LIVING_DESC, false));
-						pY = true;
-					}
-					else if(!pZ && Names.GET_Z.equals(m.name) && "()D".equals(m.desc))
-					{
-						String helper = pattern == Pattern.BODY ? "rangedBodyTargetZ" : "rangedEyeTargetZ";
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, helper, LIVING_DESC, false));
-						pZ = true;
-					}
-					else if(!pDelta && Names.GET_DELTA_MOVEMENT.equals(m.name) && "()Lnet/minecraft/world/phys/Vec3;".equals(m.desc) && isAload1(prevSignificant(list, current)))
-					{
-						list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "deltaMovement", DELTA_MOVEMENT_DESC, false));
-						pDelta = true;
-					}
-				}
-				else if(!pSqrt && m.getOpcode() == Opcodes.INVOKESTATIC && "java/lang/Math".equals(m.owner) && "sqrt".equals(m.name) && "(D)D".equals(m.desc))
-				{
-					list.insertBefore(current, new VarInsnNode(Opcodes.ALOAD, 1));
-					list.set(current, new MethodInsnNode(Opcodes.INVOKESTATIC, GRAVITY_API, "rangedSqrt", D_LIVING_DESC, false));
-					pSqrt = true;
-				}
+				continue;
 			}
-
-			if(pX && pY && pZ && pSqrt)
+			int op = m.getOpcode();
+			if(op != Opcodes.INVOKEVIRTUAL && op != Opcodes.INVOKEINTERFACE)
 			{
-				break;
+				continue;
 			}
-			current = next;
+			if(GET_X.equals(m.name) && "()D".equals(m.desc))
+			{
+				if(ordX++ != 0)
+				{
+					continue;
+				}
+				String helper = mode == AimMode.BODY ? "rangedBodyTargetX" : "rangedEyeTargetX";
+				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, helper, LIVING_DESC, false));
+				total++;
+				continue;
+			}
+			if(GET_Z.equals(m.name) && "()D".equals(m.desc))
+			{
+				if(ordZ++ != 0)
+				{
+					continue;
+				}
+				String helper = mode == AimMode.BODY ? "rangedBodyTargetZ" : "rangedEyeTargetZ";
+				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, helper, LIVING_DESC, false));
+				total++;
+				continue;
+			}
+			if(mode == AimMode.BODY && GET_Y.equals(m.name) && "(D)D".equals(m.desc))
+			{
+				if(ordYScaled++ != 0)
+				{
+					continue;
+				}
+				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedBodyTargetY", LIVING_D_DESC, false));
+				total++;
+				continue;
+			}
+			if(mode == AimMode.EYE && GET_EYE_Y.equals(m.name) && "()D".equals(m.desc))
+			{
+				if(ordEyeY++ != 0)
+				{
+					continue;
+				}
+				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedEyeTargetY", LIVING_DESC, false));
+				total++;
+			}
 		}
-		return (pX ? 1 : 0) + (pY ? 1 : 0) + (pZ ? 1 : 0) + (pSqrt ? 1 : 0) + (pDelta ? 1 : 0);
+
+		total += this.patchSqrtAndDeltaOnce(method);
+		return total;
+	}
+
+	private int patchSqrtAndDeltaOnce(MethodNode method)
+	{
+		int total = 0;
+		InsnList list = method.instructions;
+		for(AbstractInsnNode cur = list.getFirst(); cur != null; cur = cur.getNext())
+		{
+			if(!(cur instanceof MethodInsnNode m))
+			{
+				continue;
+			}
+			if(m.getOpcode() == Opcodes.INVOKEVIRTUAL && GET_DELTA_MOVEMENT.equals(m.name) && "()Lnet/minecraft/world/phys/Vec3;".equals(m.desc) && isAload1(prevSignificant(list, cur)))
+			{
+				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "deltaMovement", DELTA_MOVEMENT_DESC, false));
+				total++;
+			}
+			else if(m.getOpcode() == Opcodes.INVOKESTATIC && "java/lang/Math".equals(m.owner) && "sqrt".equals(m.name) && "(D)D".equals(m.desc))
+			{
+				list.insertBefore(cur, new VarInsnNode(Opcodes.ALOAD, 1));
+				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedSqrt", D_LIVING_DESC, false));
+				total++;
+			}
+		}
+		return total;
 	}
 
 	private static boolean isAload1(AbstractInsnNode insn)

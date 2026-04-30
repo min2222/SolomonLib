@@ -7,9 +7,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.min01.solomonlib.gravity.GravityAPI;
 import com.min01.solomonlib.gravity.RotationAnimation;
 import com.min01.solomonlib.gravity.RotationUtil;
@@ -177,10 +178,10 @@ public abstract class EntityRenderDispatcherMixin
 		return RotationUtil.boxWorldToPlayer(box, gravityDirection);
 	}
 
-	@Redirect(method = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderHitbox(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/entity/Entity;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getViewVector(F)Lnet/minecraft/world/phys/Vec3;", ordinal = 0))
-	private static Vec3 redirectViewVector(Entity instance, float partialTicks) 
+	@WrapOperation(method = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderHitbox(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/entity/Entity;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getViewVector(F)Lnet/minecraft/world/phys/Vec3;", ordinal = 0))
+	private static Vec3 wrap_renderHitbox_getViewVector(Entity instance, float partialTicks, Operation<Vec3> original)
 	{
-		Vec3 viewVector = instance.getViewVector(partialTicks);
+		Vec3 viewVector = original.call(instance, partialTicks);
 		Direction gravityDirection = GravityAPI.getGravityDirection(instance);
 		if(gravityDirection == Direction.DOWN)
 		{
