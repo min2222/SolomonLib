@@ -20,7 +20,7 @@ public class SolomonGlobalClassNodePatcher implements GlobalClassNodePatcher
 	private static final ThreadLocal<Boolean> IN_PATCH = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
 	private static final String[] SKIP_PREFIXES = {
-		"com/min01/solomonlib/patcher/",
+		"com/min01/solomonlib/",
 		"io/github/mincl/mixinglobal/",
 		"org/spongepowered/",
 		"com/llamalad7/mixinextras/",
