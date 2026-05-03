@@ -39,8 +39,7 @@ public class MixinEntity
     private Vec3 collide(Vec3 originalMovement) 
     {
         Entity entity = (Entity)(Object)this;
-        float hw = entity.getBbWidth() / 2.0f;
-        AABB aabb = new AABB(entity.getX() - hw, entity.getY(), entity.getZ() - hw, entity.getX() + hw, entity.getY() + entity.getBbHeight(), entity.getZ() + hw);
+        AABB aabb = entity.getBoundingBox();
         List<OrientedBox> obbList = this.getOBBEntityCollisions(entity.level, entity, aabb.expandTowards(originalMovement));
         if(obbList.isEmpty())
         {
@@ -51,36 +50,37 @@ public class MixinEntity
 
     private Vec3 collideWithOrientedBoxes(Vec3 pDeltaMovement, AABB pEntityBB, List<OrientedBox> obbs)
     {
-        if(obbs.isEmpty()) 
+        if(obbs.isEmpty())
         {
             return pDeltaMovement;
         }
 
+        Vec3 mtvSum = Vec3.ZERO;
         for(OrientedBox obb : obbs)
         {
             Vec3 mtv = obb.getDepenetrationVector(pEntityBB);
             if(mtv.lengthSqr() > 1.0E-7)
             {
                 pEntityBB = pEntityBB.move(mtv);
-                pDeltaMovement = pDeltaMovement.add(mtv);
+                mtvSum = mtvSum.add(mtv);
             }
         }
 
         double d0 = pDeltaMovement.x;
         double d1 = pDeltaMovement.y;
         double d2 = pDeltaMovement.z;
-        
-        if(d1 != 0.0D) 
+
+        if(d1 != 0.0D)
         {
         	d1 = OrientedBox.collide(Direction.Axis.Y, pEntityBB, obbs, d1);
-        	if(d1 != 0.0D) 
+        	if(d1 != 0.0D)
         	{
         		pEntityBB = pEntityBB.move(0.0D, d1, 0.0D);
         	}
         }
 
         boolean flag = Math.abs(d0) < Math.abs(d2);
-        if(flag && d2 != 0.0D) 
+        if(flag && d2 != 0.0D)
         {
         	d2 = OrientedBox.collide(Direction.Axis.Z, pEntityBB, obbs, d2);
         	if(d2 != 0.0D)
@@ -89,7 +89,7 @@ public class MixinEntity
         	}
         }
 
-        if(d0 != 0.0D) 
+        if(d0 != 0.0D)
         {
         	d0 = OrientedBox.collide(Direction.Axis.X, pEntityBB, obbs, d0);
         	if(!flag && d0 != 0.0D)
@@ -98,12 +98,12 @@ public class MixinEntity
         	}
         }
 
-        if(!flag && d2 != 0.0D) 
+        if(!flag && d2 != 0.0D)
         {
         	d2 = OrientedBox.collide(Direction.Axis.Z, pEntityBB, obbs, d2);
         }
 
-        return new Vec3(d0, d1, d2);
+        return new Vec3(d0, d1, d2).add(mtvSum);
     }
     
     private List<OrientedBox> getOBBEntityCollisions(Level level, @Nullable Entity pEntity, AABB pCollisionBox) 
