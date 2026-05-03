@@ -221,7 +221,7 @@ public class EntityPartBuilder<T extends Entity & IMultipart>
         HierarchicalModel<T> model = SolomonClientUtil.getModelFromEntity(this.entity);
         String name = this.getModelPartName(model.root(), part);
         boolean isCollide = this.entity.getCollidePart().contains(name) || collide;
-        boolean isIgnore  = this.entity.getIgnorePart().contains(name);
+        boolean isIgnore = this.entity.getIgnorePart().contains(name);
         boolean flag = (this.entity.skipInvisiblePart() ? part.visible : true) && !isIgnore;
 
         EntityBounds.EntityPartInfoBuilder pivotInfo = builder.add(name);
