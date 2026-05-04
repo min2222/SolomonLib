@@ -144,7 +144,7 @@ public class RangedAttackPatcher
 				{
 					continue;
 				}
-				this.replaceVirtualWithGuardedStatic(list, m, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedBodyTargetY", LIVING_D_DESC, false));
+				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedBodyTargetY", LIVING_D_DESC, false));
 				total++;
 				continue;
 			}
