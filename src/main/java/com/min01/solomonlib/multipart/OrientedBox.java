@@ -3,26 +3,11 @@ package com.min01.solomonlib.multipart;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class OrientedBox
 {
-    private static final double SWEEP_SURFACE_EPS_MIN = 2.0E-5D;
-
-    private static final double SWEEP_SURFACE_EPS_MAX = 1.2E-3D;
-
-    private static final double SWEEP_VOLUME_SLOP_MIN = 4.0E-4D;
-
-    private static final double SWEEP_VOLUME_SLOP_MAX = 1.2E-2D;
-
-    private static final double SWEEP_RELATIVE_TOL_MIN = 1.0E-5D;
-
-    private static final double SWEEP_RELATIVE_TOL_MAX = 4.0E-4D;
-
-    private static final double SWEEP_SEPARATION_EPS = 1.0E-7D;
-
     private final Vec3 center;
     private final Vec3 halfExtents;
     private final QuaternionD rotation;
@@ -176,12 +161,12 @@ public class OrientedBox
             new Vec3(box.maxX, box.maxY, box.maxZ)
         };
     }
-
+    
     public static double collide(Direction.Axis pMovementAxis, AABB pCollisionBox, Iterable<OrientedBox> pPossibleHits, double pDesiredOffset)
     {
-        for(OrientedBox obb : pPossibleHits)
+        for(OrientedBox obb : pPossibleHits) 
         {
-        	if(Math.abs(pDesiredOffset) < 1.0E-7D)
+        	if(Math.abs(pDesiredOffset) < 1.0E-7D) 
         	{
         		return 0.0D;
         	}
@@ -189,10 +174,15 @@ public class OrientedBox
         }
         return pDesiredOffset;
     }
-
-    public double collide(Direction.Axis axis, AABB aabb, double desiredMove)
+    
+    public double collide(Direction.Axis axis, AABB aabb, double desiredMove) 
     {
-        if(Math.abs(desiredMove) < 1.0E-7D)
+        if(Math.abs(desiredMove) < 1.0E-7D) 
+        {
+            return 0.0D;
+        }
+        
+        if(this.intersects(aabb)) 
         {
             return 0.0D;
         }
@@ -205,33 +195,27 @@ public class OrientedBox
         double az = axis == Direction.Axis.Z ? sign : 0.0;
 
         AABB finalMovedAABB = aabb.move(ax * abs, ay * abs, az * abs);
-        if(!this.intersects(finalMovedAABB))
+        if(!this.intersects(finalMovedAABB)) 
         {
             return desiredMove;
         }
 
-        double minSide = minimumSideLength(aabb);
-        double surfaceEps = sweepSurfaceEpsilonFor(minSide);
-        double volumeSlop = sweepVolumeSlopFor(minSide);
-        double relativePenetrationTol = sweepRelativeToleranceFor(minSide);
-
-        AABB sweepAabb = sweepQueryBounds(axis, sign, aabb, surfaceEps);
-        Vec3[] baseVerts = getVertices(sweepAabb);
+        Vec3[] baseVerts = getVertices(aabb);
 
         double low = 0.0;
         double high = abs;
 
-        for(int i = 0; i < 24; i++)
+        for(int i = 0; i < 10; i++)
         {
             double mid = (low + high) / 2.0;
-            if(mid == low || mid == high)
+            if(mid == low || mid == high) 
             {
                 break;
             }
-            if(this.sweepTranslationBlocked(baseVerts, ax * mid, ay * mid, az * mid, volumeSlop, relativePenetrationTol))
+            if(this.intersectsTranslated(baseVerts, ax * mid, ay * mid, az * mid)) 
             {
                 high = mid;
-            }
+            } 
             else
             {
                 low = mid;
@@ -241,72 +225,7 @@ public class OrientedBox
         return low * sign;
     }
 
-    private static double minimumSideLength(AABB aabb)
-    {
-        double d0 = Math.max(aabb.getXsize(), 1.0E-6D);
-        double d1 = Math.max(aabb.getYsize(), 1.0E-6D);
-        double d2 = Math.max(aabb.getZsize(), 1.0E-6D);
-        return Math.min(Math.min(d0, d1), d2);
-    }
-
-    private static double sweepSurfaceEpsilonFor(double minSide)
-    {
-        return Mth.clamp(minSide * 0.0018D, SWEEP_SURFACE_EPS_MIN, SWEEP_SURFACE_EPS_MAX);
-    }
-
-    private static double sweepVolumeSlopFor(double minSide)
-    {
-        return Mth.clamp(minSide * 0.012D, SWEEP_VOLUME_SLOP_MIN, SWEEP_VOLUME_SLOP_MAX);
-    }
-
-    private static double sweepRelativeToleranceFor(double minSide)
-    {
-        return Mth.clamp(minSide * 8.0E-4D, SWEEP_RELATIVE_TOL_MIN, SWEEP_RELATIVE_TOL_MAX);
-    }
-
-    private static AABB sweepQueryBounds(Direction.Axis axis, double sign, AABB aabb, double surfaceEpsilon)
-    {
-        if(Math.abs(sign) < 1.0E-9D)
-        {
-            return aabb;
-        }
-        AABB q = switch(axis)
-        {
-            case X -> sign > 0.0D ? aabb.contract(-surfaceEpsilon, 0.0D, 0.0D) : aabb.contract(surfaceEpsilon, 0.0D, 0.0D);
-            case Y -> sign > 0.0D ? aabb.contract(0.0D, -surfaceEpsilon, 0.0D) : aabb.contract(0.0D, surfaceEpsilon, 0.0D);
-            case Z -> sign > 0.0D ? aabb.contract(0.0D, 0.0D, -surfaceEpsilon) : aabb.contract(0.0D, 0.0D, surfaceEpsilon);
-        };
-        if(q.minX < q.maxX && q.minY < q.maxY && q.minZ < q.maxZ)
-        {
-            return q;
-        }
-        return aabb;
-    }
-
-    private boolean sweepTranslationBlocked(Vec3[] baseVerts, double dx, double dy, double dz, double volumeSlop, double relativeTol)
-    {
-        double pen0 = this.minNormalizedOverlapTranslated(baseVerts, 0.0D, 0.0D, 0.0D);
-        double pen1 = this.minNormalizedOverlapTranslated(baseVerts, dx, dy, dz);
-
-        if(pen1 < -SWEEP_SEPARATION_EPS)
-        {
-            return false;
-        }
-
-        if(pen0 < -SWEEP_SEPARATION_EPS)
-        {
-            return pen1 > volumeSlop;
-        }
-
-        if(pen1 <= pen0 + relativeTol)
-        {
-            return false;
-        }
-
-        return pen1 > volumeSlop;
-    }
-
-    private double minNormalizedOverlapTranslated(Vec3[] baseVerts, double dx, double dy, double dz)
+    private boolean intersectsTranslated(Vec3[] baseVerts, double dx, double dy, double dz)
     {
         if(this.vertices == null)
         {
@@ -315,87 +234,54 @@ public class OrientedBox
         Vec3[] v1 = this.vertices;
         Vec3[] normals1 = this.getBasis();
 
-        double minO = Double.MAX_VALUE;
-
-        for(Vec3 axis : normals1)
+        for(Vec3 n : normals1)
         {
-            double lenSq = axis.lengthSqr();
-            if(lenSq < 1.0E-18)
-            {
-                continue;
-            }
-            Vec3 n = axis.normalize();
-            double o = overlapOnAxisTranslated(n, v1, baseVerts, dx, dy, dz);
-            if(o < -SWEEP_SEPARATION_EPS)
-            {
-                return -1.0D;
-            }
-            minO = Math.min(minO, o);
+            if(!satTranslated(n.x, n.y, n.z, v1, baseVerts, dx, dy, dz)) 
+            	return false;
         }
-
-        for(Vec3 n : Matrix3d.IDENTITY_BASIS)
-        {
-            double o = overlapOnAxisTranslated(n, v1, baseVerts, dx, dy, dz);
-            if(o < -SWEEP_SEPARATION_EPS)
-            {
-                return -1.0D;
-            }
-            minO = Math.min(minO, o);
-        }
-
+        if(!satTranslated(1, 0, 0, v1, baseVerts, dx, dy, dz)) 
+        	return false;
+        if(!satTranslated(0, 1, 0, v1, baseVerts, dx, dy, dz)) 
+        	return false;
+        if(!satTranslated(0, 0, 1, v1, baseVerts, dx, dy, dz)) 
+        	return false;
         for(Vec3 a : normals1)
         {
-            Vec3[] edges = new Vec3[]
-            {
-                new Vec3(0.0D, a.z, -a.y),
-                new Vec3(-a.z, 0.0D, a.x),
-                new Vec3(a.y, -a.x, 0.0D)
-            };
-            for(Vec3 raw : edges)
-            {
-                double el = raw.lengthSqr();
-                if(el < 1.0E-18)
-                {
-                    continue;
-                }
-                Vec3 n = raw.normalize();
-                double o = overlapOnAxisTranslated(n, v1, baseVerts, dx, dy, dz);
-                if(o < -SWEEP_SEPARATION_EPS)
-                {
-                    return -1.0D;
-                }
-                minO = Math.min(minO, o);
-            }
+            if(!satTranslated(0, a.z, -a.y, v1, baseVerts, dx, dy, dz)) 
+            	return false;
+            if(!satTranslated(-a.z, 0, a.x, v1, baseVerts, dx, dy, dz)) 
+            	return false;
+            if(!satTranslated(a.y, -a.x, 0, v1, baseVerts, dx, dy, dz)) 
+            	return false;
         }
-
-        if(minO >= Double.MAX_VALUE * 0.5D)
-        {
-            return -1.0D;
-        }
-
-        return minO;
+        return true;
     }
 
-    private static double overlapOnAxisTranslated(Vec3 n, Vec3[] v1, Vec3[] v2, double dx, double dy, double dz)
+    private static boolean satTranslated(double nx, double ny, double nz, Vec3[] v1, Vec3[] v2, double dx, double dy, double dz)
     {
+        double lenSq = nx * nx + ny * ny + nz * nz;
+        if(lenSq < 1.0E-9)
+        {
+            return true;
+        }
         double min1 = Double.MAX_VALUE;
         double max1 = -Double.MAX_VALUE;
         for(Vec3 v : v1)
         {
-            double p = v.dot(n);
+            double p = v.x * nx + v.y * ny + v.z * nz;
             if(p < min1) min1 = p;
             if(p > max1) max1 = p;
         }
-        double shift = dx * n.x + dy * n.y + dz * n.z;
+        double shift = dx * nx + dy * ny + dz * nz;
         double min2 = Double.MAX_VALUE;
         double max2 = -Double.MAX_VALUE;
         for(Vec3 v : v2)
         {
-            double p = v.dot(n) + shift;
+            double p = v.x * nx + v.y * ny + v.z * nz + shift;
             if(p < min2) min2 = p;
             if(p > max2) max2 = p;
         }
-        return Math.min(max1, max2) - Math.max(min1, min2);
+        return min1 <= max2 && min2 <= max1;
     }
 
     public Vec3 getDepenetrationVector(AABB other) 
@@ -429,25 +315,21 @@ public class OrientedBox
 
         for(Vec3 axis : axes)
         {
-            double axisLenSq = axis.lengthSqr();
-            if(axisLenSq < 1.0E-18)
-            {
-                continue;
-            }
-            Vec3 n = axis.normalize();
+            if(axis.lengthSqr() < 1.0E-9) 
+            	continue;
 
             double min1 = Double.MAX_VALUE, max1 = -Double.MAX_VALUE;
             for(Vec3 v : obbVerts)
             {
-                double proj = v.dot(n);
+                double proj = v.dot(axis);
                 if(proj < min1) min1 = proj;
                 if(proj > max1) max1 = proj;
             }
 
             double min2 = Double.MAX_VALUE, max2 = -Double.MAX_VALUE;
-            for(Vec3 v : aabbVerts)
+            for(Vec3 v : aabbVerts) 
             {
-                double proj = v.dot(n);
+                double proj = v.dot(axis);
                 if(proj < min2) min2 = proj;
                 if(proj > max2) max2 = proj;
             }
@@ -459,10 +341,10 @@ public class OrientedBox
                 return Vec3.ZERO;
             }
 
-            if(overlap < minOverlap)
+            if(overlap < minOverlap) 
             {
                 minOverlap = overlap;
-                pushAxis = n;
+                pushAxis = axis;
             }
         }
 
@@ -472,7 +354,7 @@ public class OrientedBox
             pushAxis = pushAxis.scale(-1);
         }
 
-        return pushAxis.scale(minOverlap + 1.0E-4);
+        return pushAxis.normalize().scale(minOverlap + 1.0E-4);
     }
     
     public boolean intersects(AABB other)
