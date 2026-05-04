@@ -8,8 +8,13 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import net.minecraftforge.coremod.api.ASMAPI;
@@ -131,7 +136,11 @@ public class EyePositionPatcher
 
 	private int replaceGetXYZ(MethodNode method, MethodInsnNode m, Axis axis)
 	{
-		if(m.getOpcode() != Opcodes.INVOKEVIRTUAL || !"()D".equals(m.desc))
+		if(m.getOpcode() != Opcodes.INVOKEVIRTUAL && m.getOpcode() != Opcodes.INVOKEINTERFACE)
+		{
+			return 0;
+		}
+		if(!"()D".equals(m.desc))
 		{
 			return 0;
 		}
@@ -143,7 +152,19 @@ public class EyePositionPatcher
 			case Z -> "eyeZ";
 		};
 
-		method.instructions.set(m, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, helper, ENTITY_DESC, false));
+		LabelNode lblOrig = new LabelNode();
+		LabelNode lblEnd = new LabelNode();
+		InsnList inject = new InsnList();
+		inject.add(new InsnNode(Opcodes.DUP));
+		inject.add(new TypeInsnNode(Opcodes.INSTANCEOF, PatcherConstants.ENTITY_INTERNAL));
+		inject.add(new JumpInsnNode(Opcodes.IFEQ, lblOrig));
+		inject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, helper, ENTITY_DESC, false));
+		inject.add(new JumpInsnNode(Opcodes.GOTO, lblEnd));
+		inject.add(lblOrig);
+		inject.add(new MethodInsnNode(m.getOpcode(), m.owner, m.name, m.desc, m.itf));
+		inject.add(lblEnd);
+		method.instructions.insertBefore(m, inject);
+		method.instructions.remove(m);
 		return 1;
 	}
 

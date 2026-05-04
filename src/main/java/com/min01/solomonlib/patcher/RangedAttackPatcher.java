@@ -4,8 +4,12 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import net.minecraftforge.coremod.api.ASMAPI;
@@ -119,7 +123,7 @@ public class RangedAttackPatcher
 					continue;
 				}
 				String helper = mode == AimMode.BODY ? "rangedBodyTargetX" : "rangedEyeTargetX";
-				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, helper, LIVING_DESC, false));
+				this.replaceVirtualWithGuardedStatic(list, m, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, helper, LIVING_DESC, false));
 				total++;
 				continue;
 			}
@@ -130,7 +134,7 @@ public class RangedAttackPatcher
 					continue;
 				}
 				String helper = mode == AimMode.BODY ? "rangedBodyTargetZ" : "rangedEyeTargetZ";
-				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, helper, LIVING_DESC, false));
+				this.replaceVirtualWithGuardedStatic(list, m, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, helper, LIVING_DESC, false));
 				total++;
 				continue;
 			}
@@ -140,7 +144,7 @@ public class RangedAttackPatcher
 				{
 					continue;
 				}
-				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedBodyTargetY", LIVING_D_DESC, false));
+				this.replaceVirtualWithGuardedStatic(list, m, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedBodyTargetY", LIVING_D_DESC, false));
 				total++;
 				continue;
 			}
@@ -150,7 +154,7 @@ public class RangedAttackPatcher
 				{
 					continue;
 				}
-				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedEyeTargetY", LIVING_DESC, false));
+				this.replaceVirtualWithGuardedStatic(list, m, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedEyeTargetY", LIVING_DESC, false));
 				total++;
 			}
 		}
@@ -171,17 +175,47 @@ public class RangedAttackPatcher
 			}
 			if(m.getOpcode() == Opcodes.INVOKEVIRTUAL && GET_DELTA_MOVEMENT.equals(m.name) && "()Lnet/minecraft/world/phys/Vec3;".equals(m.desc) && isAload1(prevSignificant(list, cur)))
 			{
-				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "deltaMovement", DELTA_MOVEMENT_DESC, false));
+				this.replaceVirtualWithGuardedStatic(list, m, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "deltaMovement", DELTA_MOVEMENT_DESC, false));
 				total++;
 			}
 			else if(m.getOpcode() == Opcodes.INVOKESTATIC && "java/lang/Math".equals(m.owner) && "sqrt".equals(m.name) && "(D)D".equals(m.desc))
 			{
-				list.insertBefore(cur, new VarInsnNode(Opcodes.ALOAD, 1));
-				list.set(cur, new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedSqrt", D_LIVING_DESC, false));
+				LabelNode lblMath = new LabelNode();
+				LabelNode lblAfter = new LabelNode();
+				InsnList sqrtGuard = new InsnList();
+				sqrtGuard.add(new VarInsnNode(Opcodes.ALOAD, 1));
+				sqrtGuard.add(new InsnNode(Opcodes.DUP));
+				sqrtGuard.add(new TypeInsnNode(Opcodes.INSTANCEOF, PatcherConstants.ENTITY_INTERNAL));
+				sqrtGuard.add(new JumpInsnNode(Opcodes.IFEQ, lblMath));
+				sqrtGuard.add(new MethodInsnNode(Opcodes.INVOKESTATIC, PatcherConstants.GRAVITY_API, "rangedSqrt", D_LIVING_DESC, false));
+				sqrtGuard.add(new JumpInsnNode(Opcodes.GOTO, lblAfter));
+				sqrtGuard.add(lblMath);
+				sqrtGuard.add(new InsnNode(Opcodes.POP));
+				sqrtGuard.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Math", "sqrt", "(D)D", false));
+				sqrtGuard.add(lblAfter);
+				list.insertBefore(m, sqrtGuard);
+				list.remove(m);
 				total++;
 			}
 		}
 		return total;
+	}
+
+	private void replaceVirtualWithGuardedStatic(InsnList list, MethodInsnNode original, MethodInsnNode staticReplacement)
+	{
+		LabelNode lblOrig = new LabelNode();
+		LabelNode lblEnd = new LabelNode();
+		InsnList inject = new InsnList();
+		inject.add(new InsnNode(Opcodes.DUP));
+		inject.add(new TypeInsnNode(Opcodes.INSTANCEOF, PatcherConstants.ENTITY_INTERNAL));
+		inject.add(new JumpInsnNode(Opcodes.IFEQ, lblOrig));
+		inject.add(staticReplacement);
+		inject.add(new JumpInsnNode(Opcodes.GOTO, lblEnd));
+		inject.add(lblOrig);
+		inject.add(new MethodInsnNode(original.getOpcode(), original.owner, original.name, original.desc, original.itf));
+		inject.add(lblEnd);
+		list.insertBefore(original, inject);
+		list.remove(original);
 	}
 
 	private static boolean isAload1(AbstractInsnNode insn)
