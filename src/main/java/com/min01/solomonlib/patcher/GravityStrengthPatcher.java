@@ -41,11 +41,7 @@ public class GravityStrengthPatcher
 		String name = classNode.name;
 		if(name != null)
 		{
-			if(name.contains("/particles/") || name.contains("/client/particle/"))
-			{
-				return true;
-			}
-			if(name.endsWith("ParticleOptions"))
+			if(name.contains("particle"))
 			{
 				return true;
 			}
