@@ -36,6 +36,7 @@ public class GravityStrengthPatcher
 		return 0;
 	}
 
+	//FIXME should skip any non-entity classes;
 	private static boolean shouldSkipGravityClass(ClassNode classNode)
 	{
 		String name = classNode.name;

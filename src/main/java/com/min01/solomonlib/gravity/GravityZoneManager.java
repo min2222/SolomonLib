@@ -1,7 +1,7 @@
 package com.min01.solomonlib.gravity;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -20,8 +20,8 @@ import net.minecraftforge.network.PacketDistributor;
 
 public class GravityZoneManager
 {
-    private static final Map<ResourceKey<Level>, Map<Long, GravityZone>> SERVER_ZONES = new HashMap<>();
-    private static final Map<ResourceKey<Level>, Map<Long, GravityZone>> CLIENT_ZONES = new HashMap<>();
+    private static final Map<ResourceKey<Level>, Map<Long, GravityZone>> SERVER_ZONES = new ConcurrentHashMap<>();
+    private static final Map<ResourceKey<Level>, Map<Long, GravityZone>> CLIENT_ZONES = new ConcurrentHashMap<>();
 
     @NotNull
     public static GravityZone getZone(Level level, BlockPos pos)
@@ -109,7 +109,7 @@ public class GravityZoneManager
 
     public static void handleSyncPacket(ResourceKey<Level> dimension, ChunkPos chunkPos, GravityZone zone)
     {
-        Map<Long, GravityZone> map = CLIENT_ZONES.computeIfAbsent(dimension, k -> new HashMap<>());
+        Map<Long, GravityZone> map = CLIENT_ZONES.computeIfAbsent(dimension, k -> new ConcurrentHashMap<>());
 
         if(zone.isDefault())
         {
@@ -123,7 +123,7 @@ public class GravityZoneManager
 
     public static void handleBulkSyncPacket(ResourceKey<Level> dimension, Map<Long, GravityZone> zones)
     {
-        CLIENT_ZONES.put(dimension, new HashMap<>(zones));
+        CLIENT_ZONES.put(dimension, new ConcurrentHashMap<>(zones));
     }
 
     public static void onLevelUnload(ResourceKey<Level> dimension, boolean isClientSide)
@@ -153,11 +153,11 @@ public class GravityZoneManager
     private static Map<Long, GravityZone> getMap(Level level)
     {
         Map<ResourceKey<Level>, Map<Long, GravityZone>> root = level.isClientSide() ? CLIENT_ZONES : SERVER_ZONES;
-        return root.computeIfAbsent(level.dimension(), k -> new HashMap<>());
+        return root.computeIfAbsent(level.dimension(), k -> new ConcurrentHashMap<>());
     }
 
     private static Map<Long, GravityZone> getServerMap(ServerLevel level)
     {
-        return SERVER_ZONES.computeIfAbsent(level.dimension(), k -> new HashMap<>());
+        return SERVER_ZONES.computeIfAbsent(level.dimension(), k -> new ConcurrentHashMap<>());
     }
 }
