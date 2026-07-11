@@ -39,7 +39,9 @@ public class GravityStrengthPatcher
 	//FIXME should skip any non-entity classes;
 	private static boolean shouldSkipGravityClass(ClassNode classNode)
 	{
-		String name = classNode.name;
+		//TODO for now, gravity strength isn't important
+		return true;
+		/*String name = classNode.name;
 		if(name != null)
 		{
 			if(name.contains("particle"))
@@ -47,7 +49,7 @@ public class GravityStrengthPatcher
 				return true;
 			}
 		}
-		return "java/lang/Record".equals(classNode.superName);
+		return "java/lang/Record".equals(classNode.superName);*/
 	}
 
 	private int patchGetGravity(MethodNode method)

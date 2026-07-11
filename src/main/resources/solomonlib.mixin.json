@@ -39,7 +39,8 @@
 		"gravity.MixinBlockStateBase",
 		"gravity.MixinForgeHooks",
 		"gravity.MixinServerLevel",
-		"multipart.MixinEntity"
+		"multipart.MixinEntity",
+		"multipart.MixinLevel"
 	],
 	"client": [
 		"compat.EmbeddiumBlockRendererMixin",

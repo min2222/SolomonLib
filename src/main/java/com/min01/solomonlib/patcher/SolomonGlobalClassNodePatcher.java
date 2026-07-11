@@ -60,7 +60,6 @@ public class SolomonGlobalClassNodePatcher implements GlobalClassNodePatcher
 		{
 			return 0;
 		}
-		// Mixin/ModLauncher can revisit the same class; avoid duplicate bytecode edits.
 		if(!PATCHED_CLASSES.add(classNode.name))
 		{
 			return 0;
