@@ -205,7 +205,7 @@ public class EntityPartBuilder
 				
 				Quaterniond rotation = rotMat.getNormalizedRotation(new Quaterniond());
 				
-				consumer.accept(new OBBData(center, halfExtents, rotation, part.visible || this.ignore(pPath), this.collide(pPath), pPath));
+				consumer.accept(new OBBData(center, halfExtents, rotation, part.visible || !this.ignore(pPath), this.collide(pPath), pPath));
 			}
 			String s = pPath + "/";
 			part.children.forEach((name, child) ->
@@ -218,7 +218,11 @@ public class EntityPartBuilder
 	
 	public boolean ignore(String pPath)
 	{
-		return this.ignorePredicate != null && this.ignorePredicate.test(pPath);
+		if(this.ignorePredicate == null)
+		{
+			return true;
+		}
+		return this.ignorePredicate.test(pPath);
 	}
 	
 	public boolean collide(String pPath)
