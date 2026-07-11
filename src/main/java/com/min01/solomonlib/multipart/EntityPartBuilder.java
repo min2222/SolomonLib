@@ -34,7 +34,13 @@ public class EntityPartBuilder
 {
 	public final ObjectArrayList<OBB> obbs = new ObjectArrayList<>();
 	public Predicate<String> collisionPredicate;
+	public Predicate<String> ignorePredicate;
 	public boolean isBuild;
+	
+	public void setIgnorePredicate(Predicate<String> predicate)
+	{
+		this.ignorePredicate = predicate;
+	}
 	
 	public void setCollisionPredicate(Predicate<String> predicate)
 	{
@@ -199,7 +205,7 @@ public class EntityPartBuilder
 				
 				Quaterniond rotation = rotMat.getNormalizedRotation(new Quaterniond());
 				
-				consumer.accept(new OBBData(center, halfExtents, rotation, part.visible, this.collide(pPath), pPath));
+				consumer.accept(new OBBData(center, halfExtents, rotation, part.visible || this.ignore(pPath), this.collide(pPath), pPath));
 			}
 			String s = pPath + "/";
 			part.children.forEach((name, child) ->
@@ -208,6 +214,11 @@ public class EntityPartBuilder
 			});
 			pPoseStack.popPose();
 		}
+	}
+	
+	public boolean ignore(String pPath)
+	{
+		return this.ignorePredicate != null && this.ignorePredicate.test(pPath);
 	}
 	
 	public boolean collide(String pPath)
