@@ -43,7 +43,6 @@ public class MixinEntity
         if(!list.isEmpty()) 
         {
             AABB sweep = new AABB(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
-            //FIXME moving while crouching & moving upward on diagonal face;
             return KaijuC.collide(list, sweep, pVec, KaijuC.FILTER_COLLIDE);
         }
     	return pVec;

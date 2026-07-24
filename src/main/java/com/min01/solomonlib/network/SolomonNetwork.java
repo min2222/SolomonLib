@@ -21,10 +21,6 @@ public class SolomonNetwork
 	public static int ID = 0;
 	public static void registerMessages()
 	{
-		CHANNEL.registerMessage(ID++, UpdateGravityCapabilityPacket.class, UpdateGravityCapabilityPacket::write, UpdateGravityCapabilityPacket::read, UpdateGravityCapabilityPacket::handle);
-		CHANNEL.registerMessage(ID++, UpdateGravitySyncStatePacket.class, UpdateGravitySyncStatePacket::write, UpdateGravitySyncStatePacket::read, UpdateGravitySyncStatePacket::handle);
-		CHANNEL.registerMessage(ID++, GravityZoneSyncPacket.class, GravityZoneSyncPacket::write, GravityZoneSyncPacket::read, GravityZoneSyncPacket::handle);
-		CHANNEL.registerMessage(ID++, GravityZoneBulkSyncPacket.class, GravityZoneBulkSyncPacket::write, GravityZoneBulkSyncPacket::read, GravityZoneBulkSyncPacket::handle);
 		CHANNEL.registerMessage(ID++, AddOBBPacket.class, AddOBBPacket::write, AddOBBPacket::read, AddOBBPacket::handle);
  		CHANNEL.registerMessage(ID++, UpdateOBBPacket.class, UpdateOBBPacket::write, UpdateOBBPacket::read, UpdateOBBPacket::handle);
 	}

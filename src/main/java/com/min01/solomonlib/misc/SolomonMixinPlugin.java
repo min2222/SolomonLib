@@ -10,8 +10,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import com.bawnorton.mixinsquared.MixinSquaredBootstrap;
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 
-import io.github.mincl.mixinglobal.bootstrap.GlobalMixinBootstrap;
-import net.minecraftforge.fml.loading.LoadingModList;
+import io.github.mincl.mixinglobal.bootstrap.MixinGlobalBootstrap;
 
 public class SolomonMixinPlugin implements IMixinConfigPlugin
 {
@@ -20,7 +19,7 @@ public class SolomonMixinPlugin implements IMixinConfigPlugin
     {
         MixinExtrasBootstrap.init();
         MixinSquaredBootstrap.init();
-        GlobalMixinBootstrap.init();
+        MixinGlobalBootstrap.init();
     }
 
 	@Override
@@ -32,14 +31,6 @@ public class SolomonMixinPlugin implements IMixinConfigPlugin
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) 
 	{
-		if(mixinClassName.endsWith("ACEntityMixin"))
-		{
-			return LoadingModList.get().getModFileById("alexscaves") != null;
-		}
-		if(mixinClassName.endsWith("EmbeddiumBlockRendererMixin") || mixinClassName.endsWith("EmbeddiumDefaultChunkRendererMixin"))
-		{
-			return LoadingModList.get().getModFileById("embeddium") != null;
-		}
 		return true;
 	}
 

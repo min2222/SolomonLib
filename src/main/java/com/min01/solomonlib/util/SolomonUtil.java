@@ -3,11 +3,7 @@ package com.min01.solomonlib.util;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import com.min01.solomonlib.gravity.GravityZoneManager;
-
 import io.netty.buffer.ByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -61,19 +57,4 @@ public class SolomonUtil
 		}
 		return null;
 	}
-	
-    public static Direction getBlockGravityDirection(Level level, BlockPos pos)
-    {
-        return GravityZoneManager.getDirection(level, pos);
-    }
-
-    public static Direction getEntityZoneDirection(Entity entity)
-    {
-        return GravityZoneManager.getDirection(entity.level, entity.blockPosition());
-    }
-
-    public static boolean isBlockUpsideDown(Level level, BlockPos pos)
-    {
-        return GravityZoneManager.getDirection(level, pos) == Direction.UP;
-    }
 }

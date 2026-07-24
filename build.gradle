@@ -175,10 +175,10 @@ dependencies {
     {
         jarJar.ranged(it, "[0.5.4,)")
     }
-    minecraftLibrary "io.github.mincl:mixin-global:0.2.0"
-    implementation(jarJar("io.github.mincl:mixin-global:0.2.0"))
+    minecraftLibrary "io.github.mincl:mixin-global:0.2.1"
+    implementation(jarJar("io.github.mincl:mixin-global:0.2.1"))
     {
-        jarJar.ranged(it, "[0.2.0,)")
+        jarJar.ranged(it, "[0.2.1,)")
     }
 	annotationProcessor "org.spongepowered:mixin:0.8.7:processor"
 	
