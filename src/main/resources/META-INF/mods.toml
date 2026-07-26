@@ -39,13 +39,8 @@ authors="min01" #optional
 #displayTest="MATCH_VERSION" # MATCH_VERSION is the default if nothing is specified (#optional)
 
 # The description text for the mod (multi line!) (#mandatory)
-description='''An wise library mod.'''
+description='''A wise library mod.'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-
-[mods."lithium:options"]
-"mixin.math.fast_blockpos"=false
-"mixin.entity.collisions.movement"=false
-
 [[dependencies.solomonlib]] #optional
     # the modid of the dependency
     modId="forge" #mandatory
