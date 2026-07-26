@@ -16,6 +16,6 @@ public class SolomonGlobalPatcherProvider implements GlobalClassNodePatcherProvi
 	public List<GlobalClassNodePatcher> patchers()
 	{
 		LOGGER.info("[SolomonLib/GlobalPatcher] provider loaded");
-		return List.of(new SolomonGlobalClassNodePatcher());
+		return List.of(new SolomonGlobalPatcher());
 	}
 }

@@ -4,7 +4,7 @@ import org.objectweb.asm.tree.ClassNode;
 
 import io.github.mincl.mixinglobal.spi.GlobalClassNodePatcher;
 
-public class SolomonGlobalClassNodePatcher implements GlobalClassNodePatcher
+public class SolomonGlobalPatcher implements GlobalClassNodePatcher
 {
 	@Override
 	public String id()
